@@ -50,3 +50,5 @@ npm start
 # or
 yarn start
 ```
+
+The project will be served on [http://localhost:3000](http://localhost:3000)
