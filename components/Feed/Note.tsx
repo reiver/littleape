@@ -31,11 +31,17 @@ export type NoteFeedProps = {
 export const NoteFeed: FC<NoteFeedProps> = ({ item, ...props }) => {
   return (
     <Card {...props}>
-      <Box display="flex" justifyContent="space-between">
-        <Box display="flex" alignItems="center" experimental_spaceX={2}>
+      <Box display="flex" justifyContent="space-between" flexWrap="nowrap">
+        <Box
+          display="flex"
+          alignItems="center"
+          experimental_spaceX={2}
+          flexGrow={1}
+          maxW="calc(100% - 32px)"
+        >
           <Avatar w={9} h={9} />
-          <Box>
-            <Text fontSize="sm">
+          <Box flexGrow={1}>
+            <Text fontSize="sm" maxWidth="calc(100% - 32px)">
               {typeof item.actor == "string" && item.actor}
             </Text>
             <Text fontSize="xs" opacity={0.5} mt={-1}>

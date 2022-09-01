@@ -19,14 +19,20 @@ export default function Home() {
         gridGap={3}
         mt={1}
       >
-        <Box gridColumn="span 5 / span 5">
+        <Box
+          gridColumn="span 5 / span 5"
+          display={{ base: "none", lg: "block" }}
+        >
           <Box position="sticky" top="70px">
             <ProfileCard />
             <MainMenu mt={3} />
           </Box>
         </Box>
         <Box
-          gridColumn="span 14 / span 14"
+          gridColumn={{
+            base: "span 24 / span 24",
+            lg: "span 14 / span 14",
+          }}
           display="flex"
           flexDirection="column"
           experimental_spaceY={3}

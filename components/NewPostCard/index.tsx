@@ -1,11 +1,13 @@
 import {
   Box,
   BoxProps,
-  chakra,
   Button as ChakraButton,
-  Textarea,
+  ButtonProps,
+  chakra,
   FormControl,
   FormErrorMessage,
+  Text,
+  Textarea,
 } from "@chakra-ui/react";
 import {
   PhotoIcon as HeroIconPhotoIcon,
@@ -25,6 +27,23 @@ import { z } from "zod";
 
 const PhotoIcon = chakra(HeroIconPhotoIcon);
 const VideoIcon = chakra(VideoCameraIcon);
+
+const ActionButton: FC<ButtonProps> = (props) => {
+  return (
+    <ChakraButton
+      _dark={{
+        color: "gray.300",
+        bg: "dark.600",
+        _hover: { bg: "dark.500" },
+      }}
+      size="sm"
+      fontWeight="normal"
+      aria-label="Attach image"
+      experimental_spaceX={2}
+      {...props}
+    />
+  );
+};
 
 const schema = z.object({
   "@context": z.string(),
@@ -75,18 +94,17 @@ export const NewPostCard: FC<BoxProps> = () => {
               bg="light.100"
               _dark={{
                 bg: "dark.500",
-                borderColor: "gray.600",
-              }}
-              _hover={{
-                _dark: {
+                borderColor: "dark.600",
+                _hover: {
+                  borderColor: "dark.400",
+                  bg: "dark.600",
+                },
+                _focus: {
                   bg: "dark.600",
                 },
               }}
               _focus={{
                 ring: "2px",
-                _dark: {
-                  bg: "dark.600",
-                },
                 borderColor: "primary",
               }}
             />
@@ -95,38 +113,28 @@ export const NewPostCard: FC<BoxProps> = () => {
             )}
           </FormControl>
         </Box>
-        <Box display="flex" justifyContent="space-between" mt="4">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          mt="4"
+          experimental_spaceX={4}
+          flexWrap="wrap"
+        >
           <Box pl={12} display="flex" experimental_spaceX={4}>
-            <ChakraButton
-              _dark={{
-                color: "gray.300",
-                bg: "dark.600",
-                _hover: { bg: "dark.500" },
-              }}
-              leftIcon={<PhotoIcon w={4} strokeWidth={1} />}
-              size="sm"
-              fontWeight="normal"
-              aria-label="Attach image"
-            >
-              Photo
-            </ChakraButton>
-            <ChakraButton
-              _dark={{
-                color: "gray.300",
-                bg: "dark.600",
-                _hover: { bg: "dark.500" },
-              }}
-              leftIcon={<VideoIcon w={4} strokeWidth={1} />}
-              size="sm"
-              fontWeight="normal"
-              aria-label="Attach image"
-            >
-              Video
-            </ChakraButton>
+            <ActionButton>
+              <PhotoIcon w={4} strokeWidth={1} />
+              <Text display={{ base: "none", sm: "block" }}>Photo</Text>
+            </ActionButton>
+            <ActionButton>
+              <VideoIcon w={4} strokeWidth={1} />
+              <Text display={{ base: "none", sm: "block" }}>Video</Text>
+            </ActionButton>
           </Box>
-          <Button type="submit" primary size="sm" px={6} isLoading={loading}>
-            Toot!
-          </Button>
+          <Box flexGrow="1" display="flex" justifyContent="flex-end">
+            <Button type="submit" primary size="sm" px={6} isLoading={loading}>
+              Toot!
+            </Button>
+          </Box>
         </Box>
       </Form>
     </Card>

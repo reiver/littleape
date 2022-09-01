@@ -4,6 +4,7 @@ import {
   BoxProps,
   chakra,
   IconButton,
+  IconButtonProps,
   Menu,
   MenuButton,
   MenuItem,
@@ -20,6 +21,27 @@ import { useAuthStore } from "store";
 
 const VideoIcon = chakra(VideoCameraIcon);
 const NotificationIcon = chakra(BellIcon);
+
+const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
+  return (
+    <IconButton
+      rounded="full"
+      aria-label={"video meeting"}
+      minW={8}
+      h={8}
+      p={0}
+      _dark={{
+        bg: "dark.600",
+        color: "gray.300",
+        _hover: {
+          bg: "dark.400",
+          color: "gray.100",
+        },
+      }}
+      {...props}
+    />
+  );
+};
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
@@ -61,40 +83,16 @@ export const Navbar: FC<BoxProps> = (props) => {
           color="primary.600"
         >
           <Logo w="5" strokeWidth="2" />
-          <Text>Greatape</Text>
+          <Text display={{ base: "none", md: "block" }}>Greatape</Text>
         </Box>
         <SearchInput />
         <Box display="flex" experimental_spaceX={3}>
-          <IconButton
-            rounded="full"
-            aria-label={"video meeting"}
-            minW={8}
-            h={8}
-            p={0}
-            _dark={{
-              color: "gray.300",
-              _hover: {
-                color: "gray.100",
-              },
-            }}
-          >
+          <ActionIconButton>
             <NotificationIcon w={4} />
-          </IconButton>
-          <IconButton
-            rounded="full"
-            aria-label={"video meeting"}
-            minW={8}
-            h={8}
-            p={0}
-            _dark={{
-              color: "gray.300",
-              _hover: {
-                color: "gray.100",
-              },
-            }}
-          >
+          </ActionIconButton>
+          <ActionIconButton>
             <VideoIcon w={4} />
-          </IconButton>
+          </ActionIconButton>
           <Menu placement="bottom-end" flip direction="rtl">
             <MenuButton>
               <Avatar w={7} h={7} name={user.display_name} src={user.avatar} />

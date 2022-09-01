@@ -1,6 +1,5 @@
 import {
   AspectRatio,
-  Avatar,
   Box,
   BoxProps,
   Button,
@@ -58,7 +57,19 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         </Text>
       </Box>
       <Box p={2}>
-        <Button w="full" size="sm" fontSize="sm" fontWeight="sm" mt={4}>
+        <Button
+          w="full"
+          size="sm"
+          fontSize="sm"
+          fontWeight="sm"
+          mt={4}
+          _dark={{
+            bg: "dark.500",
+            _active: {
+              bg: "dark.600",
+            },
+          }}
+        >
           My Profile
         </Button>
       </Box>
