@@ -4,7 +4,10 @@ import { FC } from "react";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { Activity, OrderedCollection } from "types/ActivityPub";
-import { NoteFeed } from "./Note";
+import { FeedCard } from "./FeedCard";
+import { NoteFeed as Note } from "./Note";
+
+const feedComponents = { Note };
 
 export const Feed: FC<BoxProps> = (props) => {
   const user = useAuthStore((state) => state.user);
@@ -30,11 +33,13 @@ export const Feed: FC<BoxProps> = (props) => {
       {data &&
         data.orderedItems &&
         (data.orderedItems as Activity[]).map((item) => {
-          const type = item.object.type;
-          switch (type) {
-            case "Note":
-              return <NoteFeed item={item} key={item.id} />;
-          }
+          const Component = feedComponents[item.object.type];
+          if (!Component) return null;
+          return (
+            <FeedCard item={item} key={item.id}>
+              <Component item={item} />
+            </FeedCard>
+          );
         })}
     </Box>
   );
