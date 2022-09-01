@@ -1,5 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
+import { MainMenu } from "components/MainMenu";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { DashboardLayout } from "layouts/Dashboard";
@@ -19,7 +20,10 @@ export default function Home() {
         mt={1}
       >
         <Box gridColumn="span 5 / span 5">
-          <ProfileCard position="sticky" top="70px" />
+          <Box position="sticky" top="70px">
+            <ProfileCard />
+            <MainMenu mt={3} />
+          </Box>
         </Box>
         <Box
           gridColumn="span 14 / span 14"

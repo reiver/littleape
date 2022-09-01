@@ -16,7 +16,17 @@ export const Feed: FC<BoxProps> = (props) => {
       experimental_spaceY={3}
       flexDirection="column"
     >
-      {!data && <Spinner size="sm" />}
+      {!data && (
+        <Box
+          w="full"
+          minH="100px"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Spinner size="sm" />
+        </Box>
+      )}
       {data &&
         data.orderedItems &&
         (data.orderedItems as Activity[]).map((item) => {
