@@ -16,7 +16,7 @@ function App({ Component, pageProps }) {
     <SWRConfig
       value={{
         provider: () => new Map(),
-        fetcher: fetcher,
+        fetcher,
         revalidateOnFocus: false,
         revalidateIfStale: false,
       }}
