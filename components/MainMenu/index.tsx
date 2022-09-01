@@ -1,7 +1,7 @@
 import { Box, BoxProps, ButtonProps, chakra } from "@chakra-ui/react";
 import {
   ChatBubbleBottomCenterTextIcon,
-  SignalIcon,
+  // SignalIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { Button } from "components/Button";
@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import React, { FC } from "react";
 
 const FeedIcon = chakra(Squares2X2Icon);
-const DiscoverIcon = chakra(SignalIcon);
+// const DiscoverIcon = chakra(SignalIcon);
 const MessagesIcon = chakra(ChatBubbleBottomCenterTextIcon);
 
 type MenuItemType = { href: string } & ButtonProps;
@@ -63,9 +63,9 @@ export const MainMenu: FC<BoxProps> = (props) => {
       <MenuItem href="/" leftIcon={<FeedIcon w="4" />}>
         Feed
       </MenuItem>
-      <MenuItem href="/discover" leftIcon={<DiscoverIcon w="4" />}>
+      {/* <MenuItem href="/discover" leftIcon={<DiscoverIcon w="4" />}>
         Discover
-      </MenuItem>
+      </MenuItem> */}
       <MenuItem href="/messages" leftIcon={<MessagesIcon w="4" />}>
         Direct Message
       </MenuItem>
