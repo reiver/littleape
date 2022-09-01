@@ -4,6 +4,8 @@
 
 **littleape**, via **greatape**, is a Fediverse technology that supports Federation via ActivityPub.
 
+### [📺 Live demo](https://greatape.vercel.app/)
+
 ## Details
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
