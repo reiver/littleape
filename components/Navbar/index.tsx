@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   BoxProps,
-  Button,
   chakra,
   IconButton,
   Menu,
@@ -11,7 +10,7 @@ import {
   MenuList,
   Text,
 } from "@chakra-ui/react";
-import { VideoCameraIcon } from "@heroicons/react/24/outline";
+import { BellIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
@@ -19,7 +18,8 @@ import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
 
-const VideoCamera = chakra(VideoCameraIcon);
+const VideoIcon = chakra(VideoCameraIcon);
+const NotificationIcon = chakra(BellIcon);
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
@@ -78,7 +78,22 @@ export const Navbar: FC<BoxProps> = (props) => {
               },
             }}
           >
-            <VideoCamera w={4} />
+            <NotificationIcon w={4} />
+          </IconButton>
+          <IconButton
+            rounded="full"
+            aria-label={"video meeting"}
+            minW={8}
+            h={8}
+            p={0}
+            _dark={{
+              color: "gray.300",
+              _hover: {
+                color: "gray.100",
+              },
+            }}
+          >
+            <VideoIcon w={4} />
           </IconButton>
           <Menu placement="bottom-end" flip direction="rtl">
             <MenuButton>
