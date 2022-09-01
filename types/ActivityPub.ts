@@ -2,7 +2,7 @@ export interface OrderedCollection extends Omit<Collection, "items"> {
   orderedItems: Activity[] | Link[];
 }
 
-export interface Collection extends ActivityObject {
+export interface Collection extends ActivityObject<unknown> {
   totalItems: number;
   current?: CollectionPage | Link;
   first?: CollectionPage | Link;
@@ -11,7 +11,7 @@ export interface Collection extends ActivityObject {
 }
 
 export interface CollectionPage extends Collection {
-  partOf: ActivityObject | Link;
+  partOf: ActivityObject<unknown> | Link;
   next?: CollectionPage | Link;
   prev?: CollectionPage | Link;
 }
@@ -25,58 +25,64 @@ export type Actor =
     }
   | string;
 
-export interface Activity extends Omit<ActivityObject, "type"> {
-  type:
-    | "Accept"
-    | "TentativeAccept"
-    | "Add"
-    | "Arrive"
-    | "Create"
-    | "Delete"
-    | "Follow"
-    | "Ignore"
-    | "Join"
-    | "Leave"
-    | "Like"
-    | "Offer"
-    | "Invite"
-    | "Reject"
-    | "TentativeReject"
-    | "Remove"
-    | "Undo"
-    | "Update"
-    | "View"
-    | "Listen"
-    | "Read"
-    | "Move"
-    | "Travel"
-    | "Announce"
-    | "Block"
-    | "Flag"
-    | "Dislike"
-    | "Question";
+export type ActivityTypes =
+  | "Accept"
+  | "TentativeAccept"
+  | "Add"
+  | "Arrive"
+  | "Create"
+  | "Delete"
+  | "Follow"
+  | "Ignore"
+  | "Join"
+  | "Leave"
+  | "Like"
+  | "Offer"
+  | "Invite"
+  | "Reject"
+  | "TentativeReject"
+  | "Remove"
+  | "Undo"
+  | "Update"
+  | "View"
+  | "Listen"
+  | "Read"
+  | "Move"
+  | "Travel"
+  | "Announce"
+  | "Block"
+  | "Flag"
+  | "Dislike"
+  | "Question";
+export interface Activity<T = ActivityTypes>
+  extends Omit<ActivityObject<ActivityObjectTypes>, "type"> {
+  type: T;
   actor: Actor | Actor[];
-  object: ActivityObject;
-  target: ActivityObject | Link;
-  result: ActivityObject | Link;
-  origin: ActivityObject | Link;
-  instrument: ActivityObject | Link;
+  object: ActivityObject<ActivityObjectTypes>;
+  target: ActivityObject<ActivityObjectTypes> | Link;
+  result: ActivityObject<ActivityObjectTypes> | Link;
+  origin: ActivityObject<ActivityObjectTypes> | Link;
+  instrument: ActivityObject<ActivityObjectTypes> | Link;
 }
 
-export type ActivityObject = {
-  type:
-    | "Article"
-    | "Audio"
-    | "Document"
-    | "Event"
-    | "Image"
-    | "Note"
-    | "Page"
-    | "Place"
-    | "Profile"
-    | "Relationship"
-    | "Tombstone"
-    | "Video";
+export type ActivityObjectTypes =
+  | "Article"
+  | "Audio"
+  | "Document"
+  | "Event"
+  | "Image"
+  | "Note"
+  | "Page"
+  | "Place"
+  | "Profile"
+  | "Relationship"
+  | "Tombstone"
+  | "Video";
+
+export type ActivityObject<
+  T extends ActivityObjectTypes | unknown = ActivityObjectTypes
+> = {
+  type: T;
   id: string;
   attachment: ActivityObject | Link;
   attributedTo: ActivityObject | Link;
@@ -106,10 +112,11 @@ export type ActivityObject = {
   duration: string;
 };
 
-export type Link =
+export type LinkTypes = "Link" | "Mention";
+export type Link<T extends LinkTypes = LinkTypes> =
   | {
       id: string;
-      type: "Link" | "Mention";
+      type: T;
       href: string;
       hreflang: string;
       mediaType: string;

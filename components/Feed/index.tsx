@@ -3,7 +3,7 @@ import { API_OUTBOX } from "constants/API";
 import { FC } from "react";
 import { useAuthStore } from "store";
 import useSWR from "swr";
-import { Activity, OrderedCollection } from "types/Outbox";
+import { Activity, OrderedCollection } from "types/ActivityPub";
 import { NoteFeed } from "./Note";
 
 export const Feed: FC<BoxProps> = (props) => {
@@ -21,7 +21,10 @@ export const Feed: FC<BoxProps> = (props) => {
         data.orderedItems &&
         (data.orderedItems as Activity[]).map((item) => {
           const type = item.object.type;
-          if (type === "Note") return <NoteFeed item={item} />;
+          switch (type) {
+            case "Note":
+              return <NoteFeed item={item} key={item.id} />;
+          }
         })}
     </Box>
   );

@@ -16,7 +16,7 @@ import {
 import { Card } from "components/Card/Index";
 import dayjs from "dayjs";
 import { FC } from "react";
-import { Activity } from "types/Outbox";
+import { Activity } from "types/ActivityPub";
 
 const HeartIcon = chakra(HeroHeartIcon);
 const CommentIcon = chakra(ChatBubbleOvalLeftEllipsisIcon);
