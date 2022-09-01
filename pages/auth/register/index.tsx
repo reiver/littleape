@@ -41,7 +41,7 @@ const Register: FC = () => {
   return (
     <MainLayout>
       <Head>
-        <title>Greateape | Register</title>
+        <title>Greatape | Register</title>
       </Head>
       <Box mx="auto" mt="10" w="full" maxW={"xs"}>
         <Box

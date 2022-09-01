@@ -39,7 +39,7 @@ const Login: FC = () => {
   return (
     <MainLayout>
       <Head>
-        <title>Greateape | Login</title>
+        <title>Greatape | Login</title>
       </Head>
       <Box mx="auto" mt="10" w="full" maxW={"xs"}>
         <Box

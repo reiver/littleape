@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Greateape</title>
+        <title>Greatape</title>
       </Head>
       <DashboardLayout
         display="grid"
