@@ -93,14 +93,14 @@ export const NewPostCard: FC<BoxProps> = () => {
               rows={2}
               bg="light.100"
               _dark={{
-                bg: "dark.500",
+                bg: "dark.800",
                 borderColor: "dark.600",
                 _hover: {
                   borderColor: "dark.400",
-                  bg: "dark.600",
+                  bg: "dark.800",
                 },
                 _focus: {
-                  bg: "dark.600",
+                  bg: "dark.900",
                 },
               }}
               _focus={{
