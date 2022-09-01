@@ -23,7 +23,7 @@ export const withAuth: WithAuthType = (cb) => async (ctx) => {
       const controller = new AbortController();
       setTimeout(() => controller.abort(), 5000);
       user = await fetch(API_PROFILE, {
-        // signal: controller.signal,
+        signal: controller.signal,
         headers: {
           Authorization: `Bearer ${token}`,
         },
