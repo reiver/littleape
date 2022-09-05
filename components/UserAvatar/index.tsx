@@ -1,8 +1,21 @@
 import { Avatar, AvatarProps } from "@chakra-ui/react";
+import Link from "next/link";
 import { FC } from "react";
 import { useAuthStore } from "store";
 
-export const UserAvatar: FC<AvatarProps> = (props) => {
+type UserAvatarType = {
+  link?: boolean;
+} & AvatarProps;
+
+export const UserAvatar: FC<UserAvatarType> = ({ link = true, ...props }) => {
   const user = useAuthStore((state) => state.user);
-  return <Avatar name={user.display_name} src={user.avatar} {...props} />;
+  const avatar = (
+    <Avatar name={user.display_name} src={user.avatar} {...props} />
+  );
+  if (!link) return avatar;
+  return (
+    <Link href={`/u/${user.username}`}>
+      <a>{avatar}</a>
+    </Link>
+  );
 };
