@@ -7,6 +7,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { UserAvatar } from "components/UserAvatar";
+import Link from "next/link";
 import { FC } from "react";
 import { useAuthStore } from "store";
 
@@ -52,26 +53,27 @@ export const ProfileCard: FC<BoxProps> = (props) => {
       </Box>
       <Box textAlign="center" fontSize="sm" mt={4}>
         <Text fontWeight="semibold">{user.display_name || "John Doe"}</Text>
-        <Text fontSize="xs" mt={1}>
-          @{user.username}
-        </Text>
+        <Text fontSize="xs">@{user.username}</Text>
       </Box>
       <Box p={2}>
-        <Button
-          w="full"
-          size="sm"
-          fontSize="sm"
-          fontWeight="sm"
-          mt={4}
-          _dark={{
-            bg: "dark.500",
-            _active: {
-              bg: "dark.600",
-            },
-          }}
-        >
-          My Profile
-        </Button>
+        <Link href={`/u/${user.username}`} passHref>
+          <Button
+            as="a"
+            w="full"
+            size="sm"
+            fontSize="sm"
+            fontWeight="sm"
+            mt={4}
+            _dark={{
+              bg: "dark.500",
+              _active: {
+                bg: "dark.600",
+              },
+            }}
+          >
+            My Profile
+          </Button>
+        </Link>
       </Box>
     </Box>
   );
