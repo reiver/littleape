@@ -4,7 +4,14 @@ import { Footer } from "components/Footer";
 import { Navbar } from "components/Navbar";
 import { FC } from "react";
 
-export const DashboardLayout: FC<BoxProps> = (props) => {
+type DashboardProps = {
+  footer?: boolean;
+} & BoxProps;
+
+export const DashboardLayout: FC<DashboardProps> = ({
+  footer = true,
+  ...props
+}) => {
   return (
     <Box
       bg="light.100"
@@ -15,9 +22,11 @@ export const DashboardLayout: FC<BoxProps> = (props) => {
     >
       <Navbar />
       <Container flexGrow={1} {...props} />
-      <Container>
-        <Footer />
-      </Container>
+      {footer && (
+        <Container>
+          <Footer />
+        </Container>
+      )}
     </Box>
   );
 };
