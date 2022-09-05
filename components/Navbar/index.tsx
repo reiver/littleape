@@ -15,6 +15,7 @@ import { BellIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
@@ -74,17 +75,20 @@ export const Navbar: FC<BoxProps> = (props) => {
         alignItems="center"
         experimental_spaceX={4}
       >
-        <Box
-          display="flex"
-          alignItems="center"
-          experimental_spaceX="2"
-          fontWeight="semibold"
-          fontSize="lg"
-          color="primary.600"
-        >
-          <Logo w="5" strokeWidth="2" />
-          <Text display={{ base: "none", md: "block" }}>Greatape</Text>
-        </Box>
+        <Link href="/" passHref>
+          <Box
+            as="a"
+            display="flex"
+            alignItems="center"
+            experimental_spaceX="2"
+            fontWeight="semibold"
+            fontSize="lg"
+            color="primary.600"
+          >
+            <Logo w="5" strokeWidth="2" />
+            <Text display={{ base: "none", md: "block" }}>Greatape</Text>
+          </Box>
+        </Link>
         <SearchInput />
         <Box display="flex" experimental_spaceX={3}>
           <ActionIconButton>
