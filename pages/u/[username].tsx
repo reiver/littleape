@@ -32,7 +32,6 @@ export default function UserProfile() {
         <title>Greatape | {`@${username}`}</title>
       </Head>
       <DashboardLayout
-        footer={false}
         display="grid"
         gridTemplateColumns="repeat(24, minmax(0, 1fr))"
         gridGap={3}
