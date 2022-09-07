@@ -1,25 +1,15 @@
-import {
-  AspectRatio,
-  Box,
-  BoxProps,
-  Button,
-  chakra,
-  Text,
-} from "@chakra-ui/react";
+import { Box, BoxProps, Button, Text } from "@chakra-ui/react";
 import { UserAvatar } from "components/UserAvatar";
+import { UserCover } from "components/UserCover";
 import Link from "next/link";
 import { FC } from "react";
 import { useAuthStore } from "store";
-
-const Img = chakra("img");
 
 export const ProfileCard: FC<BoxProps> = (props) => {
   const user = useAuthStore((state) => state.user);
   return (
     <Box rounded="lg" bg="light.50" _dark={{ bg: "dark.700" }} p={1} {...props}>
-      <AspectRatio ratio={16 / 6}>
-        <Img src="https://bit.ly/3wGNvPU" objectFit="cover" rounded="lg" />
-      </AspectRatio>
+      <UserCover ratio={16 / 6} src={user.banner} />
       <Box display="flex" justifyContent="center" mt={-3}>
         <UserAvatar
           borderStyle="solid"
@@ -51,9 +41,18 @@ export const ProfileCard: FC<BoxProps> = (props) => {
           </Text>
         </Box>
       </Box>
-      <Box textAlign="center" fontSize="sm" mt={4}>
+      <Box textAlign="center" fontSize="sm" mt={4} px={1}>
         <Text fontWeight="semibold">{user.display_name || "John Doe"}</Text>
         <Text fontSize="xs">@{user.username}</Text>
+        <Text
+          fontSize="xs"
+          _dark={{
+            color: "gray.400",
+          }}
+          mt={2}
+        >
+          {user.bio}
+        </Text>
       </Box>
       <Box p={2}>
         <Link href={`/u/${user.username}`} passHref>
@@ -63,7 +62,7 @@ export const ProfileCard: FC<BoxProps> = (props) => {
             size="sm"
             fontSize="sm"
             fontWeight="sm"
-            mt={4}
+            mt={2}
             _dark={{
               bg: "dark.500",
               _active: {
