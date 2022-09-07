@@ -1,4 +1,4 @@
-import { Box, BoxProps, Spinner } from "@chakra-ui/react";
+import { Box, BoxProps, Skeleton } from "@chakra-ui/react";
 import { API_OUTBOX } from "constants/API";
 import { FC } from "react";
 import useSWR from "swr";
@@ -11,36 +11,45 @@ type FeedProps = {
   username: string;
 } & BoxProps;
 export const Feed: FC<FeedProps> = ({ username, ...props }) => {
-  const { data, error } = useSWR<OrderedCollection>(API_OUTBOX(username));
+  const { data } = useSWR<OrderedCollection>(API_OUTBOX(username));
   return (
-    <Box
-      {...props}
-      display="flex"
-      experimental_spaceY={3}
-      flexDirection="column"
-    >
-      {!data && !error && (
+    <Box display="flex" experimental_spaceY={3} flexDirection="column">
+      <Skeleton isLoaded={!!data} rounded="md">
         <Box
-          w="full"
-          minH="100px"
+          {...props}
           display="flex"
-          justifyContent="center"
-          alignItems="center"
+          experimental_spaceY={3}
+          flexDirection="column"
+          minH="140px"
         >
-          <Spinner size="sm" />
+          {data &&
+            data.orderedItems &&
+            (data.orderedItems as Activity[]).map((item) => {
+              const Component = feedComponents[item.object.type];
+              if (!Component) return null;
+              return (
+                <FeedCard item={item} key={item.id}>
+                  <Component item={item} />
+                </FeedCard>
+              );
+            })}
         </Box>
-      )}
-      {data &&
-        data.orderedItems &&
-        (data.orderedItems as Activity[]).map((item) => {
-          const Component = feedComponents[item.object.type];
-          if (!Component) return null;
-          return (
-            <FeedCard item={item} key={item.id}>
-              <Component item={item} />
-            </FeedCard>
-          );
-        })}
+      </Skeleton>
+      <Skeleton
+        isLoaded={!!data}
+        rounded="md"
+        minH={!data && "calc(100vh / 10 * 2.5)"}
+      />
+      <Skeleton
+        isLoaded={!!data}
+        rounded="md"
+        minH={!data && "calc(100vh / 10 * 2)"}
+      />
+      <Skeleton
+        isLoaded={!!data}
+        rounded="md"
+        minH={!data && "calc(100vh / 10 * 3)"}
+      />
     </Box>
   );
 };
