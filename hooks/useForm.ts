@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm as useFormHook } from "react-hook-form";
-import { z } from "zod";
-import { fetch } from "services/http";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useForm as useFormHook } from "react-hook-form";
+import { fetch } from "services/http";
+import { z } from "zod";
 
 export const useForm = <T = any>(
   url: string,
@@ -17,7 +17,10 @@ export const useForm = <T = any>(
 
   const methodSwitch = useCallback(
     (method: "POST" | "PATCH" | "GET" | "DELETE" = "GET") =>
-      async (e: FormEvent<HTMLFormElement>): Promise<T> => {
+      async (
+        e: FormEvent<HTMLFormElement>,
+        parser?: (values: typeof defaultValues) => Promise<typeof defaultValues>
+      ): Promise<T> => {
         let body = {};
         await form.handleSubmit(
           (values) => {
@@ -30,7 +33,7 @@ export const useForm = <T = any>(
         setLoading(true);
         return fetch<T>(url, {
           method,
-          body,
+          body: parser ? await parser(body) : body,
         }).finally(setLoading.bind(null, false));
       },
     [form.handleSubmit]
@@ -39,7 +42,8 @@ export const useForm = <T = any>(
   useEffect(() => {
     if (
       form.formState.errors &&
-      Object.keys(form.formState.errors).length > 0
+      Object.keys(form.formState.errors).length > 0 &&
+      form.formState.errors[Object.keys(form.formState.errors)[0]].ref
     ) {
       form.setFocus(Object.keys(form.formState.errors)[0]);
     }

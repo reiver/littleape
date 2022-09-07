@@ -1,11 +1,12 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "chakra.config";
-import { useAuthStore } from "store";
-import "styles/tailwind.css";
+import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { SWRConfig } from "swr";
 import { fetcher } from "services/http";
+import { useAuthStore } from "store";
+import "styles/tailwind.css";
+import { SWRConfig } from "swr";
 dayjs.extend(relativeTime);
 
 function App({ Component, pageProps }) {
@@ -19,6 +20,9 @@ function App({ Component, pageProps }) {
         fetcher,
         revalidateOnFocus: false,
         revalidateIfStale: false,
+        fallback: {
+          [API_PROFILE]: pageProps.user,
+        },
       }}
     >
       <ChakraProvider theme={theme}>
