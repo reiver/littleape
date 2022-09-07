@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   BoxProps,
   chakra,
@@ -15,10 +14,13 @@ import { BellIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
+import { UserAvatar } from "components/UserAvatar";
+import { API_PROFILE } from "constants/API";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
+import useSWR from "swr";
 
 const VideoIcon = chakra(VideoCameraIcon);
 const NotificationIcon = chakra(BellIcon);
@@ -46,7 +48,7 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
+  const { data: user } = useSWR(API_PROFILE);
   const logout = useAuthStore((state) => state.logout);
   const handleLogout = () => {
     logout();
@@ -99,7 +101,7 @@ export const Navbar: FC<BoxProps> = (props) => {
           </ActionIconButton>
           <Menu placement="bottom-end" flip direction="rtl">
             <MenuButton>
-              <Avatar w={7} h={7} name={user.display_name} src={user.avatar} />
+              <UserAvatar w={7} h={7} size="sm" link={false} />
             </MenuButton>
             <MenuList
               fontSize="sm"
@@ -108,7 +110,9 @@ export const Navbar: FC<BoxProps> = (props) => {
                 bg: "dark.700",
               }}
             >
-              <MenuItem>Profile</MenuItem>
+              <Link href={`/u/${user.username}`} passHref>
+                <MenuItem as="a">Profile</MenuItem>
+              </Link>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </MenuList>
           </Menu>
