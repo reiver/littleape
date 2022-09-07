@@ -24,12 +24,18 @@ import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
-import { API_PROFILE, API_USER_PROFILE } from "constants/API";
+import {
+  API_PROFILE,
+  API_USER_FOLLOWERS,
+  API_USER_FOLLOWING,
+  API_USER_PROFILE,
+} from "constants/API";
 import { useForm } from "hooks/useForm";
 import { FC } from "react";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
-import { useSWRConfig } from "swr";
+import useSWR, { useSWRConfig } from "swr";
+import { OrderedCollection } from "types/ActivityPub";
 import { User } from "types/User";
 import { z } from "zod";
 
@@ -46,6 +52,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
     onClose: onEditProfileClosed,
   } = useDisclosure();
   const loggedInUser = useAuthStore((state) => state.user);
+  const followers = useSWR<OrderedCollection>(
+    user ? API_USER_FOLLOWERS(user.username) : null
+  );
+  const following = useSWR<OrderedCollection>(
+    user ? API_USER_FOLLOWING(user.username) : null
+  );
+  console.log(following.error);
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
       <Skeleton isLoaded={!!user}>
@@ -135,7 +148,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
           )}
         </Box>
         <Box>
-          <Skeleton maxW="200px" isLoaded={!!user} h="36px">
+          <Skeleton maxW="200px" isLoaded={!!user} h={!!!user && "36px"}>
             <Text
               mt="-2"
               fontWeight="bold"
@@ -159,7 +172,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
             {user?.username}@social.xeronith.com
           </Text>
         </Box>
-        <Skeleton h="24px" maxW="350px" isLoaded={!!user}>
+        <Skeleton h={!!!user && "24px"} maxW="350px" isLoaded={!!user}>
           <Box fontSize={{ base: "sm", md: "md" }}>
             <Text whiteSpace="pre-wrap">{user?.bio}</Text>
           </Box>
@@ -183,7 +196,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
               }}
               color="gray.800"
             >
-              <Spinner size="xs" />
+              {following.data ? (
+                following.data.totalItems
+              ) : following.error ? (
+                0
+              ) : (
+                <Spinner size="xs" />
+              )}
             </Text>
             Following
           </Link>
@@ -197,7 +216,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
               }}
               color="gray.800"
             >
-              <Spinner size="xs" />
+              {followers.data ? (
+                followers.data.totalItems
+              ) : followers.error ? (
+                0
+              ) : (
+                <Spinner size="xs" />
+              )}
             </Text>
             Follower
           </Link>
