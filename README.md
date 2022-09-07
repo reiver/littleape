@@ -12,7 +12,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 Preferred [Nodejs](https://nodejs.org/) version -> [16.17.0](https://nodejs.org/dist/v16.17.0).
 
-⚠️ This project is under heavy development and the structure is not finalized.
+⚠️ This project is under heavy development and the structure is unstable.
 
 ## Initialization
 
