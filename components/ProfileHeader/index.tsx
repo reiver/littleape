@@ -150,7 +150,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
         <Box>
           <Skeleton maxW="200px" isLoaded={!!user} h={!!!user && "36px"}>
             <Text
-              mt="-2"
+              mt="-4"
               fontWeight="bold"
               fontSize={{
                 base: "xl",
