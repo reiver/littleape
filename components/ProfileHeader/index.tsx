@@ -372,12 +372,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                 rows={5}
                 h="unset"
               />
-              <Input
-                {...register("github")}
-                error={errors.github}
-                leftAddon={<Text fontSize="sm">github.com/</Text>}
-                name="github"
-              />
             </Box>
           </ModalBody>
 

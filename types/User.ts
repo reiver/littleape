@@ -1,4 +1,4 @@
-export type User = {
+export type User = Partial<{
   id: number;
   api_key: string;
   avatar: string;
@@ -9,4 +9,4 @@ export type User = {
   github: string;
   publicKey: string;
   username: string;
-};
+}>;

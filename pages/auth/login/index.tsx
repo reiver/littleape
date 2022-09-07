@@ -1,21 +1,22 @@
-import { Container } from "components/Container";
-import Link from "next/link";
-import { FC, FormEvent } from "react";
-import { Input } from "components/Input";
+import { AlertIcon, Box, Heading } from "@chakra-ui/react";
+import { Alert } from "components/Alert";
 import { Button } from "components/Button";
-import { Logo } from "components/Logo";
-import { z } from "zod";
-import { useForm } from "hooks/useForm";
-import { API_LOGIN } from "constants/API";
-import { Box, Heading } from "@chakra-ui/react";
 import { Form } from "components/Form";
-import Head from "next/head";
-import { Auth } from "types/Auth";
-import { User } from "types/User";
-import { useAuthStore } from "store";
-import { authProps, withAuth } from "lib/withAuth";
-import { useRouter } from "next/router";
+import { Input } from "components/Input";
+import { Logo } from "components/Logo";
+import { API_LOGIN } from "constants/API";
+import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
+import { authProps, withAuth } from "lib/withAuth";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { FC, FormEvent, useState } from "react";
+import { useAuthStore } from "store";
+import { Auth } from "types/Auth";
+import { Error } from "types/Error";
+import { User } from "types/User";
+import { z } from "zod";
 
 const schema = z.object({
   email: z.string().email().min(1),
@@ -24,6 +25,7 @@ const schema = z.object({
 
 const Login: FC = () => {
   const router = useRouter();
+  const [error, setError] = useState(null);
   const { register, errors, post, loading } = useForm<{
     auth: Auth;
     user: User;
@@ -31,10 +33,15 @@ const Login: FC = () => {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-    post(e).then(({ auth, user }) => {
-      setAuth(auth.token, user);
-      router.push("/");
-    });
+    post(e)
+      .then(({ auth, user }) => {
+        setAuth(auth.token, user);
+        router.push("/");
+      })
+      .catch((e) => {
+        const err: Error = e.response._data;
+        if (err.type === "server_error") setError(err.payload);
+      });
   };
   return (
     <MainLayout>
@@ -75,8 +82,20 @@ const Login: FC = () => {
             {...register("password")}
             error={errors.password}
           />
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
           <Box>
-            <Button primary w="full" type="submit" mt={3} isLoading={loading}>
+            <Button
+              primary
+              w="full"
+              type="submit"
+              mt={error ? 0 : 3}
+              isLoading={loading}
+            >
               Login
             </Button>
           </Box>
@@ -103,7 +122,7 @@ const Login: FC = () => {
 
 export default Login;
 
-export const getServerSideProps = withAuth((ctx) => {
+export const getServerSideProps = withAuth(false, (ctx) => {
   return {
     props: {
       ...authProps(ctx),
