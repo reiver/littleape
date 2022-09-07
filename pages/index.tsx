@@ -7,8 +7,10 @@ import { ProfileCard } from "components/ProfileCard";
 import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
+import { useAuthStore } from "store";
 
 export default function Home() {
+  const user = useAuthStore((state) => state.user);
   return (
     <>
       <Head>
@@ -52,7 +54,7 @@ export default function Home() {
           experimental_spaceY={3}
         >
           <NewPostCard />
-          <Feed />
+          <Feed username={user.username} />
         </Box>
         <Box gridColumn="span 5 / span 5"></Box>
       </DashboardLayout>
@@ -60,7 +62,7 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps = withAuth((ctx) => {
+export const getServerSideProps = withAuth(true, (ctx) => {
   return {
     props: {
       ...authProps(ctx),

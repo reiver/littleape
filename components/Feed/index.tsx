@@ -1,17 +1,17 @@
 import { Box, BoxProps, Spinner } from "@chakra-ui/react";
 import { API_OUTBOX } from "constants/API";
 import { FC } from "react";
-import { useAuthStore } from "store";
 import useSWR from "swr";
 import { Activity, OrderedCollection } from "types/ActivityPub";
 import { FeedCard } from "./FeedCard";
 import { NoteFeed as Note } from "./Note";
 
 const feedComponents = { Note };
-
-export const Feed: FC<BoxProps> = (props) => {
-  const user = useAuthStore((state) => state.user);
-  const { data } = useSWR<OrderedCollection>(API_OUTBOX(user.username));
+type FeedProps = {
+  username: string;
+} & BoxProps;
+export const Feed: FC<FeedProps> = ({ username, ...props }) => {
+  const { data, error } = useSWR<OrderedCollection>(API_OUTBOX(username));
   return (
     <Box
       {...props}
@@ -19,7 +19,7 @@ export const Feed: FC<BoxProps> = (props) => {
       experimental_spaceY={3}
       flexDirection="column"
     >
-      {!data && (
+      {!data && !error && (
         <Box
           w="full"
           minH="100px"
