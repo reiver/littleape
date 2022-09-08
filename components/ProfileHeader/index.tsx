@@ -255,6 +255,7 @@ const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
   const onFollow = (event) => {
     try {
       schema.parse(event.target.elements["acct"].value);
+      setError(null);
     } catch (err) {
       if (Array.isArray(err.issues)) {
         setError(err.issues[0]);
@@ -262,8 +263,11 @@ const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
       event.preventDefault();
     }
   };
+  const onClose = () => {
+    setError(null);
+  };
   return (
-    <Popover placement="bottom-end">
+    <Popover placement="bottom-end" onClose={onClose}>
       <PopoverTrigger>
         <Button
           size={{
