@@ -24,8 +24,12 @@ import {
   Spinner,
   Text,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
-import { CameraIcon as HeroCameraIcon } from "@heroicons/react/24/outline";
+import {
+  CameraIcon as HeroCameraIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import { FileUpload } from "components/FileUpload";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
@@ -46,6 +50,7 @@ import { OrderedCollection } from "types/ActivityPub";
 import { User } from "types/User";
 import { z } from "zod";
 
+const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
 
 type ProfileHeaderProps = {
@@ -53,6 +58,8 @@ type ProfileHeaderProps = {
 } & BoxProps;
 
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
+  const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
+
   const {
     isOpen: isEditProfileOpen,
     onOpen: onEditProfileOpen,
@@ -65,7 +72,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
   const following = useSWR<OrderedCollection>(
     user ? API_USER_FOLLOWING(user.username) : null
   );
-  console.log(following.error);
+
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
       <Skeleton isLoaded={!!user}>
@@ -146,7 +153,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
                     md: "20px",
                   }}
                 >
-                  Edit Profile
+                  {isLargerThanSM ? "Edit Profile" : <EditIcon w="3" />}
                 </Button>
                 <EditProfileModal
                   user={user}
@@ -367,11 +374,24 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   return (
     <Modal {...props}>
       <ModalOverlay />
-      <ModalContent _dark={{ bg: "dark.700" }}>
+      <ModalContent mx="3" _dark={{ bg: "dark.700" }}>
         <Form onSubmit={handleProfileEdit}>
-          <ModalHeader>Edit profile</ModalHeader>
+          <ModalHeader
+            px={{
+              base: "4",
+              md: "6",
+            }}
+          >
+            <Text fontSize={{ base: "md", md: "inherit" }}>Edit profile</Text>
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
+          <ModalBody
+            pb={6}
+            px={{
+              base: "4",
+              md: "6",
+            }}
+          >
             <Box display="flex" flexDirection="column" experimental_spaceY={4}>
               <Box position="relative" zIndex="1" cursor="pointer">
                 <FileUpload
