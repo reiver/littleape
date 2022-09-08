@@ -18,6 +18,13 @@ const nextConfig = {
           ],
           destination: joinURL(process.env.NEXT_PUBLIC_HOST, "/u/:path*"),
         },
+        {
+          source: "/u/:username/follow",
+          destination: joinURL(
+            process.env.NEXT_PUBLIC_HOST,
+            "/u/:username/follow"
+          ),
+        },
       ],
     };
   },

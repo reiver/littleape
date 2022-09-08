@@ -12,6 +12,13 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
   Skeleton,
   SkeletonCircle,
   Spinner,
@@ -31,7 +38,7 @@ import {
   API_USER_PROFILE,
 } from "constants/API";
 import { useForm } from "hooks/useForm";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
@@ -49,7 +56,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
   const {
     isOpen: isEditProfileOpen,
     onOpen: onEditProfileOpen,
-    onClose: onEditProfileClosed,
+    onClose: onEditProfileClose,
   } = useDisclosure();
   const loggedInUser = useAuthStore((state) => state.user);
   const followers = useSWR<OrderedCollection>(
@@ -124,28 +131,31 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
               }}
             />
           </SkeletonCircle>
-          {loggedInUser.username === user?.username && (
-            <>
-              <Button
-                onClick={onEditProfileOpen}
-                size={{
-                  base: "sm",
-                  md: "md",
-                }}
-                mb={{
-                  base: "-10px",
-                  md: "20px",
-                }}
-              >
-                Edit Profile
-              </Button>
-              <EditProfileModal
-                user={user}
-                isOpen={isEditProfileOpen}
-                onClose={onEditProfileClosed}
-              />
-            </>
-          )}
+          <Box display="flex" experimental_spaceX={3}>
+            {user && <RemoteFollow user={user} />}
+            {user && loggedInUser.username === user?.username && (
+              <>
+                <Button
+                  onClick={onEditProfileOpen}
+                  size={{
+                    base: "sm",
+                    md: "md",
+                  }}
+                  mb={{
+                    base: "-10px",
+                    md: "20px",
+                  }}
+                >
+                  Edit Profile
+                </Button>
+                <EditProfileModal
+                  user={user}
+                  isOpen={isEditProfileOpen}
+                  onClose={onEditProfileClose}
+                />
+              </>
+            )}
+          </Box>
         </Box>
         <Box>
           <Skeleton maxW="200px" isLoaded={!!user} h={!!!user && "36px"}>
@@ -229,6 +239,75 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
         </Box>
       </Box>
     </Box>
+  );
+};
+
+type RemoteFollowProps = {
+  user: User;
+};
+
+const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
+  const [error, setError] = useState(null);
+  const schema = z
+    .string()
+    .min(1, "Please fill this field")
+    .regex(/(.{1,})@(.{1,})\.(.{2,})/gm, "Invalid username!");
+  const onFollow = (event) => {
+    try {
+      schema.parse(event.target.elements["acct"].value);
+    } catch (err) {
+      if (Array.isArray(err.issues)) {
+        setError(err.issues[0]);
+      }
+      event.preventDefault();
+    }
+  };
+  return (
+    <Popover placement="bottom-end">
+      <PopoverTrigger>
+        <Button
+          size={{
+            base: "sm",
+            md: "md",
+          }}
+          mb={{
+            base: "-10px",
+            md: "20px",
+          }}
+          colorScheme="primary"
+        >
+          Remote Follow
+        </Button>
+      </PopoverTrigger>
+      <Portal>
+        <PopoverContent _dark={{ bg: "dark.700", borderColor: "dark.400" }}>
+          <PopoverArrow _dark={{ bg: "dark.700 !important" }} />
+          <PopoverCloseButton />
+          <PopoverBody py="3">
+            <Form
+              onSubmit={onFollow}
+              action={`/u/${user.username}/follow`}
+              method="get"
+              experimental_spaceY="3"
+              display="flex"
+              alignItems="end"
+              flexDirection="column"
+            >
+              <Input
+                name="acct"
+                label="Your username"
+                placeholder="username@domain"
+                size="sm"
+                error={error}
+              />
+              <Button size="sm" colorScheme="blue" type="submit">
+                Follow
+              </Button>
+            </Form>
+          </PopoverBody>
+        </PopoverContent>
+      </Portal>
+    </Popover>
   );
 };
 
