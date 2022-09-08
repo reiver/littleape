@@ -1,7 +1,9 @@
 import { Box } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
+import { MightLikeCard } from "components/MightLikeCard";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
+import { TrendingTags } from "components/TrendingTags";
 import { API_USER_PROFILE } from "constants/API";
 import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
@@ -40,7 +42,7 @@ export default function UserProfile() {
         <Box
           gridColumn={{
             base: "span 24 / span 24",
-            lg: "span 19 / span 19",
+            lg: "span 18 / span 18",
           }}
           display="flex"
           flexDirection="column"
@@ -50,7 +52,23 @@ export default function UserProfile() {
           {user && user.username == loggedInUser.username && <NewPostCard />}
           {user && <Feed username={user.username} />}
         </Box>
-        <Box gridColumn="span 5 / span 5"></Box>
+        <Box gridColumn="span 6 / span 6">
+          <Box
+            position="sticky"
+            top="75px"
+            display="flex"
+            justifyContent="space-between"
+            flexDirection="column"
+            h={{
+              lg: "calc(100vh - 86px)",
+            }}
+          >
+            <Box display="flex" experimental_spaceY={3} flexDirection="column">
+              <MightLikeCard />
+              <TrendingTags />
+            </Box>
+          </Box>
+        </Box>
       </DashboardLayout>
     </>
   );
