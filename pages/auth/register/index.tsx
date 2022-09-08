@@ -40,8 +40,8 @@ const Register: FC = () => {
         router.push("/");
       })
       .catch((e) => {
-        const err: Error = e.response._data;
-        if (err.type === "server_error") setError(err.payload);
+        const err: Error = e.response?._data;
+        if (err?.type === "server_error") setError(err.payload);
       });
   };
 
