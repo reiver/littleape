@@ -3,26 +3,37 @@ import {
   BoxProps,
   Button,
   chakra,
+  HStack,
   IconButton,
   IconButtonProps,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
   MenuList,
   Text,
+  VStack,
 } from "@chakra-ui/react";
-import { BellIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
+import {
+  BellIcon,
+  EnvelopeIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
+import { API_INBOX } from "constants/API";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
+import useSWR from "swr";
+import { OrderedCollection } from "types/ActivityPub";
 
-const VideoIcon = chakra(VideoCameraIcon);
-const NotificationIcon = chakra(BellIcon);
+const VideoIcon = chakra(VideoCameraIcon, { baseStyle: { w: "4" } });
+const NotificationIcon = chakra(BellIcon, { baseStyle: { w: "4" } });
+const MessagesIcon = chakra(EnvelopeIcon, { baseStyle: { w: "4" } });
 
 const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   return (
@@ -94,11 +105,9 @@ export const Navbar: FC<BoxProps> = (props) => {
         <Box display="flex" experimental_spaceX={3}>
           {user && (
             <>
+              <MessagesPopup />
               <ActionIconButton>
-                <NotificationIcon w={4} />
-              </ActionIconButton>
-              <ActionIconButton>
-                <VideoIcon w={4} />
+                <VideoIcon />
               </ActionIconButton>
             </>
           )}
@@ -131,5 +140,66 @@ export const Navbar: FC<BoxProps> = (props) => {
         </Box>
       </Container>
     </Box>
+  );
+};
+
+const MessagesPopup: FC = () => {
+  const user = useAuthStore((state) => state.user);
+  const { data: inbox } = useSWR<OrderedCollection>(API_INBOX(user.username));
+
+  return (
+    <Menu placement="bottom-end">
+      <MenuButton>
+        <ActionIconButton as="span">
+          <MessagesIcon />
+        </ActionIconButton>
+      </MenuButton>
+      <MenuList
+        maxW="350px"
+        w="100vw"
+        _dark={{
+          bg: "dark.700",
+        }}
+      >
+        {inbox &&
+          inbox.orderedItems.map((item, i) => {
+            const actorUsername =
+              item.object.attributedTo.split("/")[
+                item.object.attributedTo.split("/").length - 1
+              ];
+            return (
+              <div key={item.id}>
+                <MenuItem>
+                  <HStack experimental_spaceX={3} alignItems="flex-start">
+                    <UserAvatar
+                      size="sm"
+                      src={undefined}
+                      name={actorUsername}
+                    />
+                    <VStack
+                      alignItems="flex-start"
+                      justifyItems="flex-start"
+                      experimental_spaceY={1}
+                    >
+                      <Text fontSize="sm">{item.object.attributedTo}</Text>
+                      <Text
+                        mt={0}
+                        fontSize="sm"
+                        _dark={{ color: "gray.500" }}
+                        maxW="150px"
+                        noOfLines={1}
+                        dangerouslySetInnerHTML={{
+                          __html: item.object.content,
+                        }}
+                      />
+                    </VStack>
+                  </HStack>
+                </MenuItem>
+                {i !== inbox.orderedItems.length - 1 && <MenuDivider />}
+              </div>
+            );
+          })}
+      </MenuList>
+    </Menu>
   );
 };

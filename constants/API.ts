@@ -10,4 +10,5 @@ export const API_USER_FOLLOWING = (username: string) =>
   `/u/${username}/following`;
 export const API_UPLOAD = "/upload";
 export const API_OUTBOX = (username) => joinURL("/u/", username, "/outbox");
+export const API_INBOX = (username) => joinURL("/u/", username, "/inbox");
 export const HOST = process.env.NEXT_PUBLIC_HOST;
