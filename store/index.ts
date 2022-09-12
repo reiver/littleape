@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     fetch(API_PROFILE);
   },
   setAuth: (token, user) => {
-    Cookies.set(AUTH_KEY, token);
+    Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
     set(() => ({
       token,
       user,
