@@ -80,7 +80,7 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps = withAuth(true, (ctx) => {
+export const getServerSideProps = withAuth("authorized", (ctx) => {
   return {
     props: {
       ...authProps(ctx),

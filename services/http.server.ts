@@ -18,11 +18,20 @@ export const fetch = (
       [key: string]: string;
     }>;
   },
-  opts: any = {}
+  opts: {
+    activityPub?: boolean;
+    [key: string]: any;
+  } = {}
 ) => {
   const token = req.cookies[AUTH_KEY];
   const controller = new AbortController();
   setTimeout(() => controller.abort(), 5000);
+  const { activityPub = false } = opts;
+  if (activityPub)
+    opts.headers = {
+      ...(opts.headers || {}),
+      "Content-Type": "application/activity+json",
+    };
   return fetch$(request, {
     signal: controller.signal,
     headers: {

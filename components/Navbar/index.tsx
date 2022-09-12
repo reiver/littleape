@@ -1,6 +1,7 @@
 import {
   Box,
   BoxProps,
+  Button,
   chakra,
   IconButton,
   IconButtonProps,
@@ -15,12 +16,10 @@ import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
-import { API_PROFILE } from "constants/API";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
-import useSWR from "swr";
 
 const VideoIcon = chakra(VideoCameraIcon);
 const NotificationIcon = chakra(BellIcon);
@@ -48,7 +47,7 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
-  const { data: user } = useSWR(API_PROFILE);
+  const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const handleLogout = () => {
     logout();
@@ -93,29 +92,42 @@ export const Navbar: FC<BoxProps> = (props) => {
         </Link>
         <SearchInput />
         <Box display="flex" experimental_spaceX={3}>
-          <ActionIconButton>
-            <NotificationIcon w={4} />
-          </ActionIconButton>
-          <ActionIconButton>
-            <VideoIcon w={4} />
-          </ActionIconButton>
-          <Menu placement="bottom-end" flip direction="rtl">
-            <MenuButton>
-              <UserAvatar w={7} h={7} size="sm" link={false} />
-            </MenuButton>
-            <MenuList
-              fontSize="sm"
-              minW="100px"
-              _dark={{
-                bg: "dark.700",
-              }}
-            >
-              <Link href={`/u/${user.username}`} passHref>
-                <MenuItem as="a">Profile</MenuItem>
-              </Link>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
+          {user && (
+            <>
+              <ActionIconButton>
+                <NotificationIcon w={4} />
+              </ActionIconButton>
+              <ActionIconButton>
+                <VideoIcon w={4} />
+              </ActionIconButton>
+            </>
+          )}
+          {!user && (
+            <Link href="/auth/login" passHref>
+              <Button size="sm" colorScheme="primary" as="a">
+                Login
+              </Button>
+            </Link>
+          )}
+          {user && (
+            <Menu placement="bottom-end" flip direction="rtl">
+              <MenuButton>
+                <UserAvatar w={7} h={7} size="sm" link={false} />
+              </MenuButton>
+              <MenuList
+                fontSize="sm"
+                minW="100px"
+                _dark={{
+                  bg: "dark.700",
+                }}
+              >
+                <Link href={`/u/${user.username}`} passHref>
+                  <MenuItem as="a">Profile</MenuItem>
+                </Link>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </MenuList>
+            </Menu>
+          )}
         </Box>
       </Container>
     </Box>

@@ -10,14 +10,14 @@ type WithAuthContext = {
 } & GetServerSidePropsContext;
 
 export type WithAuthType = (
-  shouldAuthenticated: boolean,
+  shouldAuthenticated: "authorized" | "notAuthorized" | "guest-authorized",
   cb: (
     ctx: WithAuthContext
   ) => Promise<GetServerSidePropsResult<any>> | GetServerSidePropsResult<any>
 ) => (ctx: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<any>>;
 
 export const withAuth: WithAuthType =
-  (shouldAuthenticated, cb) => async (ctx) => {
+  (authorizationType, cb) => async (ctx) => {
     const context: WithAuthContext = ctx;
     const token = ctx.req.cookies[AUTH_KEY];
     let user;
@@ -34,7 +34,7 @@ export const withAuth: WithAuthType =
       }
 
     // if user is valid and wants to go to the auth page, redirect to /
-    if (user && !shouldAuthenticated) {
+    if (user && authorizationType == "notAuthorized") {
       return {
         redirect: {
           permanent: false,
@@ -44,7 +44,7 @@ export const withAuth: WithAuthType =
     }
 
     // if user is not valid and wants to open the app, redirect to login
-    if (!user && shouldAuthenticated) {
+    if (!user && authorizationType == "authorized") {
       return {
         redirect: {
           permanent: false,

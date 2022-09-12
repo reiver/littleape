@@ -1,14 +1,14 @@
+import { API_PROFILE } from "constants/API";
+import { AUTH_KEY } from "constants/app";
+import Cookies from "js-cookie";
+import { fetch } from "services/http";
 import { User } from "types/User";
 import create from "zustand";
-import Cookies from "js-cookie";
-import { AUTH_KEY } from "constants/app";
-import { fetch } from "services/http";
-import { API_PROFILE } from "constants/API";
 
 interface AuthState {
   authorized: boolean;
   token?: string;
-  user?: User;
+  user?: Partial<User>;
   setAuth: (token: string, user: User) => void;
   logout: () => void;
 }

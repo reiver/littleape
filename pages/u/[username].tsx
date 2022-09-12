@@ -27,11 +27,11 @@ export default function UserProfile() {
     username: activity.preferredUsername,
     bio: activity.summary,
   };
-
+  const title = `Greatape | @${String(username) || ""}`;
   return (
     <>
       <Head>
-        <title>Greatape | {`@${username}`}</title>
+        <title>{title}</title>
       </Head>
       <DashboardLayout
         display="grid"
@@ -49,10 +49,13 @@ export default function UserProfile() {
           experimental_spaceY={3}
         >
           <ProfileHeader user={user} />
-          {user && user.username == loggedInUser.username && <NewPostCard />}
+          {user && user.username == loggedInUser?.username && <NewPostCard />}
           {user && <Feed username={user.username} />}
         </Box>
-        <Box gridColumn="span 6 / span 6">
+        <Box
+          gridColumn="span 6 / span 6"
+          display={{ base: "none", lg: "block" }}
+        >
           <Box
             position="sticky"
             top="75px"
@@ -74,13 +77,17 @@ export default function UserProfile() {
   );
 }
 
-export const getServerSideProps = withAuth(true, async (ctx) => {
+export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
   try {
     const user = await fetch(
       API_USER_PROFILE(ctx.params.username.toString()),
-      ctx.req
+      ctx.req,
+      {
+        activityPub: true,
+      }
     );
   } catch (e) {
+    console.error(e);
     return {
       notFound: true,
     };

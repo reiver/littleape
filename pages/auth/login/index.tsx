@@ -122,7 +122,7 @@ const Login: FC = () => {
 
 export default Login;
 
-export const getServerSideProps = withAuth(false, (ctx) => {
+export const getServerSideProps = withAuth("notAuthorized", (ctx) => {
   return {
     props: {
       ...authProps(ctx),

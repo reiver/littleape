@@ -140,7 +140,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
           </SkeletonCircle>
           <Box display="flex" experimental_spaceX={3}>
             {user && <RemoteFollow user={user} />}
-            {user && loggedInUser.username === user?.username && (
+            {user && loggedInUser?.username === user?.username && (
               <>
                 <Button
                   onClick={onEditProfileOpen}
@@ -297,7 +297,7 @@ const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
           <PopoverBody py="3">
             <Form
               onSubmit={onFollow}
-              action={`/u/${user.username}/follow`}
+              action={`/u/${user.username}/follow?host=123456`}
               method="get"
               experimental_spaceY="3"
               display="flex"
