@@ -6,12 +6,12 @@ import { FC } from "react";
 const users = [
   {
     name: "Rebeca",
-    username: "@reb@social.xeronith.com",
+    username: "@reb@" + process.env.NEXT_PUBLIC_HANDLE,
     avatar: "https://bit.ly/3D5g2D3",
   },
   {
     name: "James",
-    username: "@james@social.xeronith.com",
+    username: "@james@" + process.env.NEXT_PUBLIC_HANDLE,
     avatar: "https://bit.ly/3eDmeYQ",
   },
   {

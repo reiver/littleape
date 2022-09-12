@@ -186,7 +186,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
               color: "gray.500",
             }}
           >
-            {user?.username}@social.xeronith.com
+            {user?.username}@{process.env.NEXT_PUBLIC_HANDLE}
           </Text>
         </Box>
         <Skeleton h={!!!user && "24px"} maxW="350px" isLoaded={!!user}>
