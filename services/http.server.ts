@@ -25,12 +25,12 @@ export const fetch = (
 ) => {
   const token = req.cookies[AUTH_KEY];
   const controller = new AbortController();
-  setTimeout(() => controller.abort(), 5000);
+  setTimeout(() => controller.abort(), 10000);
   const { activityPub = false } = opts;
   if (activityPub)
     opts.headers = {
       ...(opts.headers || {}),
-      "Content-Type": "application/activity+json",
+      Accept: "application/activity+json",
     };
   return fetch$(request, {
     signal: controller.signal,
