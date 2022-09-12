@@ -8,6 +8,7 @@ type FooterProps = {
 } & BoxProps;
 
 export const Footer: FC<FooterProps> = (props) => {
+  const { compact, ...rest } = props;
   return (
     <Box
       w="full"
@@ -18,15 +19,14 @@ export const Footer: FC<FooterProps> = (props) => {
       _dark={{
         color: "gray.400",
       }}
-      {...props}
+      {...rest}
     >
       <Box display="flex" alignItems="center">
         <Logo w={3.5} strokeWidth={1.8} />
         <Text ml={2}>© 2022 Grateape.</Text>
       </Box>
       <Box display="flex" experimental_spaceX={2}>
-        {!props.compact && <Text>Theme</Text>}
-        <ThemeSwitcher button={props.compact} />
+        <ThemeSwitcher button={compact} />
       </Box>
     </Box>
   );
