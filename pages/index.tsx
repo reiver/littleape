@@ -58,7 +58,10 @@ export default function Home() {
           <NewPostCard />
           <Feed username={user.username} />
         </Box>
-        <Box gridColumn="span 6 / span 6">
+        <Box
+          gridColumn="span 6 / span 6"
+          display={{ base: "none", lg: "block" }}
+        >
           <Box
             position="sticky"
             top="75px"
