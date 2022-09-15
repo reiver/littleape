@@ -4,10 +4,12 @@ import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import userListenerMiddleware from "lib/UserListenerMiddleware";
+import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";
 import "styles/tailwind.css";
 import { SWRConfig } from "swr";
+
 dayjs.extend(relativeTime);
 
 function App({ Component, pageProps }) {
