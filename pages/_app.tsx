@@ -3,7 +3,6 @@ import theme from "chakra.config";
 import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import userListenerMiddleware from "lib/UserListenerMiddleware";
 import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";
@@ -19,13 +18,13 @@ function App({ Component, pageProps }) {
   return (
     <SWRConfig
       value={{
-        use: [userListenerMiddleware],
         provider: () => new Map(),
         fetcher,
         revalidateOnFocus: false,
         revalidateIfStale: false,
         fallback: {
           [API_PROFILE]: pageProps.user,
+          ...pageProps.swrFallback,
         },
       }}
     >

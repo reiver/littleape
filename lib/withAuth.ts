@@ -1,7 +1,7 @@
 import { API_PROFILE } from "constants/API";
 import { AUTH_KEY } from "constants/app";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { fetch } from "services/http.server";
+import { serverFetch } from "services/http.server";
 import { User } from "types/User";
 
 type WithAuthContext = {
@@ -23,7 +23,7 @@ export const withAuth: WithAuthType =
     let user;
     if (token)
       try {
-        user = await fetch(API_PROFILE, ctx.req);
+        user = await serverFetch(API_PROFILE, ctx.req);
         context.user = user;
         context.token = token;
       } catch (e) {

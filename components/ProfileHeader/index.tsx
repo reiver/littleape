@@ -47,19 +47,23 @@ import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
-import { User } from "types/User";
+import { ActivityUser, User } from "types/User";
 import { z } from "zod";
 
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
 
 type ProfileHeaderProps = {
-  user: User;
+  user: ActivityUser;
+  username: string;
 } & BoxProps;
 
-export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
+export const ProfileHeader: FC<ProfileHeaderProps> = ({
+  user,
+  username,
+  ...props
+}) => {
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
-
   const {
     isOpen: isEditProfileOpen,
     onOpen: onEditProfileOpen,
@@ -67,16 +71,15 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
   } = useDisclosure();
   const loggedInUser = useAuthStore((state) => state.user);
   const followers = useSWR<OrderedCollection>(
-    user ? API_USER_FOLLOWERS(user.username) : null
+    user && [API_USER_FOLLOWERS(username), { activity: true }]
   );
   const following = useSWR<OrderedCollection>(
-    user ? API_USER_FOLLOWING(user.username) : null
+    user && [API_USER_FOLLOWING(username), { activity: true }]
   );
-
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
       <Skeleton isLoaded={!!user}>
-        <UserCover ratio={16 / 6} src={user?.banner} />
+        <UserCover ratio={16 / 6} src={user?.image?.url} />
       </Skeleton>
       <Box
         display="flex"
@@ -112,7 +115,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
             isLoaded={!!user}
           >
             <UserAvatar
-              src={user && user.avatar}
+              src={user && user?.icon?.url}
               link={false}
               w={{
                 base: "80px",
@@ -139,8 +142,8 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
             />
           </SkeletonCircle>
           <Box display="flex" experimental_spaceX={3}>
-            {user && <RemoteFollow user={user} />}
-            {user && loggedInUser?.username === user?.username && (
+            {user && <RemoteFollow user={user} username={username} />}
+            {user && loggedInUser?.username === username && (
               <>
                 <Button
                   onClick={onEditProfileOpen}
@@ -156,7 +159,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
                   {isLargerThanSM ? "Edit Profile" : <EditIcon w="3" />}
                 </Button>
                 <EditProfileModal
-                  user={user}
+                  user={loggedInUser}
                   isOpen={isEditProfileOpen}
                   onClose={onEditProfileClose}
                 />
@@ -165,7 +168,12 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
           </Box>
         </Box>
         <Box>
-          <Skeleton maxW="200px" isLoaded={!!user} h={!!!user && "36px"}>
+          <Skeleton
+            maxW={!!!user && "200px"}
+            isLoaded={!!user}
+            mt={!!!user && "6px"}
+            h={!!!user && "30px"}
+          >
             <Text
               mt="-4"
               fontWeight="bold"
@@ -174,7 +182,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
                 md: "2xl",
               }}
             >
-              {user?.display_name}
+              {user?.name}
             </Text>
           </Skeleton>
           <Text
@@ -186,12 +194,21 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
               color: "gray.500",
             }}
           >
-            {user?.username}@{process.env.NEXT_PUBLIC_HANDLE}
+            {username}
+            {!username.includes("@") && "@" + process.env.NEXT_PUBLIC_HANDLE}
           </Text>
         </Box>
-        <Skeleton h={!!!user && "24px"} maxW="350px" isLoaded={!!user}>
+        <Skeleton
+          h={!!!user && "24px"}
+          maxW={!!!user && "350px"}
+          isLoaded={!!user}
+          w="full"
+        >
           <Box fontSize={{ base: "sm", md: "md" }}>
-            <Text whiteSpace="pre-wrap">{user?.bio}</Text>
+            <Text
+              whiteSpace="pre-wrap"
+              dangerouslySetInnerHTML={{ __html: user?.summary }}
+            />
           </Box>
         </Skeleton>
         <Box
@@ -250,10 +267,11 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ user, ...props }) => {
 };
 
 type RemoteFollowProps = {
-  user: User;
+  user: ActivityUser;
+  username: string;
 };
 
-const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
+const RemoteFollow: FC<RemoteFollowProps> = ({ user, username }) => {
   const [error, setError] = useState(null);
   const schema = z
     .string()
@@ -297,7 +315,7 @@ const RemoteFollow: FC<RemoteFollowProps> = ({ user }) => {
           <PopoverBody py="3">
             <Form
               onSubmit={onFollow}
-              action={`/u/${user.username}/follow?host=123456`}
+              action={`/u/${username}/follow`}
               method="get"
               experimental_spaceY="3"
               display="flex"
@@ -365,9 +383,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       });
       v = values;
       return values;
-    }).then(() => {
-      mutate(API_USER_PROFILE(String(user.username)));
-      mutate(API_PROFILE);
+    }).then((response) => {
+      mutate([API_USER_PROFILE(String(user.username)), { activity: true }]);
+      useAuthStore.setState({ user: { ...user, ...v } });
       reset(v);
     });
   };
@@ -398,7 +416,10 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   onDropAccepted={onBannerSelected}
                   accept={{ "image/jpeg": [], "image/png": [] }}
                 >
-                  <UserCover file={watch("banner") as File} src={user.banner} />
+                  <UserCover
+                    file={watch("banner") as File}
+                    src={user?.banner}
+                  />
                   <Box
                     position="absolute"
                     w="full"

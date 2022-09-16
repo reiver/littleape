@@ -1,3 +1,5 @@
+import { ActorType } from "./ActivityPub";
+
 export type User = Partial<{
   id: number;
   api_key: string;
@@ -10,3 +12,29 @@ export type User = Partial<{
   publicKey: string;
   username: string;
 }>;
+
+export type ActivityUser = {
+  "@context": any;
+  followers: string;
+  following: string;
+  id: string;
+  type: ActorType;
+  preferredUsername: string;
+  inbox: string;
+  outbox: string;
+  playlists: string;
+  name: string;
+  url: string;
+  summary: string;
+  published: string;
+  icon: {
+    mediaType: string;
+    type: "Image";
+    url: string;
+  };
+  image: {
+    mediaType: string;
+    type: "Image";
+    url: string;
+  };
+};

@@ -9,24 +9,21 @@ import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { fetch } from "services/http.server";
+import { serverFetch } from "services/http.server";
 import { useAuthStore } from "store";
 import useSWR from "swr";
+import { ActivityUser } from "types/User";
 
 export default function UserProfile() {
   const {
     query: { username },
   } = useRouter();
-  const { data: activity } = useSWR(API_USER_PROFILE(String(username)));
+  const { data: user } = useSWR<ActivityUser>([
+    API_USER_PROFILE(String(username)),
+    { activity: true },
+  ]);
   const loggedInUser = useAuthStore((state) => state.user);
 
-  const user = activity && {
-    avatar: activity.icon.url,
-    banner: activity.image.url,
-    display_name: activity.name,
-    username: activity.preferredUsername,
-    bio: activity.summary,
-  };
   const title = `Greatape | @${String(username) || ""}`;
   return (
     <>
@@ -48,9 +45,9 @@ export default function UserProfile() {
           flexDirection="column"
           experimental_spaceY={3}
         >
-          <ProfileHeader user={user} />
-          {user && user.username == loggedInUser?.username && <NewPostCard />}
-          {user && <Feed username={user.username} />}
+          <ProfileHeader user={user} username={String(username)} />
+          {user && username == loggedInUser?.username && <NewPostCard />}
+          {user && <Feed username={String(username)} />}
         </Box>
         <Box
           gridColumn="span 6 / span 6"
@@ -78,23 +75,28 @@ export default function UserProfile() {
 }
 
 export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
+  const username = ctx.params.username.toString();
+  let user;
   try {
-    const user = await fetch(
-      API_USER_PROFILE(ctx.params.username.toString()),
-      ctx.req,
-      {
-        activityPub: true,
-      }
-    );
+    user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
+      activityPub: true,
+    });
   } catch (e) {
     console.error(e);
     return {
       notFound: true,
     };
   }
+
   return {
     props: {
       ...authProps(ctx),
+      // swrFallback: {
+      //   [unstable_serialize([
+      //     API_USER_PROFILE(String(username)),
+      //     { activity: true },
+      //   ])]: user,
+      // },
     },
   };
 });

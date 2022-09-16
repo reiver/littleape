@@ -18,9 +18,16 @@ export interface CollectionPage extends Collection {
 
 export type Outbox = OrderedCollection;
 
+export type ActorType =
+  | "Application"
+  | "Group"
+  | "Organization"
+  | "Person"
+  | "Service";
+
 export type Actor =
   | {
-      type: "Application" | "Group" | "Organization" | "Person" | "Service";
+      type: ActorType;
       name: string;
     }
   | string;

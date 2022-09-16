@@ -11,7 +11,7 @@ const fetch$ = $fetch.create({
   },
 });
 
-export const fetch = (
+export const serverFetch = (
   request: string,
   req: {
     cookies: Partial<{

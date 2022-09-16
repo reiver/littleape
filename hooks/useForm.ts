@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useForm as useFormHook } from "react-hook-form";
-import { fetch } from "services/http";
+import { fetcher } from "services/http";
 import { z } from "zod";
 
 export const useForm = <T = any>(
@@ -31,7 +31,7 @@ export const useForm = <T = any>(
           }
         )(e);
         setLoading(true);
-        return fetch<T>(url, {
+        return fetcher<T>(url, {
           method,
           body: parser ? await parser(body) : body,
         }).finally(setLoading.bind(null, false));
