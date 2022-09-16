@@ -117,6 +117,8 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({
             <UserAvatar
               src={user && user?.icon?.url}
               link={false}
+              name={user?.name}
+              username={username}
               w={{
                 base: "80px",
                 md: "180px",
@@ -472,6 +474,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         watch("avatar") instanceof File &&
                         (watch("avatar") as File)
                       }
+                      src={user.avatar}
+                      name={user.display_name}
+                      username={user.username}
                       link={false}
                       w="110px"
                       h="110px"

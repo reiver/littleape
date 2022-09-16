@@ -12,6 +12,9 @@ export const ProfileCard: FC<BoxProps> = (props) => {
       <UserCover ratio={16 / 6} src={user.banner} />
       <Box display="flex" justifyContent="center" mt={-3}>
         <UserAvatar
+          src={user.avatar}
+          username={user.username}
+          name={user.display_name}
           borderStyle="solid"
           borderWidth="3px"
           borderColor="light.50"
@@ -42,7 +45,7 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         </Box>
       </Box>
       <Box textAlign="center" fontSize="sm" mt={4} px={1}>
-        <Text fontWeight="semibold">{user.display_name || "John Doe"}</Text>
+        <Text fontWeight="semibold">{user.display_name}</Text>
         <Text fontSize="xs">@{user.username}</Text>
         <Text
           fontSize="xs"

@@ -121,7 +121,15 @@ export const Navbar: FC<BoxProps> = (props) => {
           {user && (
             <Menu placement="bottom-end" flip direction="rtl">
               <MenuButton>
-                <UserAvatar w={7} h={7} size="sm" link={false} />
+                <UserAvatar
+                  w={7}
+                  h={7}
+                  size="sm"
+                  link={false}
+                  name={user.display_name}
+                  src={user.avatar}
+                  username={user.username}
+                />
               </MenuButton>
               <MenuList
                 fontSize="sm"
@@ -173,8 +181,9 @@ const MessagesPopup: FC = () => {
                   <HStack experimental_spaceX={3} alignItems="flex-start">
                     <UserAvatar
                       size="sm"
-                      src={undefined}
+                      src={user.avatar}
                       name={actorUsername}
+                      username={user.username}
                     />
                     <VStack
                       alignItems="flex-start"

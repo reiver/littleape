@@ -1,20 +1,24 @@
 import { Avatar, AvatarProps } from "@chakra-ui/react";
 import Link from "next/link";
-import { FC, useEffect, useState } from "react";
-import { useAuthStore } from "store";
+import { FC, useState } from "react";
 
 type UserAvatarType = {
   link?: boolean;
   file?: File;
+  name: string;
+  src: string;
+  username: string;
 } & AvatarProps;
 
 export const UserAvatar: FC<UserAvatarType> = ({
   link = true,
   file,
+  name,
+  src: avatarSrc,
+  username,
   ...props
 }) => {
-  const user = useAuthStore((state) => state.user);
-  const [src, setSrc] = useState<string>(user?.avatar);
+  const [src, setSrc] = useState<string>(avatarSrc);
 
   if (file) {
     var fr = new FileReader();
@@ -24,14 +28,10 @@ export const UserAvatar: FC<UserAvatarType> = ({
     fr.readAsDataURL(file);
   }
 
-  useEffect(() => {
-    setSrc(user?.avatar);
-  }, [user?.avatar]);
-
-  const avatar = <Avatar name={user?.display_name} src={src} {...props} />;
+  const avatar = <Avatar name={name} src={src} {...props} />;
   if (!link) return avatar;
   return (
-    <Link href={`/u/${user?.username}`}>
+    <Link href={`/u/${username}`}>
       <a>{avatar}</a>
     </Link>
   );

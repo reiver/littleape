@@ -83,7 +83,15 @@ export const NewPostCard: FC<BoxProps> = () => {
     <Card>
       <Form onSubmit={handlePost}>
         <Box display="flex" experimental_spaceX={3}>
-          <UserAvatar w={8} h={8} mt="1" size="sm" />
+          <UserAvatar
+            w={8}
+            h={8}
+            mt="1"
+            size="sm"
+            username={user.username}
+            name={user.display_name}
+            src={user.avatar}
+          />
           <FormControl isInvalid={!!errors.content}>
             <Textarea
               {...register("content")}
