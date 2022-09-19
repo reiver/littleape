@@ -42,6 +42,8 @@ import {
   API_USER_PROFILE,
 } from "constants/API";
 import { useForm } from "hooks/useForm";
+import { isOtherServer } from "lib/isOtherServer";
+import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
@@ -70,12 +72,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({
     onClose: onEditProfileClose,
   } = useDisclosure();
   const loggedInUser = useAuthStore((state) => state.user);
-  const followers = useSWR<OrderedCollection>(
-    user && [API_USER_FOLLOWERS(username), { activity: true }]
-  );
-  const following = useSWR<OrderedCollection>(
-    user && [API_USER_FOLLOWING(username), { activity: true }]
-  );
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
       <Skeleton isLoaded={!!user}>
@@ -222,49 +218,76 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({
             color: "gray.500",
           }}
         >
-          <Link>
-            <Text
-              as="span"
-              mr={2}
-              fontWeight={"medium"}
-              _dark={{
-                color: "gray.100",
-              }}
-              color="gray.800"
-            >
-              {following.data ? (
-                following.data.totalItems
-              ) : following.error ? (
-                0
-              ) : (
-                <Spinner size="xs" />
-              )}
-            </Text>
-            Following
-          </Link>
-          <Link>
-            <Text
-              as="span"
-              mr={2}
-              fontWeight={"medium"}
-              _dark={{
-                color: "gray.100",
-              }}
-              color="gray.800"
-            >
-              {followers.data ? (
-                followers.data.totalItems
-              ) : followers.error ? (
-                0
-              ) : (
-                <Spinner size="xs" />
-              )}
-            </Text>
-            Follower
-          </Link>
+          <FollowList
+            urlFetcher={API_USER_FOLLOWING}
+            title="Following"
+            name="Follows"
+            user={user}
+          />
+          <FollowList
+            urlFetcher={API_USER_FOLLOWERS}
+            title="Followers"
+            name="Followers"
+            user={user}
+          />
         </Box>
       </Box>
     </Box>
+  );
+};
+
+type FollowListProps = {
+  user: ActivityUser;
+  urlFetcher: (username: string) => string;
+  title: string;
+  name: string;
+};
+
+const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name }) => {
+  const {
+    query: { username },
+  } = useRouter();
+  const { data: followList, error } = useSWR<OrderedCollection>(
+    user && [urlFetcher(String(username)), { activity: true }]
+  );
+  const isAnotherServer = isOtherServer(username);
+  const trigger = (
+    <Link>
+      <Text
+        as="span"
+        mr={2}
+        fontWeight={"medium"}
+        _dark={{
+          color: "gray.100",
+        }}
+        color="gray.800"
+      >
+        {followList ? followList.totalItems : error ? 0 : <Spinner size="xs" />}
+      </Text>
+      {title}
+    </Link>
+  );
+  if (!isAnotherServer) return trigger;
+  return (
+    <Popover placement="bottom-start">
+      <PopoverTrigger>{trigger}</PopoverTrigger>
+      <Portal>
+        <PopoverContent _dark={{ bg: "dark.700" }}>
+          <PopoverArrow />
+          <PopoverBody>
+            <Text fontWeight="bold">
+              {name} from other servers are not displayed
+            </Text>
+            <Text as="span" display="block">
+              Browse more on the{" "}
+              <Link color="primary.500" href={"https://google.com"}>
+                original profile
+              </Link>
+            </Text>
+          </PopoverBody>
+        </PopoverContent>
+      </Portal>
+    </Popover>
   );
 };
 

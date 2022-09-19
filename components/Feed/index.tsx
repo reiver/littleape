@@ -35,31 +35,35 @@ export const Feed: FC<FeedProps> = ({ username, ...props }) => {
       })(),
     [data, username]
   );
+
   return (
     <Box>
-      <Skeleton isLoaded={!!data} rounded="md" mb={3} minH="250px">
-        <Box {...props}>
-          {data && data.orderedItems && (
-            <WindowScroller>
-              {({ width, height, isScrolling, onChildScroll, scrollTop }) => (
-                <List
-                  isScrolling={isScrolling}
-                  onScroll={onChildScroll}
-                  scrollTop={scrollTop}
-                  deferredMeasurementCache={cache}
-                  ref={listRef}
-                  rowCount={data.orderedItems.length}
-                  rowHeight={cache.rowHeight}
-                  rowRenderer={rowRenderer}
-                  autoWidth
-                  width={width}
-                  autoHeight
-                  height={height}
-                />
-              )}
-            </WindowScroller>
-          )}
-        </Box>
+      <Skeleton isLoaded={!!data} rounded="md" mb={3} minH={!!!data && "250px"}>
+        {
+          <Box {...props}>
+            {data && data.orderedItems && (
+              <WindowScroller>
+                {({ width, height, isScrolling, onChildScroll, scrollTop }) => (
+                  <List
+                    isScrolling={isScrolling}
+                    onScroll={onChildScroll}
+                    scrollTop={scrollTop}
+                    deferredMeasurementCache={cache}
+                    ref={listRef}
+                    rowCount={data.orderedItems.length}
+                    rowHeight={cache.rowHeight}
+                    rowRenderer={rowRenderer}
+                    autoWidth
+                    width={width}
+                    autoHeight
+                    height={height}
+                  />
+                )}
+              </WindowScroller>
+            )}
+          </Box>
+        }
+        {/* {isOtherServer && data.totalItems === 0 && <Card>empty</Card>} */}
       </Skeleton>
       <Skeleton
         isLoaded={!!data}
