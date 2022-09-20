@@ -8,8 +8,12 @@ export type NoteFeedProps = {
 
 export const NoteFeed: FC<NoteFeedProps> = ({ item, ...props }) => {
   return (
-    <Text p="1" py="4" whiteSpace="pre-wrap" {...props}>
-      {item.object.content}
-    </Text>
+    <Text
+      p="1"
+      py="4"
+      whiteSpace="pre-wrap"
+      {...props}
+      dangerouslySetInnerHTML={{ __html: item.object.content }}
+    />
   );
 };
