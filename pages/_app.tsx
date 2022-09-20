@@ -6,7 +6,6 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";
-import "styles/tailwind.css";
 import { SWRConfig } from "swr";
 
 dayjs.extend(relativeTime);
