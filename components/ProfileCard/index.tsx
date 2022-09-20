@@ -1,12 +1,21 @@
-import { Box, BoxProps, Button, Text } from "@chakra-ui/react";
+import { Box, BoxProps, Button, Spinner, Text } from "@chakra-ui/react";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
+import { API_USER_FOLLOWERS, API_USER_FOLLOWING } from "constants/API";
 import Link from "next/link";
 import { FC } from "react";
 import { useAuthStore } from "store";
+import useSWR from "swr";
+import { OrderedCollection } from "types/ActivityPub";
 
 export const ProfileCard: FC<BoxProps> = (props) => {
   const user = useAuthStore((state) => state.user);
+  const { data: followers } = useSWR<OrderedCollection>(
+    user && [API_USER_FOLLOWERS(user.username), { activity: true }]
+  );
+  const { data: following } = useSWR<OrderedCollection>(
+    user && [API_USER_FOLLOWING(user.username), { activity: true }]
+  );
   return (
     <Box rounded="lg" bg="light.50" _dark={{ bg: "dark.700" }} p={1} {...props}>
       <UserCover ratio={16 / 6} src={user.banner} />
@@ -32,13 +41,21 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         mt={-9}
       >
         <Box>
-          <Text fontWeight="semibold">1234</Text>
+          {!following ? (
+            <Spinner size="xs" />
+          ) : (
+            <Text fontWeight="semibold">{following.totalItems}</Text>
+          )}
           <Text color="gray.500" fontSize="xs">
             Following
           </Text>
         </Box>
         <Box>
-          <Text fontWeight="semibold">1234</Text>
+          {!followers ? (
+            <Spinner size="xs" />
+          ) : (
+            <Text fontWeight="semibold">{followers.totalItems}</Text>
+          )}
           <Text color="gray.500" fontSize="xs">
             Followers
           </Text>
