@@ -1,11 +1,14 @@
-import { Alert as ChakraAlert, chakra } from "@chakra-ui/react";
+import { Alert as ChakraAlert, AlertProps } from "@chakra-ui/react";
+import { FC } from "react";
 
-export const Alert = chakra(ChakraAlert, {
-  baseStyle: {
-    rounded: "md",
-
-    _dark: {
-      color: "red.200",
-    },
-  },
-});
+export const Alert: FC<AlertProps> = (props) => {
+  return (
+    <ChakraAlert
+      rounded="md"
+      _dark={{
+        color: props.status === "error" && "red.200",
+      }}
+      {...props}
+    />
+  );
+};
