@@ -43,7 +43,6 @@ import {
 } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { isOtherServer } from "lib/isOtherServer";
-import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
@@ -56,15 +55,17 @@ const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
 
 type ProfileHeaderProps = {
-  user: ActivityUser;
   username: string;
 } & BoxProps;
 
 export const ProfileHeader: FC<ProfileHeaderProps> = ({
-  user,
   username,
   ...props
 }) => {
+  const { data: user } = useSWR<ActivityUser>([
+    API_USER_PROFILE(String(username)),
+    { activity: true },
+  ]);
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
   const {
     isOpen: isEditProfileOpen,
@@ -223,12 +224,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({
             title="Following"
             name="Follows"
             user={user}
+            username={username}
           />
           <FollowList
             urlFetcher={API_USER_FOLLOWERS}
             title="Followers"
             name="Followers"
             user={user}
+            username={username}
           />
         </Box>
       </Box>
@@ -241,12 +244,16 @@ type FollowListProps = {
   urlFetcher: (username: string) => string;
   title: string;
   name: string;
+  username: string;
 };
 
-const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name }) => {
-  const {
-    query: { username },
-  } = useRouter();
+const FollowList: FC<FollowListProps> = ({
+  user,
+  urlFetcher,
+  title,
+  name,
+  username,
+}) => {
   const { data: followList, error } = useSWR<OrderedCollection>(
     user && [urlFetcher(String(username)), { activity: true }]
   );
@@ -280,7 +287,7 @@ const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name }) => {
             </Text>
             <Text as="span" display="block">
               Browse more on the{" "}
-              <Link color="primary.500" href={"https://google.com"}>
+              <Link color="primary.500" href={user && user.id}>
                 original profile
               </Link>
             </Text>

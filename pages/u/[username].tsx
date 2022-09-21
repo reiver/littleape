@@ -45,7 +45,7 @@ export default function UserProfile() {
           flexDirection="column"
           experimental_spaceY={3}
         >
-          <ProfileHeader user={user} username={String(username)} />
+          <ProfileHeader username={String(username)} />
           {user && username == loggedInUser?.username && <NewPostCard />}
           {user && <Feed username={String(username)} />}
         </Box>
