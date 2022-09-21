@@ -16,6 +16,10 @@ export default {
     primary: {
       control: { type: "boolean" },
     },
+    variant: {
+      options: ["solid", "outline", "link", "ghost"],
+      control: "radio",
+    },
   },
 };
 
