@@ -14,7 +14,7 @@ import {
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "components/Button";
-import { Card } from "components/Card/Index";
+import { Card } from "components/Card";
 import { Form } from "components/Form";
 import { UserAvatar } from "components/UserAvatar";
 import { API_OUTBOX, HOST } from "constants/API";
