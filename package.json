@@ -10,7 +10,10 @@
     "lint:fix": "next lint --fix",
     "prepare": "husky install",
     "gen:theme-typings": "chakra-cli tokens chakra.config.ts",
-    "postinstall": "npm run gen:theme-typings"
+    "postinstall": "npm run gen:theme-typings",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public",
+    "serve-storybook": "serve storybook-static"
   },
   "resolutions": {
     "@types/react": "18.0.0",
@@ -41,6 +44,13 @@
   },
   "devDependencies": {
     "@chakra-ui/cli": "^2.1.7",
+    "@chakra-ui/storybook-addon": "^4.0.11",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/builder-webpack5": "^6.5.12",
+    "@storybook/manager-webpack5": "^6.5.12",
+    "@storybook/react": "^6.5.12",
     "@types/js-cookie": "^3.0.2",
     "@types/node": "^18.7.13",
     "@types/react": "^18.0.17",
@@ -51,6 +61,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
     "prettier": "^2.7.1",
+    "storybook-addon-next": "^1.6.9",
+    "storybook-dark-mode": "^1.1.2",
     "typescript": "^4.8.2"
   }
 }
