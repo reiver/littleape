@@ -1,13 +1,13 @@
 import { Box, Image, Text } from "@chakra-ui/react";
-import { Card } from ".";
+import { Card as C } from ".";
 
 export default {
-  component: Card,
+  component: C,
   title: "Components/Card",
 };
 
 const Template = (args) => (
-  <Card {...args} display="flex" experimental_spaceX={3}>
+  <C {...args} display="flex" experimental_spaceX={3}>
     <Image src="https://bit.ly/dan-abramov" rounded="md" />
     <Box>
       <Text fontWeight="bold" fontSize="3xl">
@@ -25,8 +25,7 @@ const Template = (args) => (
         of Lorem Ipsum.
       </Text>
     </Box>
-  </Card>
+  </C>
 );
 
-export const Solid = Template.bind({});
-Solid.args = {};
+export const Card = Template.bind({});
