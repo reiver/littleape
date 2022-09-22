@@ -6,7 +6,7 @@ import { ProfileCard } from ".";
 
 export default {
   component: ProfileCard,
-  title: "Components/ProfileCard",
+  title: "UI/ProfileCard",
   decorators: [
     (Story) => {
       return (

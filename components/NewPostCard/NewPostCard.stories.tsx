@@ -4,7 +4,7 @@ import { NewPostCard } from ".";
 
 export default {
   component: NewPostCard,
-  title: "Components/Feed/NewPost",
+  title: "UI/Feed/NewPost",
   decorators: [
     (Story) => (
       <Box maxW="xl">

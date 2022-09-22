@@ -7,7 +7,7 @@ import { NoteFeed } from "./Note";
 
 export default {
   component: Feed,
-  title: "Components/Feed",
+  title: "UI/Feed",
   decorators: [
     (Story) => (
       <SWRConfig value={{ fetcher }}>

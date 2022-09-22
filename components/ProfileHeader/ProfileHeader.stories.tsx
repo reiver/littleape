@@ -5,7 +5,7 @@ import { ProfileHeader } from ".";
 
 export default {
   component: ProfileHeader,
-  title: "Components/ProfileHeader",
+  title: "UI/ProfileHeader",
   decorators: [
     (Story) => {
       return (
