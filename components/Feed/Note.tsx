@@ -1,9 +1,8 @@
 import { Text, TextProps } from "@chakra-ui/react";
 import { FC } from "react";
-import { Activity } from "types/ActivityPub";
 
 export type NoteFeedProps = {
-  item: Activity;
+  item: { object: { content: string } };
 } & TextProps;
 
 export const NoteFeed: FC<NoteFeedProps> = ({ item, ...props }) => {

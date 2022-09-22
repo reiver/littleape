@@ -13,7 +13,7 @@ import {
   HeartIcon as HeroHeartIcon,
   ShareIcon as HeroShareIcon,
 } from "@heroicons/react/24/outline";
-import { Card } from "components/Card/Index";
+import { Card } from "components/Card";
 import dayjs from "dayjs";
 import { FC } from "react";
 import { Activity } from "types/ActivityPub";
@@ -24,7 +24,7 @@ const ShareIcon = chakra(HeroShareIcon);
 const MoreIcon = chakra(EllipsisVerticalIcon);
 const SaveIcon = chakra(BookmarkIcon);
 
-export type FeedCardProps = { item: Activity } & BoxProps;
+export type FeedCardProps = { item: Partial<Activity> } & BoxProps;
 
 export const FeedCard: FC<FeedCardProps> = ({ item, ...props }) => {
   return (
