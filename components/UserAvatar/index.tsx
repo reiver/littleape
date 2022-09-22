@@ -6,8 +6,8 @@ type UserAvatarType = {
   link?: boolean;
   file?: File;
   name: string;
-  src: string;
-  username: string;
+  src?: string;
+  username?: string;
 } & AvatarProps;
 
 export const UserAvatar: FC<UserAvatarType> = ({
@@ -29,7 +29,7 @@ export const UserAvatar: FC<UserAvatarType> = ({
   }
 
   const avatar = <Avatar name={name} src={src} {...props} />;
-  if (!link) return avatar;
+  if (!link || !username) return avatar;
   return (
     <Link href={`/u/${username}`}>
       <a>{avatar}</a>
