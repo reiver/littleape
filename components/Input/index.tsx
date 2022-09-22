@@ -58,7 +58,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         border="1px solid"
         ring={0}
         rounded="lg"
-        borderColor="gray.200"
+        borderColor="gray.300"
         transform="200ms ease-out all"
         borderWidth="1px"
         borderStyle="solid"
@@ -92,7 +92,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         <ChakraInput
           as={textarea ? "textarea" : "input"}
           rounded="lg"
-          bg="light.100"
+          bg="light.200"
           px="4"
           py="2"
           border="0"
