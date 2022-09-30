@@ -223,7 +223,7 @@ const VerifyRegistration: FC<{
 };
 
 const Register: FC = () => {
-  const [email, setEmail] = useState<string | undefined>("12");
+  const [email, setEmail] = useState<string | undefined>(undefined);
   const toast = useToast();
   const onRegister = (code, email) => {
     setEmail(email);
