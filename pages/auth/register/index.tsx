@@ -37,13 +37,14 @@ const registrationSchema = z.object({
 
 const verifySchema = z.object({
   code: z.string().min(6),
+  email: z.string().min(1),
 });
 
-const RegistrationForm: FC<{ onRegister: (code: string) => void }> = ({
-  onRegister,
-}) => {
+const RegistrationForm: FC<{
+  onRegister: (code: string, email: string) => void;
+}> = ({ onRegister }) => {
   const [error, setError] = useState(null);
-  const { register, errors, post, loading } = useForm<{
+  const { register, errors, getValues, post, loading } = useForm<{
     code: string;
   }>(
     API_SIGN_UP,
@@ -53,7 +54,7 @@ const RegistrationForm: FC<{ onRegister: (code: string) => void }> = ({
   const signUp = (e: FormEvent<HTMLFormElement>) => {
     post(e)
       .then(({ code }) => {
-        onRegister(code);
+        onRegister(code, String(getValues().email));
       })
       .catch((e) => {
         const err: Error = e.response?._data;
@@ -117,16 +118,36 @@ const RegistrationForm: FC<{ onRegister: (code: string) => void }> = ({
   );
 };
 
+const pinInputProps = {
+  borderColor: "gray.300",
+  bg: "light.200",
+  _dark: {
+    borderColor: "gray.600",
+    bg: "dark.500",
+    _hover: { bg: "dark.600" },
+    _focus: {
+      bg: "#393E4F",
+    },
+  },
+  _invalid: {
+    borderColor: "red.400 !important",
+    _focusWithin: {
+      ringColor: "red.300",
+      borderColor: "red.500 !important",
+    },
+  },
+};
 const VerifyRegistration: FC<{
+  email: string;
   backToRegistration: () => void;
-}> = ({ backToRegistration }) => {
+}> = ({ backToRegistration, email }) => {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState(null);
-  const { setValue, errors, getValues, post, loading } = useForm<{
+  const { setValue, errors, post, loading } = useForm<{
     auth: Auth;
     user: User;
-  }>(API_VERIFY_SIGN_UP, { code: "" }, verifySchema);
+  }>(API_VERIFY_SIGN_UP, { code: "", email }, verifySchema);
   const verify = (e) => {
     post(e)
       .then(({ auth, user }) => {
@@ -154,12 +175,12 @@ const VerifyRegistration: FC<{
                 otp
                 size="lg"
               >
-                <PinInputField />
-                <PinInputField />
-                <PinInputField />
-                <PinInputField />
-                <PinInputField />
-                <PinInputField />
+                <PinInputField {...pinInputProps} />
+                <PinInputField {...pinInputProps} />
+                <PinInputField {...pinInputProps} />
+                <PinInputField {...pinInputProps} />
+                <PinInputField {...pinInputProps} />
+                <PinInputField {...pinInputProps} />
               </PinInput>
               {!!errors.code && (
                 <FormErrorMessage>{errors.code.message}</FormErrorMessage>
@@ -202,18 +223,19 @@ const VerifyRegistration: FC<{
 };
 
 const Register: FC = () => {
-  const [code, setCode] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>("12");
   const toast = useToast();
-  const onRegister = (code) => {
-    setCode(code);
+  const onRegister = (code, email) => {
+    setEmail(email);
     toast({
       title: "Code [Development]",
       description: `Code is: ${code}`,
       status: "success",
       duration: 9000,
+      isClosable: true,
     });
   };
-  const backToRegistration = setCode.bind(null, undefined);
+  const backToRegistration = setEmail.bind(null, undefined);
 
   return (
     <MainLayout>
@@ -242,10 +264,13 @@ const Register: FC = () => {
           </Heading>
         </Box>
         <Box mt="8">
-          {!code ? (
+          {!email ? (
             <RegistrationForm onRegister={onRegister} />
           ) : (
-            <VerifyRegistration backToRegistration={backToRegistration} />
+            <VerifyRegistration
+              email={email}
+              backToRegistration={backToRegistration}
+            />
           )}
         </Box>
       </Box>
