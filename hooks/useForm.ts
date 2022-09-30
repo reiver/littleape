@@ -18,7 +18,7 @@ export const useForm = <T = any>(
   const methodSwitch = useCallback(
     (method: "POST" | "PATCH" | "GET" | "DELETE" = "GET") =>
       async (
-        e: FormEvent<HTMLFormElement>,
+        e?: FormEvent<HTMLFormElement>,
         parser?: (values: typeof defaultValues) => Promise<typeof defaultValues>
       ): Promise<T> => {
         let body = {};
