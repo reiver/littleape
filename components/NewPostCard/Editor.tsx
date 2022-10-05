@@ -12,7 +12,7 @@ const EditorContent = chakra(TipTapEditorContent);
 export type EditorProps = {
   ref?: any;
   error?: Error;
-} & BoxProps & { onChange: (value: string) => void };
+} & BoxProps & { onChange?: (value: string) => void };
 
 export const Editor: FC<EditorProps> = forwardRef(function Editor(
   { error, ...props },
