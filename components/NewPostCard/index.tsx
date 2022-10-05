@@ -7,7 +7,6 @@ import {
   FormControl,
   FormErrorMessage,
   Text,
-  Textarea,
 } from "@chakra-ui/react";
 import {
   PhotoIcon as HeroIconPhotoIcon,
@@ -19,11 +18,17 @@ import { Form } from "components/Form";
 import { UserAvatar } from "components/UserAvatar";
 import { API_OUTBOX, HOST } from "constants/API";
 import { useForm } from "hooks/useForm";
-import { FC } from "react";
+import dynamic from "next/dynamic";
+import { FC, useRef } from "react";
 import { useAuthStore } from "store";
 import { useSWRConfig } from "swr";
 import { joinURL } from "ufo";
 import { z } from "zod";
+import { EditorProps } from "./Editor";
+
+const Editor = dynamic<EditorProps>(() =>
+  import("./Editor").then((module) => module.Editor)
+);
 
 const PhotoIcon = chakra(HeroIconPhotoIcon);
 const VideoIcon = chakra(VideoCameraIcon);
@@ -56,8 +61,8 @@ const schema = z.object({
 export const NewPostCard: FC<BoxProps> = () => {
   const user = useAuthStore((state) => state.user);
   const { cache, mutate } = useSWRConfig();
-
-  const { register, post, loading, errors, reset } = useForm(
+  const editorRef = useRef<{ clearContent: () => void }>();
+  const { post, loading, errors, reset, setValue } = useForm(
     API_OUTBOX(user.username),
     {
       "@context": "https://www.w3.org/ns/activitystreams",
@@ -70,7 +75,10 @@ export const NewPostCard: FC<BoxProps> = () => {
   );
   const handlePost = async (e) => {
     post(e)
-      .then(() => reset())
+      .then(() => {
+        reset();
+        if (editorRef.current) editorRef.current.clearContent();
+      })
       .then(
         mutate.bind(
           null,
@@ -93,28 +101,12 @@ export const NewPostCard: FC<BoxProps> = () => {
             src={user.avatar}
           />
           <FormControl isInvalid={!!errors.content}>
-            <Textarea
-              {...register("content")}
+            <Editor
+              onChange={(value) => setValue("content", value)}
+              ref={editorRef}
               placeholder="Tell your friends about your thoughts"
               rounded="md"
               fontSize="sm"
-              rows={3}
-              bg="light.100"
-              _dark={{
-                bg: "dark.800",
-                borderColor: "dark.600",
-                _hover: {
-                  borderColor: "dark.400",
-                  bg: "dark.800",
-                },
-                _focus: {
-                  bg: "dark.900",
-                },
-              }}
-              _focus={{
-                ring: "2px",
-                borderColor: "primary",
-              }}
             />
             {errors.content && (
               <FormErrorMessage>{errors.content.message}</FormErrorMessage>

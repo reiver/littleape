@@ -2,25 +2,58 @@ import { BoxProps, chakra } from "@chakra-ui/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent as TipTapEditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { FC } from "react";
-import { UserMention } from "./EditorMention";
+import { FC, forwardRef, useEffect, useImperativeHandle } from "react";
+import { Emoji } from "./Editor.Emoji";
+import { Hashtag } from "./Editor.Hashtag";
+import { UserMention } from "./Editor.Mention";
 
 const EditorContent = chakra(TipTapEditorContent);
 
-type EditorProps = {
+export type EditorProps = {
+  ref?: any;
   error?: Error;
-} & BoxProps;
+} & BoxProps & { onChange: (value: string) => void };
 
-export const Editor: FC<EditorProps> = ({ error, ...props }) => {
+export const Editor: FC<EditorProps> = forwardRef(function Editor(
+  { error, ...props },
+  ref
+) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: false,
+        blockquote: false,
+        bulletList: false,
+        codeBlock: false,
+        horizontalRule: false,
+        listItem: false,
+        orderedList: false,
+        italic: false,
+        strike: false,
+        code: false,
+      }),
       UserMention,
+      Emoji,
+      Hashtag,
       Placeholder.configure({
-        placeholder: "Write something …",
+        placeholder: props.placeholder,
       }),
     ],
   });
+  useImperativeHandle(ref, () => ({
+    clearContent() {
+      editor.commands.clearContent();
+    },
+  }));
+  useEffect(() => {
+    if (editor) {
+      editor.on("update", () => {
+        if (props.onChange) {
+          props.onChange(editor.getHTML());
+        }
+      });
+    }
+  }, [editor]);
 
   return (
     <EditorContent
@@ -34,6 +67,7 @@ export const Editor: FC<EditorProps> = ({ error, ...props }) => {
       _invalid={{
         textColor: "red.400 !important",
       }}
+      cursor="text"
       border="1px solid"
       ring={0}
       rounded="lg"
@@ -41,7 +75,6 @@ export const Editor: FC<EditorProps> = ({ error, ...props }) => {
       transition="100ms ease-out all"
       borderWidth="1px"
       borderStyle="solid"
-      minH="200px"
       _dark={{
         color: "slate.200",
         _groupFocusWithin: {
@@ -72,19 +105,8 @@ export const Editor: FC<EditorProps> = ({ error, ...props }) => {
         "& *:focus-visible": {
           outline: "0",
         },
-        "& .ProseMirror": {
-          h: "auto",
-          w: "full",
-        },
-        "& .ProseMirror p.is-editor-empty:first-child::before": {
-          color: "gray",
-          content: "attr(data-placeholder)",
-          float: "left",
-          height: 0,
-          pointerEvents: "none",
-        },
       }}
       {...props}
     />
   );
-};
+});
