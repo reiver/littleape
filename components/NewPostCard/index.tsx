@@ -77,7 +77,8 @@ export const NewPostCard: FC<BoxProps> = () => {
     post(e)
       .then(() => {
         reset();
-        if (editorRef.current) editorRef.current.clearContent();
+        if (editorRef.current && editorRef.current.clearContent)
+          editorRef.current.clearContent();
       })
       .then(
         mutate.bind(
@@ -103,7 +104,7 @@ export const NewPostCard: FC<BoxProps> = () => {
           <FormControl isInvalid={!!errors.content}>
             <Editor
               onChange={(value) => setValue("content", value)}
-              ref={editorRef}
+              editorRef={editorRef}
               placeholder="Tell your friends about your thoughts"
               rounded="md"
               fontSize="sm"

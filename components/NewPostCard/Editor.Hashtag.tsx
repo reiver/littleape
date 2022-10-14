@@ -7,6 +7,8 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import tippy from "tippy.js";
 import { SuggestionItem } from "./Editor.utils";
 
+export const hashtagRegex = new RegExp(`(^|\\s)#(\\w+)`, "mgiu");
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     hashtag: {
@@ -220,13 +222,12 @@ const nodesBetween = (from, to, content, f, nodeStart = 0) => {
 };
 const parseHashtags = (editor: Editor) => {
   const $position = editor.view.state.selection.$from;
-  const regexp = new RegExp(`(^|\\s)#(\\w+)`, "mgiu");
   const text = $position.parent.textContent;
   let parentPos = $position.pos - $position.parentOffset;
   if (lastText == text) return;
   lastText = text;
 
-  const matches = text.matchAll(regexp);
+  const matches = text.matchAll(hashtagRegex);
   const chain = editor.chain();
   chain
     .setTextSelection({
@@ -238,13 +239,13 @@ const parseHashtags = (editor: Editor) => {
   for (const match of [...matches]) {
     const plusOne = match[0].startsWith(" ") ? 1 : 0;
     let nb = 0;
-    nodesBetween(
+    $position.parent.content.nodesBetween(
       0,
       match.index + match[0].length - 2,
-      //@ts-ignore
-      $position.parent.content.content,
       (node) => {
-        if (!node.isText) nb++;
+        if (!node.isText) {
+          nb++;
+        }
       }
     );
 

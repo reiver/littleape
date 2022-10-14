@@ -2,7 +2,7 @@ import { BoxProps, chakra } from "@chakra-ui/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent as TipTapEditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { FC, forwardRef, useEffect, useImperativeHandle } from "react";
+import { FC, Ref, useEffect, useImperativeHandle } from "react";
 import { Emoji } from "./Editor.Emoji";
 import { Hashtag } from "./Editor.Hashtag";
 import { UserMention } from "./Editor.Mention";
@@ -12,12 +12,10 @@ const EditorContent = chakra(TipTapEditorContent);
 export type EditorProps = {
   ref?: any;
   error?: Error;
+  editorRef?: Ref<unknown>;
 } & BoxProps & { onChange?: (value: string) => void };
 
-export const Editor: FC<EditorProps> = forwardRef(function Editor(
-  { error, ...props },
-  ref
-) {
+export const Editor: FC<EditorProps> = ({ error, editorRef, ...props }) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -40,7 +38,7 @@ export const Editor: FC<EditorProps> = forwardRef(function Editor(
       }),
     ],
   });
-  useImperativeHandle(ref, () => ({
+  useImperativeHandle(editorRef, () => ({
     clearContent() {
       editor.commands.clearContent();
     },
@@ -109,4 +107,4 @@ export const Editor: FC<EditorProps> = forwardRef(function Editor(
       {...props}
     />
   );
-});
+};
