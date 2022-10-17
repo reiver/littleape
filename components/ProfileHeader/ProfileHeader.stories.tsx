@@ -17,6 +17,4 @@ export default {
   ],
 };
 
-export const Default = () => (
-  <ProfileHeader username="reiver@mastodon.social" />
-);
+export const Default = () => <ProfileHeader username="reiver@mastodon.social" />;

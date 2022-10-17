@@ -9,6 +9,7 @@ import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { FETCH_USER_PROFILE } from "services/api";
 import { serverFetch } from "services/http.server";
 import { useAuthStore } from "store";
 import useSWR from "swr";
@@ -18,12 +19,8 @@ export default function UserProfile() {
   const {
     query: { username },
   } = useRouter();
-  const { data: user } = useSWR<ActivityUser>([
-    API_USER_PROFILE(String(username)),
-    { activity: true },
-  ]);
+  const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const loggedInUser = useAuthStore((state) => state.user);
-
   const title = `Greatape | @${String(username) || ""}`;
   return (
     <>
@@ -49,10 +46,7 @@ export default function UserProfile() {
           {user && username == loggedInUser?.username && <NewPostCard />}
           {user && <Feed username={String(username)} />}
         </Box>
-        <Box
-          gridColumn="span 6 / span 6"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"

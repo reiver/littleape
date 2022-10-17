@@ -1,3 +1,4 @@
 module.exports = {
-  plugins: []
+  plugins: [],
+	printWidth: 100,
 }

@@ -31,6 +31,7 @@ export const fetcher = <T = any>(
     options.headers["Accept"] = "application/activity+json";
   }
 
+  // if the url does not contain protocol, add app base api to it
   if (!new RegExp("^(?:[a-z]+:)?//", "i").test(url))
     url = joinURL(process.env.NEXT_PUBLIC_API_BASE_URI, url);
   return fetch<T>(url, options);

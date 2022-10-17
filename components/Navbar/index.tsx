@@ -14,19 +14,15 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import {
-  BellIcon,
-  EnvelopeIcon,
-  VideoCameraIcon,
-} from "@heroicons/react/24/outline";
+import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
-import { API_INBOX } from "constants/API";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
+import { FETCH_USER_INBOX } from "services/api";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
@@ -153,7 +149,7 @@ export const Navbar: FC<BoxProps> = (props) => {
 
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
-  const { data: inbox } = useSWR<OrderedCollection>(API_INBOX(user.username));
+  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user.username));
 
   return (
     <Menu placement="bottom-end">
@@ -172,9 +168,7 @@ const MessagesPopup: FC = () => {
         {inbox &&
           inbox.orderedItems.map((item, i) => {
             const actorUsername =
-              item.object.attributedTo.split("/")[
-                item.object.attributedTo.split("/").length - 1
-              ];
+              item.object.attributedTo.split("/")[item.object.attributedTo.split("/").length - 1];
             return (
               <div key={item.id}>
                 <MenuItem>

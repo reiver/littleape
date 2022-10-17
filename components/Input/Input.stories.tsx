@@ -13,12 +13,7 @@ export const Inputs = () => (
   <VStack experimental_spaceY={3}>
     <Input name="" placeholder="Type anything..." />
     <Input name="" placeholder="Type anything..." size="sm" />
-    <Input
-      name="email"
-      label="With Label"
-      type="email"
-      placeholder="example@domain.com"
-    />
+    <Input name="email" label="With Label" type="email" placeholder="example@domain.com" />
     <Input leftAddon={<SearchIcon />} name="" placeholder="Search..." />
     <Input
       error={{ message: "This email is not valid!" }}
@@ -26,12 +21,6 @@ export const Inputs = () => (
       label="Email"
       placeholder="example@domain.com"
     />
-    <Input
-      textarea
-      h={40}
-      name="message"
-      label="Message"
-      placeholder="Message..."
-    />
+    <Input textarea h={40} name="message" label="Message" placeholder="Message..." />
   </VStack>
 );

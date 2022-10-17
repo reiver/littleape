@@ -26,10 +26,7 @@ import {
   useDisclosure,
   useMediaQuery,
 } from "@chakra-ui/react";
-import {
-  CameraIcon as HeroCameraIcon,
-  PencilIcon,
-} from "@heroicons/react/24/outline";
+import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { FileUpload } from "components/FileUpload";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
@@ -44,6 +41,7 @@ import {
 import { useForm } from "hooks/useForm";
 import { isOtherServer } from "lib/isOtherServer";
 import { FC, useState } from "react";
+import { FETCH_USER_PROFILE } from "services/api";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
@@ -58,14 +56,8 @@ type ProfileHeaderProps = {
   username: string;
 } & BoxProps;
 
-export const ProfileHeader: FC<ProfileHeaderProps> = ({
-  username,
-  ...props
-}) => {
-  const { data: user } = useSWR<ActivityUser>([
-    API_USER_PROFILE(String(username)),
-    { activity: true },
-  ]);
+export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
+  const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
   const {
     isOpen: isEditProfileOpen,
@@ -197,17 +189,9 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({
             {!username.includes("@") && "@" + process.env.NEXT_PUBLIC_HANDLE}
           </Text>
         </Box>
-        <Skeleton
-          h={!!!user && "24px"}
-          maxW={!!!user && "350px"}
-          isLoaded={!!user}
-          w="full"
-        >
+        <Skeleton h={!!!user && "24px"} maxW={!!!user && "350px"} isLoaded={!!user} w="full">
           <Box fontSize={{ base: "sm", md: "md" }}>
-            <Text
-              whiteSpace="pre-wrap"
-              dangerouslySetInnerHTML={{ __html: user?.summary }}
-            />
+            <Text whiteSpace="pre-wrap" dangerouslySetInnerHTML={{ __html: user?.summary }} />
           </Box>
         </Skeleton>
         <Box
@@ -247,13 +231,7 @@ type FollowListProps = {
   username: string;
 };
 
-const FollowList: FC<FollowListProps> = ({
-  user,
-  urlFetcher,
-  title,
-  name,
-  username,
-}) => {
+const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name, username }) => {
   const { data: followList, error } = useSWR<OrderedCollection>(
     user && [urlFetcher(String(username)), { activity: true }]
   );
@@ -282,9 +260,7 @@ const FollowList: FC<FollowListProps> = ({
         <PopoverContent _dark={{ bg: "dark.700" }}>
           <PopoverArrow />
           <PopoverBody>
-            <Text fontWeight="bold">
-              {name} from other servers are not displayed
-            </Text>
+            <Text fontWeight="bold">{name} from other servers are not displayed</Text>
             <Text as="span" display="block">
               Browse more on the{" "}
               <Link color="primary.500" href={user && user.id}>
@@ -406,13 +382,12 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     let v = null;
     post(e, async (values) => {
       const { avatar, banner } = values;
-      await Promise.all([
-        uploadFile(avatar as File),
-        uploadFile(banner as File),
-      ]).then(([avatarUrl, bannerUrl]) => {
-        if (avatarUrl) values.avatar = avatarUrl;
-        if (bannerUrl) values.banner = bannerUrl;
-      });
+      await Promise.all([uploadFile(avatar as File), uploadFile(banner as File)]).then(
+        ([avatarUrl, bannerUrl]) => {
+          if (avatarUrl) values.avatar = avatarUrl;
+          if (bannerUrl) values.banner = bannerUrl;
+        }
+      );
       v = values;
       return values;
     }).then((response) => {
@@ -448,10 +423,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   onDropAccepted={onBannerSelected}
                   accept={{ "image/jpeg": [], "image/png": [] }}
                 >
-                  <UserCover
-                    file={watch("banner") as File}
-                    src={user?.banner}
-                  />
+                  <UserCover file={watch("banner") as File} src={user?.banner} />
                   <Box
                     position="absolute"
                     w="full"
@@ -476,13 +448,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   </Box>
                 </FileUpload>
               </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY={5}
-                p="4"
-                pb={0}
-              >
+              <Box display="flex" flexDirection="column" experimental_spaceY={5} p="4" pb={0}>
                 <Box
                   mt="-100px"
                   display="flex"
@@ -560,12 +526,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button
-              colorScheme="primary"
-              mr={3}
-              type="submit"
-              isLoading={loading}
-            >
+            <Button colorScheme="primary" mr={3} type="submit" isLoading={loading}>
               Save
             </Button>
             <Button onClick={props.onClose}>Cancel</Button>
