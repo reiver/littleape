@@ -23,10 +23,16 @@ export const DashboardLayout: FC<DashboardProps> = ({
       <Navbar />
       <Container flexGrow={1} {...props} />
       {footer && (
-        <Container>
+        <Box
+          position="sticky"
+          bottom="0"
+          backgroundColor="white"
+        >
           <Footer />
-        </Container>
+        </Box>
       )}
+      {/* <Footer /> */}
+
     </Box>
   );
 };

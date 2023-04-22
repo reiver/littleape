@@ -1,6 +1,5 @@
 import { Box } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
-import { Footer } from "components/Footer";
 import { MainMenu } from "components/MainMenu";
 import { MightLikeCard } from "components/MightLikeCard";
 import { NewPostCard } from "components/NewPostCard";
@@ -19,7 +18,7 @@ export default function Home() {
         <title>Greatape</title>
       </Head>
       <DashboardLayout
-        footer={false}
+        footer={true}
         display="grid"
         gridTemplateColumns="repeat(24, minmax(0, 1fr))"
         gridGap={3}
@@ -43,7 +42,6 @@ export default function Home() {
               <ProfileCard />
               <MainMenu mt={3} />
             </Box>
-            <Footer compact />
           </Box>
         </Box>
         <Box
