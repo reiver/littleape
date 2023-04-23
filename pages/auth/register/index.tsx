@@ -8,19 +8,17 @@ import {
   PinInputField,
   Text,
   useToast,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
-import { Logo } from "components/Logo";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, FormEvent, useState } from "react";
 import { useAuthStore } from "store";
@@ -46,11 +44,7 @@ const RegistrationForm: FC<{
   const [error, setError] = useState(null);
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
-  }>(
-    API_SIGN_UP,
-    { email: "", password: "", username: "" },
-    registrationSchema
-  );
+  }>(API_SIGN_UP, { email: "", password: "", username: "" }, registrationSchema);
   const signUp = (e: FormEvent<HTMLFormElement>) => {
     post(e)
       .then(({ code }) => {
@@ -63,44 +57,100 @@ const RegistrationForm: FC<{
   };
   return (
     <>
-      <Form
-        onSubmit={signUp}
+      <Box
         display="flex"
+        experimental_spaceX={"2"}
+        textColor="slate.900"
+        _dark={{
+          textColor: "slate.200",
+        }}
         flexDirection="column"
-        experimental_spaceY={4}
       >
-        <Input
-          autoFocus
-          {...register("username")}
-          error={errors.username}
-          label="Username"
-        />
+        {/* <Logo maxW="8" strokeWidth={2} /> */}
+        <Heading 
+          as="h1" 
+          display="block" 
+          textAlign="left" 
+          fontSize="3xl" 
+          fontWeight="semibold"
+        >
+        Welcome!
+        </Heading>
+        <Text
+          margin="15px 0 !important"
+          color="#7E7E7E"
+        >
+          Please enter your info. to continue
+        </Text>
+      </Box>
+      <Form onSubmit={signUp} display="flex" flexDirection="column" experimental_spaceY={4}>
+
+        <Input autoFocus {...register("username")} error={errors.username} label="Username" />
         <Input {...register("email")} error={errors.email} />
-        <Input
-          type="password"
-          {...register("password")}
-          error={errors.password}
-        />
+        <Input type="password" {...register("password")} error={errors.password} />
+
+        {/* <Input autoFocus type="text" placeholder="Nickname" {...register("nickname")} error={errors.email} />
+        <Input type="text" placeholder="User name" {...register("username")} error={errors.email} />
+        <Input type="text" placeholder="email" {...register("email")} error={errors.email} /> */}
         {error && (
           <Alert status="error">
             <AlertIcon />
             {error}
           </Alert>
         )}
-        <Box>
-          <Button
-            primary
-            w="full"
-            type="submit"
-            isLoading={loading}
-            mt={error ? 0 : 3}
+        <Box
+          mt="6"
+          display="flex"
+          flexDirection="column"
+          experimental_spaceY="4"
+          textAlign="center"
+          color="slate.500"
+          _dark={{ color: "slate.400" }}
+        >
+          <Text
+            margin="0 !important"
+            color="#7E7E7E"
+            textAlign="left"
+            width="100%"
+            marginTop="15px !important"
           >
-            Sign up
+            Already have an account?
+          </Text>
+          <Heading 
+            as="h3" 
+            display="block" 
+            textAlign="left" 
+            fontSize="1xl" 
+            fontWeight="semibold"
+            color="black"
+            marginTop="10px !important"
+          >
+            Login!
+          </Heading>
+        </Box>
+        <Box
+          marginTop="80px !important"
+        >
+          <Button 
+            backgroundColor="#FFCC00" 
+            w="full" 
+            type="submit" 
+            mt={error ? 0 : 3} 
+            isLoading={loading}
+            border="1px solid black"
+            borderColor="black"
+          >
+            Register
           </Button>
         </Box>
+        {/* <Box>
+          <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
+            Sign up
+          </Button>
+        </Box> */}
       </Form>
 
-      <Box
+      {/* <Box
         mt="6"
         display="flex"
         flexDirection="column"
@@ -113,7 +163,7 @@ const RegistrationForm: FC<{
         <Link href="/auth/login">
           <Button className="block w-full">Login</Button>
         </Link>
-      </Box>
+      </Box> */}
     </>
   );
 };
@@ -162,29 +212,52 @@ const VerifyRegistration: FC<{
 
   return (
     <>
-      <Form onSubmit={verify}>
+      <Form 
+        onSubmit={verify}
+        marginTop="185px"
+      >
         <VStack experimental_spaceY={5}>
-          <Text w="full" textAlign="left" _dark={{ color: "gray.400" }}>
+          <Box
+            display="flex"
+            experimental_spaceX={"2"}
+            textColor="slate.900"
+            _dark={{
+              textColor: "slate.200",
+            }}
+            flexDirection="column"
+            width="100%"
+          >
+            {/* <Logo maxW="8" strokeWidth={2} /> */}
+            <Heading 
+              as="h1" 
+              display="block" 
+              textAlign="left" 
+              fontSize="3xl" 
+              fontWeight="semibold"
+            >
+            Welcome!
+            </Heading>
+            <Text
+              margin="15px 0 !important"
+              color="#7E7E7E"
+            >
+              We’ve just sent a code to your email!
+            </Text>
+          </Box>
+          {/* <Text w="full" textAlign="left" _dark={{ color: "gray.400" }}>
             Enter the code we just sent you on your email address.
-          </Text>
+          </Text> */}
           <FormControl isInvalid={!!errors.code}>
             <Box display="flex" justifyContent="space-between" w="full">
-              <PinInput
-                autoFocus
-                onChange={(code) => setValue("code", code)}
-                otp
-                size="lg"
-              >
-                <PinInputField {...pinInputProps} />
-                <PinInputField {...pinInputProps} />
-                <PinInputField {...pinInputProps} />
-                <PinInputField {...pinInputProps} />
-                <PinInputField {...pinInputProps} />
-                <PinInputField {...pinInputProps} />
+              <PinInput autoFocus onChange={(code) => setValue("code", code)} otp size="lg" placeholder='✕'>
+                <PinInputField backgroundColor="white" {...pinInputProps} />
+                <PinInputField backgroundColor="white" {...pinInputProps} />
+                <PinInputField backgroundColor="white" {...pinInputProps} />
+                <PinInputField backgroundColor="white" {...pinInputProps} />
+                <PinInputField backgroundColor="white" {...pinInputProps} />
+                <PinInputField backgroundColor="white" {...pinInputProps} />
               </PinInput>
-              {!!errors.code && (
-                <FormErrorMessage>{errors.code.message}</FormErrorMessage>
-              )}
+              {!!errors.code && <FormErrorMessage>{errors.code.message}</FormErrorMessage>}
             </Box>
           </FormControl>
           {error && (
@@ -193,18 +266,21 @@ const VerifyRegistration: FC<{
               {error}
             </Alert>
           )}
-          <Button
-            isLoading={loading}
-            primary
-            w="full"
-            type="submit"
-            mt={error ? 0 : 3}
-          >
-            Verify
-          </Button>
         </VStack>
+        <Button 
+          isLoading={loading} 
+          backgroundColor="#FFCC00" 
+          w="full" 
+          type="submit" 
+          mt={error ? 0 : 3}
+          marginTop="175px"
+          border="1px solid black"
+          borderColor="black"
+        >
+          Register
+        </Button>
       </Form>
-      <Box
+      {/* <Box
         mt="6"
         display="flex"
         flexDirection="column"
@@ -217,7 +293,7 @@ const VerifyRegistration: FC<{
         <Button onClick={backToRegistration} className="block w-full">
           Registration
         </Button>
-      </Box>
+      </Box> */}
     </>
   );
 };
@@ -243,34 +319,11 @@ const Register: FC = () => {
         <title>Greatape | Register</title>
       </Head>
       <Box mx="auto" mt="10" w="full" maxW={"xs"}>
-        <Box
-          display="flex"
-          alignItems="center"
-          experimental_spaceX={"2"}
-          textColor="slate.900"
-          _dark={{
-            textColor: "slate.200",
-          }}
-        >
-          <Logo maxW="8" strokeWidth={2} />
-          <Heading
-            as="h1"
-            display="block"
-            textAlign="center"
-            fontSize="3xl"
-            fontWeight="semibold"
-          >
-            Register
-          </Heading>
-        </Box>
         <Box mt="8">
           {!email ? (
             <RegistrationForm onRegister={onRegister} />
           ) : (
-            <VerifyRegistration
-              email={email}
-              backToRegistration={backToRegistration}
-            />
+            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
           )}
         </Box>
       </Box>

@@ -34,23 +34,17 @@ export const Footer: FC<FooterProps> = (props) => {
       <Box display="flex" alignItems="center" width="50%" flexDirection="column">
         {/* <Logo w={3.5} strokeWidth={1.8} />
         <Text ml={2}>© 2022 Grateape.</Text> */}
-        <Image 
-          src="/home.svg"
-          width="auto"
-          height="30px"
-          margin="2px auto"
-        />
-        <Text display={{ base: "none", sm: "block"}} fontWeight="bold">Home</Text>
+        <Image src="/home.svg" width="auto" height="30px" margin="2px auto" />
+        <Text display={{ sm: "block" }} fontWeight="bold">
+          Home
+        </Text>
       </Box>
       <Box display="flex" alignItems="center" width="50%" flexDirection="column">
         {/* <ThemeSwitcher button={compact} /> */}
-        <Image 
-          src="/search.svg"
-          width="auto"
-          height="30px"
-          margin="2px auto"
-        />
-        <Text display={{ base: "none", sm: "block" }} fontWeight="bold">Discover</Text>
+        <Image src="/search.svg" width="auto" height="30px" margin="2px auto" />
+        <Text display={{ sm: "block" }} fontWeight="bold">
+          Discover
+        </Text>
       </Box>
     </Box>
   );

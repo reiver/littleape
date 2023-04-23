@@ -9,7 +9,7 @@ export const MainLayout: FC<PropsWithChildren<BoxProps>> = (props) => {
     <Box
       {...rest}
       p={0}
-      bg="slate.50"
+      bg="white"
       textColor="gray.900"
       _dark={{
         bg: "dark.700",

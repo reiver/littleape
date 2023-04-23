@@ -1,23 +1,18 @@
 import {
   Box,
-  BoxProps,
-  Button,
-  chakra,
+  BoxProps, chakra,
   HStack,
   IconButton,
-  IconButtonProps,
-  Menu,
+  IconButtonProps, Image, Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
   Text,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
-import { Logo } from "components/Logo";
-import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -82,44 +77,28 @@ export const Navbar: FC<BoxProps> = (props) => {
         justifyContent="space-between"
         alignItems="center"
         experimental_spaceX={4}
+        position='relative'
       >
-        <Link href="/" passHref>
-          <Box
-            as="a"
-            display="flex"
-            alignItems="center"
-            experimental_spaceX="2"
-            fontWeight="semibold"
-            fontSize="lg"
-            color="primary.600"
-          >
-            <Logo w="5" strokeWidth="2" />
-            <Text display={{ base: "none", md: "block" }}>Greatape</Text>
-          </Box>
-        </Link>
-        <SearchInput />
-        <Box display="flex" experimental_spaceX={3}>
-          {user && (
-            <>
-              <MessagesPopup />
-              <ActionIconButton>
-                <VideoIcon />
-              </ActionIconButton>
-            </>
-          )}
-          {!user && (
-            <Link href="/auth/login" passHref>
-              <Button size="sm" colorScheme="primary" as="a">
-                Login
-              </Button>
-            </Link>
-          )}
-          {user && (
+        <Box display="flex" width='100%'>
+          <Image 
+            src="/GreatApeLogo.svg" 
+            width="auto" 
+            height="30px" 
+            margin="2px auto" 
+          />
+        </Box>
+        <Box 
+          display="flex" 
+          position='absolute' 
+          left='0'
+          experimental_spaceX={3}
+        >
+        {user && (
             <Menu placement="bottom-end" flip direction="rtl">
               <MenuButton>
                 <UserAvatar
-                  w={7}
-                  h={7}
+                  w={10}
+                  h={10}
                   size="sm"
                   link={false}
                   name={user.display_name}
@@ -141,6 +120,22 @@ export const Navbar: FC<BoxProps> = (props) => {
               </MenuList>
             </Menu>
           )}
+          {/* {user && (
+            <>
+              <MessagesPopup />
+              <ActionIconButton>
+                <VideoIcon />
+              </ActionIconButton>
+            </>
+          )}
+          {!user && (
+            <Link href="/auth/login" passHref>
+              <Button size="sm" colorScheme="primary" as="a">
+                Login
+              </Button>
+            </Link>
+          )} */}
+          
         </Box>
       </Container>
     </Box>

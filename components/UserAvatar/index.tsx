@@ -27,8 +27,7 @@ export const UserAvatar: FC<UserAvatarType> = ({
     };
     fr.readAsDataURL(file);
   }
-
-  const avatar = <Avatar name={name} src={src} {...props} />;
+  const avatar = <Avatar name={name} src={src ? src : '/PlaceHolder.svg'} {...props} />;
   if (!link || !username) return avatar;
   return (
     <Link href={`/u/${username}`}>

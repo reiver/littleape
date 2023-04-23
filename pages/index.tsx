@@ -1,8 +1,7 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
 import { MainMenu } from "components/MainMenu";
 import { MightLikeCard } from "components/MightLikeCard";
-import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
@@ -24,10 +23,7 @@ export default function Home() {
         gridGap={3}
         mt={1}
       >
-        <Box
-          gridColumn="span 5 / span 5"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 5 / span 5" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"
@@ -53,13 +49,20 @@ export default function Home() {
           flexDirection="column"
           experimental_spaceY={3}
         >
-          <NewPostCard />
+          {/* <NewPostCard /> */}
+          <Button
+            border="1px solid black"
+            borderColor="black"
+            backgroundColor="#FFCC00" 
+            width="max-content"
+            margin="5px auto"
+            fontSize="12px"
+          >
+            Choose A Community Server
+          </Button>
           <Feed username={user.username} />
         </Box>
-        <Box
-          gridColumn="span 6 / span 6"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"

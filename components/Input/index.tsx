@@ -6,7 +6,7 @@ import {
   InputGroup,
   InputLeftAddon,
   InputProps as ChakraInputProps,
-  TextareaProps,
+  TextareaProps
 } from "@chakra-ui/react";
 import { forwardRef, ForwardRefRenderFunction, ReactNode } from "react";
 import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
@@ -20,19 +20,11 @@ export type InputProps = ChakraInputProps &
     error?: Merge<FieldError, FieldErrorsImpl<{}>>;
   };
 
-const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
-  props,
-  ref
-) => {
+const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (props, ref) => {
   const { error, textarea, leftAddon, ...rest } = props;
   const isInvalid = !!error;
   return (
-    <FormControl
-      isInvalid={isInvalid}
-      role="group"
-      display="flex"
-      flexDirection="column"
-    >
+    <FormControl isInvalid={isInvalid} role="group" display="flex" flexDirection="column">
       {props.name.length > 0 && (
         <FormLabel
           textTransform="capitalize"
@@ -50,7 +42,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
             textColor: "red.400 !important",
           }}
         >
-          {props.label || props.name}
+          {props.label}
         </FormLabel>
       )}
       <InputGroup
@@ -84,14 +76,10 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
             }
           : {})}
       >
-        {leftAddon && (
-          <InputLeftAddon _dark={{ bg: "dark.600" }}>
-            {leftAddon}
-          </InputLeftAddon>
-        )}
+        {leftAddon && <InputLeftAddon _dark={{ bg: "dark.600" }}>{leftAddon}</InputLeftAddon>}
         <ChakraInput
           as={textarea ? "textarea" : "input"}
-          rounded="lg"
+          borderRadius='4px'
           bg="light.200"
           px="4"
           py="2"
@@ -121,9 +109,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         />
       </InputGroup>
 
-      {error && (
-        <FormErrorMessage fontSize="sm">{error.message}</FormErrorMessage>
-      )}
+      {error && <FormErrorMessage fontSize="sm">{error.message}</FormErrorMessage>}
     </FormControl>
   );
 };
