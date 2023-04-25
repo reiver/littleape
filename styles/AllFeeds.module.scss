@@ -1,0 +1,299 @@
+.App {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+    height: max-content;
+    padding: 3rem;
+  
+    .info-container{
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      
+      .filter_wrapper{
+        width: 100%;
+        display: flex;
+        flex-direction: revert;
+      
+        label{
+          width: 15%;
+          display: flex;
+          margin: auto 10px;
+        }
+      
+        input{
+          width: 85%;
+        }
+      }
+  
+      .download_btn_saved{
+        margin-right: 0;
+        margin-bottom: -40px;
+        margin-top: 35px;
+      }
+    
+      .info-upper-container{
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        .info-upper-left{
+          width: 80%;
+          p{
+            font-size: 1rem;
+            font-weight: bold;
+          }
+        }
+        img{
+          width: 100px;
+          height: 100px;
+        }
+        p{
+          font-size: 1rem;
+        }
+      }
+      
+      .link_wrapper{
+        display: flex;
+        width: 100%;
+        flex-direction: row-reverse;
+    
+        a{
+          width: max-content;
+    
+          button{
+            background-color: #4eaefc;
+          }
+        }
+      }
+  
+      .pagination_wrapper{
+        width: max-content;
+        margin: auto;
+      
+        button{
+          padding: 10px 15px;
+          margin: 5px;
+          border-radius: 30px;
+          background-color: #0077cc;
+        }
+      }
+  
+      ul {
+        list-style: none;
+        margin-top: 2rem;
+        padding: 0;
+        width: 100%;
+      
+        li{
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 1rem;
+          padding: 1rem;
+          background-color: #f2f2f2;
+          border-radius: 0.5rem;
+  
+          .tag_container{
+            display: flex;
+            flex-direction: row;
+            width: max-content;
+            margin: auto;
+            margin-left: 0;
+            
+            .tag{
+              padding: 7px;
+              border: 1px solid gray;
+              margin: 0 5px;
+              border-radius: 7px;
+            }
+          }
+  
+          .bookmark-button {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 16px;
+  
+            input{
+              padding: 8px;
+              font-size: 16px;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              margin-right: 8px;
+              flex-grow: 1;
+              margin-left: 5px;
+              display: none;
+            }
+            
+            button {
+              padding: 8px 16px;
+              background-color: #0077cc;
+              color: #fff;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              transition: background-color 0.2s ease-in-out;
+            }
+          }
+          
+          .author_container{
+            display: flex;
+            flex-direction: revert;
+            width: 100%;
+        
+            img{
+              width: 50px;
+              height: 50px;
+              border-radius: 50px;
+            }
+            .author_info_wrapper{
+              width: inherit;
+              height: max-content;
+              margin: auto;
+              margin-left: 10px;
+        
+              .author_info_title{
+                font-size: 1.20rem;
+                font-weight: 700;
+                margin: 0;
+              }
+        
+              .author_info_name{
+                font-size: 0.85rem;
+                margin: 0;
+                margin-top: 5px;
+                color: #2e2e2e;
+        
+                a{
+                  color: #2e2e2e;
+                  text-decoration: none;
+                }
+              }
+            }
+          }
+        
+          .content_container{
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            padding: 10px 0;
+        
+            .content{
+              margin-top: 8px;
+            }
+      
+            .date {
+              font-size: 0.8rem;
+              font-style: italic;
+              color: #666;
+            }
+          }
+        
+          .add_btn{
+            background-color: #009cff;
+            color: #fff;
+            font-size: 1rem;
+            width: max-content;
+            border: none;
+            border-radius: 7px;
+            padding: 0.5rem 1rem;
+            margin: auto;
+            margin-right: 0;
+            cursor: pointer;
+          }
+        
+          .add_btn:disabled{
+            cursor: default;
+            background-color: #009cff91;
+          }
+        }
+      }
+    }
+  
+    .error {
+      color: red;
+      margin-top: 1rem;
+    }
+  
+    .form{
+      display: flex;
+      flex-direction: column;
+  
+      .input{
+        width: 500px;
+        margin: auto;
+      }
+  
+      .btn_container{
+        display: flex;
+        flex-direction: row;
+      
+        .download_btn{
+          background-color: #009cff !important;
+          margin: auto;
+          margin-right: 2px;
+          margin-left: 2px;
+        }
+      
+        .delete_btn{
+          background-color: #ff2a00 !important;
+          margin: auto;
+          margin-right: 2px;
+          margin-left: 2px;
+        }
+      
+        a{
+          margin: auto;
+          margin-left: 2px;
+          margin-right: 2px;
+          .navigate_btn{
+            background-color: #ff8c00 !important;
+          }
+        }
+      }
+    }
+  }
+  
+  .input{
+    border-radius: 7px;
+    border: #aca8a8 1px solid;
+    padding: 1rem;
+    font-size: medium;
+  }
+  
+  .button{
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 7px;
+    padding: 1rem 1.5rem;
+    font-size: large;
+    background-color: #04a064;
+    width: max-content;
+    margin: 10px auto;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

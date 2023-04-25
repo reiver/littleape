@@ -23,9 +23,17 @@ export const MainLayout: FC<PropsWithChildren<BoxProps>> = (props) => {
         display="flex"
         justifyContent="space-between"
         flexDirection="column"
-        pb="2"
+        p={0}
+        paddingInlineEnd="0"
+        paddingInlineStart="0"
       >
-        <Box>{children}</Box>
+        <Box
+          display="flex"
+          padding="10px"
+          margin="auto 0"
+          // h="full"
+          height="88vh"
+        >{children}</Box>
         <Footer />
       </Container>
     </Box>

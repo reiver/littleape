@@ -56,7 +56,12 @@ const RegistrationForm: FC<{
       });
   };
   return (
-    <>
+    <Box 
+      display="flex"
+      flexDirection="column"
+      height="100%"
+      width="100%"
+    >
       <Box
         display="flex"
         experimental_spaceX={"2"}
@@ -65,33 +70,35 @@ const RegistrationForm: FC<{
           textColor: "slate.200",
         }}
         flexDirection="column"
+        height="max-content"
+        margin="auto 0"
+        marginBottom="0"
       >
         {/* <Logo maxW="8" strokeWidth={2} /> */}
-        <Heading 
-          as="h1" 
-          display="block" 
-          textAlign="left" 
-          fontSize="3xl" 
-          fontWeight="semibold"
-        >
-        Welcome!
+        <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
+          Welcome!
         </Heading>
-        <Text
-          margin="15px 0 !important"
-          color="#7E7E7E"
-        >
+        <Text margin="15px 0 !important" color="#7E7E7E">
           Please enter your info. to continue
         </Text>
       </Box>
-      <Form onSubmit={signUp} display="flex" flexDirection="column" experimental_spaceY={4}>
-
-        <Input autoFocus {...register("username")} error={errors.username} label="Username" />
+      <Form 
+        onSubmit={signUp} 
+        display="flex" 
+        flexDirection="column" 
+        experimental_spaceY={4}
+        height="max-content"
+        margin="auto 0"
+        marginBottom="0"
+        marginTop="1%"
+      >
+        {/* <Input autoFocus {...register("username")} error={errors.username} label="Username" />
         <Input {...register("email")} error={errors.email} />
-        <Input type="password" {...register("password")} error={errors.password} />
+        <Input type="password" {...register("password")} error={errors.password} /> */}
 
-        {/* <Input autoFocus type="text" placeholder="Nickname" {...register("nickname")} error={errors.email} />
+        <Input autoFocus type="text" placeholder="Nickname" {...register("nickname")} error={errors.email} />
         <Input type="text" placeholder="User name" {...register("username")} error={errors.email} />
-        <Input type="text" placeholder="email" {...register("email")} error={errors.email} /> */}
+        <Input type="text" placeholder="email" {...register("email")} error={errors.email} />
         {error && (
           <Alert status="error">
             <AlertIcon />
@@ -116,11 +123,11 @@ const RegistrationForm: FC<{
           >
             Already have an account?
           </Text>
-          <Heading 
-            as="h3" 
-            display="block" 
-            textAlign="left" 
-            fontSize="1xl" 
+          <Heading
+            as="h3"
+            display="block"
+            textAlign="left"
+            fontSize="1xl"
             fontWeight="semibold"
             color="black"
             marginTop="10px !important"
@@ -128,14 +135,12 @@ const RegistrationForm: FC<{
             Login!
           </Heading>
         </Box>
-        <Box
-          marginTop="80px !important"
-        >
-          <Button 
-            backgroundColor="#FFCC00" 
-            w="full" 
-            type="submit" 
-            mt={error ? 0 : 3} 
+        <Box marginTop="80px !important">
+          <Button
+            backgroundColor="#FFCC00"
+            w="full"
+            type="submit"
+            mt={error ? 0 : 3}
             isLoading={loading}
             border="1px solid black"
             borderColor="black"
@@ -164,7 +169,7 @@ const RegistrationForm: FC<{
           <Button className="block w-full">Login</Button>
         </Link>
       </Box> */}
-    </>
+    </Box>
   );
 };
 
@@ -212,10 +217,7 @@ const VerifyRegistration: FC<{
 
   return (
     <>
-      <Form 
-        onSubmit={verify}
-        marginTop="185px"
-      >
+      <Form onSubmit={verify} marginTop="185px">
         <VStack experimental_spaceY={5}>
           <Box
             display="flex"
@@ -228,19 +230,10 @@ const VerifyRegistration: FC<{
             width="100%"
           >
             {/* <Logo maxW="8" strokeWidth={2} /> */}
-            <Heading 
-              as="h1" 
-              display="block" 
-              textAlign="left" 
-              fontSize="3xl" 
-              fontWeight="semibold"
-            >
-            Welcome!
+            <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
+              Welcome!
             </Heading>
-            <Text
-              margin="15px 0 !important"
-              color="#7E7E7E"
-            >
+            <Text margin="15px 0 !important" color="#7E7E7E">
               We’ve just sent a code to your email!
             </Text>
           </Box>
@@ -249,7 +242,13 @@ const VerifyRegistration: FC<{
           </Text> */}
           <FormControl isInvalid={!!errors.code}>
             <Box display="flex" justifyContent="space-between" w="full">
-              <PinInput autoFocus onChange={(code) => setValue("code", code)} otp size="lg" placeholder='✕'>
+              <PinInput
+                autoFocus
+                onChange={(code) => setValue("code", code)}
+                otp
+                size="lg"
+                placeholder="✕"
+              >
                 <PinInputField backgroundColor="white" {...pinInputProps} />
                 <PinInputField backgroundColor="white" {...pinInputProps} />
                 <PinInputField backgroundColor="white" {...pinInputProps} />
@@ -267,11 +266,11 @@ const VerifyRegistration: FC<{
             </Alert>
           )}
         </VStack>
-        <Button 
-          isLoading={loading} 
-          backgroundColor="#FFCC00" 
-          w="full" 
-          type="submit" 
+        <Button
+          isLoading={loading}
+          backgroundColor="#FFCC00"
+          w="full"
+          type="submit"
           mt={error ? 0 : 3}
           marginTop="175px"
           border="1px solid black"
@@ -318,8 +317,21 @@ const Register: FC = () => {
       <Head>
         <title>Greatape | Register</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"xs"}>
-        <Box mt="8">
+      <Box 
+        mx="auto" 
+        mt="10" 
+        w="full" 
+        maxW={"xs"}
+        margin="auto"
+        display="flex"
+        height="100%"
+      >
+        <Box 
+          display="flex"
+          width="100%"
+          margin="auto"
+          height="100%"
+        >
           {!email ? (
             <RegistrationForm onRegister={onRegister} />
           ) : (

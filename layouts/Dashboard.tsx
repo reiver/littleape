@@ -1,8 +1,8 @@
 import { Box, BoxProps } from "@chakra-ui/react";
-import { Container } from "components/Container";
 import { Footer } from "components/Footer";
 import { Navbar } from "components/Navbar";
 import { FC } from "react";
+import Feeds from '../pages/feeds';
 
 type DashboardProps = {
   footer?: boolean;
@@ -21,7 +21,8 @@ export const DashboardLayout: FC<DashboardProps> = ({
       minH="100vh"
     >
       <Navbar />
-      <Container flexGrow={1} {...props} />
+      <Feeds />
+      {/* <Container flexGrow={1} {...props} /> */}
       {footer && (
         <Box
           position="sticky"

@@ -57,19 +57,10 @@ const Login: FC = () => {
           flexDirection="column"
         >
           {/* <Logo maxW="8" strokeWidth={2} /> */}
-          <Heading 
-            as="h1" 
-            display="block" 
-            textAlign="left" 
-            fontSize="3xl" 
-            fontWeight="semibold"
-          >
-          Welcome!
+          <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
+            Welcome!
           </Heading>
-          <Text
-            margin="15px 0 !important"
-            color="#7E7E7E"
-          >
+          <Text margin="15px 0 !important" color="#7E7E7E">
             Please enter your info. to continue
           </Text>
         </Box>
@@ -80,13 +71,23 @@ const Login: FC = () => {
           flexDirection="column"
           experimental_spaceY={4}
         >
-          {/* <Input autoFocus {...register("email")} error={errors.email} />
-          <Input type="password" {...register("password")} error={errors.password} /> */}
+          <Input autoFocus {...register("email")} error={errors.email} />
+          <Input type="password" {...register("password")} error={errors.password} />
 
-
-          <Input autoFocus type="text" placeholder="Nickname" {...register("nickname")} error={errors.email} />
-          <Input type="text" placeholder="User name" {...register("username")} error={errors.email} />
-          <Input type="text" placeholder="email" {...register("email")} error={errors.email} />
+          {/* <Input
+            autoFocus
+            type="text"
+            placeholder="Nickname"
+            {...register("nickname")}
+            error={errors.email}
+          />
+          <Input
+            type="text"
+            placeholder="User name"
+            {...register("username")}
+            error={errors.email}
+          />
+          <Input type="text" placeholder="email" {...register("email")} error={errors.email} /> */}
           {error && (
             <Alert status="error">
               <AlertIcon />
@@ -111,11 +112,11 @@ const Login: FC = () => {
             >
               Don&rsquo;t have an account?
             </Text>
-            <Heading 
-              as="h3" 
-              display="block" 
-              textAlign="left" 
-              fontSize="1xl" 
+            <Heading
+              as="h3"
+              display="block"
+              textAlign="left"
+              fontSize="1xl"
               fontWeight="semibold"
               color="black"
               marginTop="10px !important"
@@ -123,14 +124,12 @@ const Login: FC = () => {
               Register!
             </Heading>
           </Box>
-          <Box
-            marginTop="80px !important"
-          >
-            <Button 
-              backgroundColor="#FFCC00" 
-              w="full" 
-              type="submit" 
-              mt={error ? 0 : 3} 
+          <Box marginTop="80px !important">
+            <Button
+              backgroundColor="#FFCC00"
+              w="full"
+              type="submit"
+              mt={error ? 0 : 3}
               isLoading={loading}
               border="1px solid black"
               borderColor="black"

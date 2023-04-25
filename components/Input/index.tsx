@@ -79,8 +79,8 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         {leftAddon && <InputLeftAddon _dark={{ bg: "dark.600" }}>{leftAddon}</InputLeftAddon>}
         <ChakraInput
           as={textarea ? "textarea" : "input"}
-          borderRadius='4px'
-          bg="light.200"
+          borderRadius="10px"
+          bg="white"
           px="4"
           py="2"
           border="0"

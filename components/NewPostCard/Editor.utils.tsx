@@ -1,12 +1,6 @@
 import { Button, chakra, Menu, MenuList, Spinner } from "@chakra-ui/react";
 import { ReactRenderer } from "@tiptap/react";
-import {
-  forwardRef,
-  ReactNode,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from "react";
 import tippy from "tippy.js";
 
 export const SuggestionItem = chakra(Button, {
@@ -32,9 +26,7 @@ export const MentionList = forwardRef(function Mention(props: any, ref) {
   };
 
   const upHandler = () => {
-    setSelectedIndex(
-      (selectedIndex + props.items.length - 1) % props.items.length
-    );
+    setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
   };
 
   const downHandler = () => {
@@ -92,15 +84,9 @@ export const MentionList = forwardRef(function Mention(props: any, ref) {
               bg={selectedIndex === index ? "light.100" : "transparent"}
               _dark={{
                 _hover: {
-                  bg:
-                    selectedIndex === index
-                      ? "whiteAlpha.100 !important"
-                      : "transparent",
+                  bg: selectedIndex === index ? "whiteAlpha.100 !important" : "transparent",
                 },
-                bg:
-                  selectedIndex === index
-                    ? "whiteAlpha.100 !important"
-                    : "transpreant",
+                bg: selectedIndex === index ? "whiteAlpha.100 !important" : "transpreant",
               }}
               key={index}
               onMouseOver={() => setSelectedIndex(index)}

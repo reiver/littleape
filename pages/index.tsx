@@ -53,7 +53,7 @@ export default function Home() {
           <Button
             border="1px solid black"
             borderColor="black"
-            backgroundColor="#FFCC00" 
+            backgroundColor="#FFCC00"
             width="max-content"
             margin="5px auto"
             fontSize="12px"

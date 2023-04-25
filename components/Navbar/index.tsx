@@ -1,15 +1,18 @@
 import {
   Box,
-  BoxProps, chakra,
+  BoxProps,
+  chakra,
   HStack,
   IconButton,
-  IconButtonProps, Image, Menu,
+  IconButtonProps,
+  Image,
+  Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
   Text,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
@@ -77,23 +80,13 @@ export const Navbar: FC<BoxProps> = (props) => {
         justifyContent="space-between"
         alignItems="center"
         experimental_spaceX={4}
-        position='relative'
+        position="relative"
       >
-        <Box display="flex" width='100%'>
-          <Image 
-            src="/GreatApeLogo.svg" 
-            width="auto" 
-            height="30px" 
-            margin="2px auto" 
-          />
+        <Box display="flex" width="100%">
+          <Image src="/GreatApeLogo.svg" width="auto" height="30px" margin="2px auto" />
         </Box>
-        <Box 
-          display="flex" 
-          position='absolute' 
-          left='0'
-          experimental_spaceX={3}
-        >
-        {user && (
+        <Box display="flex" position="absolute" left="0" experimental_spaceX={3}>
+          {user && (
             <Menu placement="bottom-end" flip direction="rtl">
               <MenuButton>
                 <UserAvatar
@@ -135,7 +128,6 @@ export const Navbar: FC<BoxProps> = (props) => {
               </Button>
             </Link>
           )} */}
-          
         </Box>
       </Container>
     </Box>
