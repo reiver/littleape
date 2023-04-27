@@ -19,6 +19,7 @@ export const DashboardLayout: FC<DashboardProps> = ({
       display="flex"
       flexDirection="column"
       minH="100vh"
+      width="max-content"
     >
       <Navbar />
       <Feeds />

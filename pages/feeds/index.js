@@ -9,6 +9,10 @@ import { useEffect, useState } from 'react';
 // wrong search
 // edit tags
 
+
+// move delete fetched feed btn upper
+// fix hover style of bookmarked btn
+
 const PAGE_SIZE = 10; // number of items to show per page
 const PAGE_RANGE = 5; // number of page buttons to show in the range
 
@@ -19,6 +23,7 @@ function AllFeeds() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFeeds, setSelectedFeeds] = useState([])
   const [tag, setTag] = useState('');
+  const [showData, setShowData] = useState('fetched');
 
   useEffect(() => {
     // fetching selected feeds from local storage -> in order to show navigation buttons (download and view btns)
@@ -77,6 +82,7 @@ function AllFeeds() {
     setFeedData(uniqueResults);
     // updating local storage and saving newly fetched feeds
     localStorage.setItem("fetchedFeeds", JSON.stringify(uniqueResults));
+    setFeedUrl('')
   }
 
   // calculate the total number of pages
@@ -253,6 +259,7 @@ function AllFeeds() {
   const deleteFetchedFeeds = () => {
     console.log('deleteFetchedFeeds')
     localStorage.setItem("fetchedFeeds", JSON.stringify([]));
+    setFeedData([])
   }
 
   const deleteSavedFeeds = () => {
@@ -269,6 +276,178 @@ function AllFeeds() {
   const handleTagsChange = (event) => {
     setTag(event.target.value)
   };
+
+  const viewFeeds = (event) => {
+    if(showData == 'fetched'){
+      setShowData('saved')
+    }else if(showData == 'saved'){
+      setShowData('fetched')
+    }
+  }
+
+  const showDataFunction = () => {
+    let data = []
+    if(showData == 'fetched'){
+      data = feedData
+    }else if(showData == 'saved'){
+      data = selectedFeeds
+    }
+    console.log('in show function')
+    console.log(data)
+    return (
+      data.length ? data.slice(startIndex, endIndex).map((item, index) => (
+        <ListItem key={index}
+          position="relative"
+          display="flex"
+          flexDirection="column"
+          marginBottom="1rem"
+          padding="1rem"
+          backgroundColor="#f2f2f2"
+          borderRadius="0.5rem"
+        >
+          <Box 
+              display="flex"
+              flexDirection="revert"
+              width="100%"
+          // className="author_container"
+          >
+            <Image 
+              width="50px"
+              height="50px"
+              borderRadius="50px"
+          //   className='author_img' 
+            src={item.logo} />
+            <Box 
+              width="inherit"
+              height="max-content"
+              margin="auto"
+              marginLeft="10px"
+          //   className='author_info_wrapper'
+            >
+              <Text 
+                  fontSize="1.20rem"
+                  fontWeight="700"
+                  margin="0"
+              // className='author_info_title'
+              >{item.title}</Text>
+              <Text 
+                  font-size="0.85rem"
+                  margin="0"
+                  margin-top="5px"
+                  color="#2e2e2e"
+              // className='author_info_name'
+              >{item.author} - 
+                  <Link href={item.authorLink}
+                      color="#2e2e2e"
+                      textDecoration="none"
+                  >
+                      {item.authorLink}
+                  </Link>
+              </Text>
+            </Box>
+          </Box>
+          <Box 
+              display="flex"
+              flexDirection="column"
+              width="100%"
+              padding="10px 0"
+          // className='content_container'
+          >
+            <Box 
+              fontSize="0.8rem"
+              fontStyle="italic"
+              color="#666"
+          //   className="date"
+            >{item.published ? item.published : 'unavailable'}</Box>
+            <Link
+              fontSize="0.8rem"
+              fontStyle="italic"
+              color="#666"
+          //   className="date" 
+            href={item.link}>{item.link}</Link>
+            <Box 
+              marginTop="8px"
+          //   className="content"
+            >{contentHandler(item)}</Box>
+          </Box>
+          <Box 
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              marginBottom="16px"
+          // className='bookmark-button'
+          >
+            <Input 
+              id={index + '_input'}
+              type="text" 
+              value={item.tags ? item.tags : tag} 
+              onChange={handleTagsChange} 
+              placeholder="Add tags for example Apple, Banana, ..."
+              disabled={item.tags}
+              //    className="input"
+              padding="8px"
+              fontSize="16px"
+              border="1px solid #ccc"
+              borderRadius="4px"
+              marginRight="8px"
+              flexGrow="1"
+              marginLeft="5px"
+              display="none"
+            />
+            <Box 
+              style={{ display: item.tags ? 'flex' : 'none' }}
+              display="flex"
+              flexDirection="row"
+              width="max-content"
+              margin="auto"
+              marginLeft="0"
+                //  className='tag_container'
+            >
+              { Array.isArray(item.tags) ?
+                item.tags.map((tag, index) => {
+                  return (
+                    <Box 
+                      padding="7px"
+                      border="1px solid gray"
+                      margin="0 5px"
+                      borderRadius="7px"
+                      // className="tag"
+                      key={index}
+                    >
+                      {tag}
+                    </Box>)
+                })
+                : null
+              }
+            </Box>
+            <Button 
+              padding="8px 16px"
+              backgroundColor="#0077cc"
+              color="#fff"
+              border="none"
+              borderRadius="4px"
+              cursor="pointer"
+                // transition="background-color 0.2s ease-in-out"
+            // className="button add_btn" 
+              id={index + '_btn'}
+              disabled={item.bookmarked}
+              onClick={() => {
+                let buttonText = document.getElementById(index + '_btn').innerText
+                if(buttonText == 'Save'){
+                  addFeed(item);
+                  document.getElementById(index + '_input').style.display = 'none'
+                  document.getElementById(index + '_btn').innerText = 'Bookmarked'
+                }else{
+                  document.getElementById(index + '_btn').innerText = 'Save'
+                  document.getElementById(index + '_input').style.display = 'unset'
+                }
+              }}
+            >{item.bookmarked ? 'Bookmarked' : 'Bookmark'}</Button>
+          </Box>
+        </ListItem>
+      )) : null
+    )
+  }
 
   return (
       <Box 
@@ -324,10 +503,22 @@ function AllFeeds() {
                 margin="10px auto"
             //   className='button download_btn' 
               onClick={download}>Download</Button>
+              <Button 
+                color="white"
+                border="none"
+                cursor="pointer"
+                borderRadius="7px"
+                padding="1rem 1.5rem"
+                fontSize="large"
+                backgroundColor="#04a064"
+                width="max-content"
+                margin="10px auto"
+                onClick={viewFeeds}
+              // className='button navigate_btn'
+              >
+                {showData == 'fetched' ? 'View Bookmarked Feeds' : showData == 'saved' ? 'View all Feeds' : ''}
+              </Button>
               {/* <Link to="/savedFeeds">
-                <button className='button navigate_btn'>
-                    View Bookmarked Feeds
-                </button>
               </Link> */}
               <Button
                 color="white"
@@ -385,156 +576,7 @@ function AllFeeds() {
             width="100%"
           >
           {
-            feedData.length ? feedData.slice(startIndex, endIndex).map((item, index) => (
-              <ListItem key={index}
-                position="relative"
-                display="flex"
-                flexDirection="column"
-                marginBottom="1rem"
-                padding="1rem"
-                backgroundColor="#f2f2f2"
-                borderRadius="0.5rem"
-              >
-                <Box 
-                    display="flex"
-                    flexDirection="revert"
-                    width="100%"
-                // className="author_container"
-                >
-                  <Image 
-                    width="50px"
-                    height="50px"
-                    borderRadius="50px"
-                //   className='author_img' 
-                  src={item.logo} />
-                  <Box 
-                    width="inherit"
-                    height="max-content"
-                    margin="auto"
-                    marginLeft="10px"
-                //   className='author_info_wrapper'
-                  >
-                    <Text 
-                        fontSize="1.20rem"
-                        fontWeight="700"
-                        margin="0"
-                    // className='author_info_title'
-                    >{item.title}</Text>
-                    <Text 
-                        font-size="0.85rem"
-                        margin="0"
-                        margin-top="5px"
-                        color="#2e2e2e"
-                    // className='author_info_name'
-                    >{item.author} - 
-                        <Link href={item.authorLink}
-                            color="#2e2e2e"
-                            textDecoration="none"
-                        >
-                            {item.authorLink}
-                        </Link>
-                    </Text>
-                  </Box>
-                </Box>
-                <Box 
-                    display="flex"
-                    flexDirection="column"
-                    width="100%"
-                    padding="10px 0"
-                // className='content_container'
-                >
-                  <Box 
-                    fontSize="0.8rem"
-                    fontStyle="italic"
-                    color="#666"
-                //   className="date"
-                  >{item.published ? item.published : 'unavailable'}</Box>
-                  <Link
-                    fontSize="0.8rem"
-                    fontStyle="italic"
-                    color="#666"
-                //   className="date" 
-                  href={item.link}>{item.link}</Link>
-                  <Box 
-                    marginTop="8px"
-                //   className="content"
-                  >{contentHandler(item)}</Box>
-                </Box>
-                <Box 
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                    marginBottom="16px"
-                // className='bookmark-button'
-                >
-                    <Input id={index + '_input'}
-                           type="text" 
-                           value={item.tags ? item.tags : tag} 
-                           onChange={handleTagsChange} 
-                           placeholder="Add tags for example Apple, Banana, ..."
-                           disabled={item.tags}
-                        //    className="input"
-                        padding="8px"
-                        fontSize="16px"
-                        border="1px solid #ccc"
-                        borderRadius="4px"
-                        marginRight="8px"
-                        flexGrow="1"
-                        marginLeft="5px"
-                        display="none"
-                    />
-                    <Box style={{ display: item.tags ? 'flex' : 'none' }}
-                         display="flex"
-                         flexDirection="row"
-                         width="max-content"
-                         margin="auto"
-                         marginLeft="0"
-                        //  className='tag_container'
-                    >
-                        { Array.isArray(item.tags) ?
-                            item.tags.map((tag, index) => {
-                                return (
-                                    <Box 
-                                        padding="7px"
-                                        border="1px solid gray"
-                                        margin="0 5px"
-                                        borderRadius="7px"
-                                        // className="tag"
-                                    
-                                         key={index}
-                                    >
-                                        {tag}
-                                    </Box>)
-                            })
-                            : null
-                        }
-                    </Box>
-                    <Button 
-                        padding="8px 16px"
-                        backgroundColor="#0077cc"
-                        color="#fff"
-                        border="none"
-                        borderRadius="4px"
-                        cursor="pointer"
-                        transition="background-color 0.2s ease-in-out"
-                    // className="button add_btn" 
-                        id={index + '_btn'}
-                        disabled={item.bookmarked}
-                        onClick={() => {
-                            let buttonText = document.getElementById(index + '_btn').innerText
-                            if(buttonText == 'Save'){
-                                addFeed(item);
-                                document.getElementById(index + '_input').style.display = 'none'
-                            }else{
-                                document.getElementById(index + '_btn').innerText = 'Save'
-                                document.getElementById(index + '_input').style.display = 'unset'
-                            }
-                        }}
-                    >Bookmark</Button>
-                    
-                </Box>
-              </ListItem>
-            )) : null
+            showDataFunction()
           }
           </UnorderedList>
           {
