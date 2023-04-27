@@ -13,28 +13,29 @@ export const DashboardLayout: FC<DashboardProps> = ({
   ...props
 }) => {
   return (
-    <Box
-      bg="light.100"
-      _dark={{ bg: "dark.900" }}
-      display="flex"
-      flexDirection="column"
-      minH="100vh"
-      width="max-content"
-    >
-      <Navbar />
-      <Feeds />
-      {/* <Container flexGrow={1} {...props} /> */}
-      {footer && (
-        <Box
-          position="sticky"
-          bottom="0"
-          backgroundColor="white"
-        >
-          <Footer />
-        </Box>
-      )}
-      {/* <Footer /> */}
+    <Feeds />
+    // <Box
+    //   bg="light.100"
+    //   _dark={{ bg: "dark.900" }}
+    //   display="flex"
+    //   flexDirection="column"
+    //   minH="100vh"
+    //   width="max-content"
+    // >
+    //   <Navbar />
+    //   <Feeds />
+    //   {/* <Container flexGrow={1} {...props} /> */}
+    //   {footer && (
+    //     <Box
+    //       position="sticky"
+    //       bottom="0"
+    //       backgroundColor="white"
+    //     >
+    //       {/* <Footer /> */}
+    //     </Box>
+    //   )}
+    //   {/* <Footer /> */}
 
-    </Box>
+    // </Box>
   );
 };

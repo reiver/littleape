@@ -23,7 +23,7 @@ export default function UserProfile() {
   const loggedInUser = useAuthStore((state) => state.user);
   const title = `Greatape | @${String(username) || ""}`;
   return (
-    <>
+    <Box backgroundColor="white">
       <Head>
         <title>{title}</title>
       </Head>
@@ -64,7 +64,7 @@ export default function UserProfile() {
           </Box>
         </Box>
       </DashboardLayout>
-    </>
+    </Box>
   );
 }
 

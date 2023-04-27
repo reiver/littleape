@@ -12,7 +12,7 @@ import { useAuthStore } from "store";
 export default function Home() {
   const user = useAuthStore((state) => state.user);
   return (
-    <>
+    <Box backgroundColor="white">
       <Head>
         <title>Greatape</title>
       </Head>
@@ -80,7 +80,7 @@ export default function Home() {
           </Box>
         </Box>
       </DashboardLayout>
-    </>
+    </Box>
   );
 }
 
