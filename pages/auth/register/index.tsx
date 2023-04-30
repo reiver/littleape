@@ -8,7 +8,7 @@ import {
   PinInputField,
   Text,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
@@ -56,12 +56,7 @@ const RegistrationForm: FC<{
       });
   };
   return (
-    <Box 
-      display="flex"
-      flexDirection="column"
-      height="100%"
-      width="100%"
-    >
+    <Box display="flex" flexDirection="column" height="100%" width="100%">
       <Box
         display="flex"
         experimental_spaceX={"2"}
@@ -82,10 +77,10 @@ const RegistrationForm: FC<{
           Please enter your info. to continue
         </Text>
       </Box>
-      <Form 
-        onSubmit={signUp} 
-        display="flex" 
-        flexDirection="column" 
+      <Form
+        onSubmit={signUp}
+        display="flex"
+        flexDirection="column"
         experimental_spaceY={4}
         height="max-content"
         margin="auto 0"
@@ -96,7 +91,13 @@ const RegistrationForm: FC<{
         <Input {...register("email")} error={errors.email} />
         <Input type="password" {...register("password")} error={errors.password} /> */}
 
-        <Input autoFocus type="text" placeholder="Nickname" {...register("nickname")} error={errors.email} />
+        <Input
+          autoFocus
+          type="text"
+          placeholder="Nickname"
+          {...register("nickname")}
+          error={errors.email}
+        />
         <Input type="text" placeholder="User name" {...register("username")} error={errors.email} />
         <Input type="text" placeholder="email" {...register("email")} error={errors.email} />
         {error && (
@@ -317,21 +318,8 @@ const Register: FC = () => {
       <Head>
         <title>Greatape | Register</title>
       </Head>
-      <Box 
-        mx="auto" 
-        mt="10" 
-        w="full" 
-        maxW={"xs"}
-        margin="auto"
-        display="flex"
-        height="100%"
-      >
-        <Box 
-          display="flex"
-          width="100%"
-          margin="auto"
-          height="100%"
-        >
+      <Box mx="auto" mt="10" w="full" maxW={"xs"} margin="auto" display="flex" height="100%">
+        <Box display="flex" width="100%" margin="auto" height="100%">
           {!email ? (
             <RegistrationForm onRegister={onRegister} />
           ) : (

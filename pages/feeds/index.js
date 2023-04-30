@@ -319,198 +319,190 @@ function AllFeeds() {
     } else if (showData == "saved") {
       data = selectedFeeds;
     }
-    return data.length
-      ? data.slice(startIndex, endIndex).map((item, index) => (
-          <ListItem
-            key={index}
-            position="relative"
+    return data.length ? (
+      data.slice(startIndex, endIndex).map((item, index) => (
+        <ListItem
+          key={index}
+          position="relative"
+          display="flex"
+          flexDirection="column"
+          marginBottom="1rem"
+          padding="1rem"
+          backgroundColor="white"
+          borderRadius="0.5rem"
+          border="1px solid #EBEBEB"
+        >
+          <Box
+            display="flex"
+            flexDirection="revert"
+            width="100%"
+            // className="author_container"
+          >
+            <Image
+              width="50px"
+              height="50px"
+              borderRadius="50px"
+              //   className='author_img'
+              src={item.logo}
+            />
+            <Box
+              width="inherit"
+              height="max-content"
+              margin="auto"
+              marginLeft="10px"
+              //   className='author_info_wrapper'
+            >
+              <Text
+                fontSize="1.20rem"
+                fontWeight="700"
+                margin="0"
+                // className='author_info_title'
+              >
+                {item.title}
+              </Text>
+              <Text
+                fontSize="0.85rem"
+                margin="0"
+                margin-top="5px"
+                color="#2e2e2e"
+                // className='author_info_name'
+              >
+                {item.author} -
+                <Link href={item.authorLink} color="#2e2e2e" textDecoration="none">
+                  {item.authorLink}
+                </Link>
+              </Text>
+            </Box>
+          </Box>
+          <Box
             display="flex"
             flexDirection="column"
-            marginBottom="1rem"
-            padding="1rem"
-            backgroundColor="white"
-            borderRadius="0.5rem"
-            border="1px solid #EBEBEB"
+            width="100%"
+            padding="10px 0"
+            // className='content_container'
           >
             <Box
-              display="flex"
-              flexDirection="revert"
-              width="100%"
-              // className="author_container"
+              fontSize="0.8rem"
+              fontStyle="italic"
+              color="#666"
+              //   className="date"
             >
-              <Image
-                width="50px"
-                height="50px"
-                borderRadius="50px"
-                //   className='author_img'
-                src={item.logo}
-              />
-              <Box
-                width="inherit"
-                height="max-content"
-                margin="auto"
-                marginLeft="10px"
-                //   className='author_info_wrapper'
-              >
-                <Text
-                  fontSize="1.20rem"
-                  fontWeight="700"
-                  margin="0"
-                  // className='author_info_title'
-                >
-                  {item.title}
-                </Text>
-                <Text
-                  fontSize="0.85rem"
-                  margin="0"
-                  margin-top="5px"
-                  color="#2e2e2e"
-                  // className='author_info_name'
-                >
-                  {item.author} -
-                  <Link href={item.authorLink} color="#2e2e2e" textDecoration="none">
-                    {item.authorLink}
-                  </Link>
-                </Text>
-              </Box>
+              {item.published ? item.published : "unavailable"}
             </Box>
-            <Box
-              display="flex"
-              flexDirection="column"
-              width="100%"
-              padding="10px 0"
-              // className='content_container'
+            <Link
+              fontSize="0.8rem"
+              fontStyle="italic"
+              color="#666"
+              //   className="date"
+              href={item.link}
             >
-              <Box
-                fontSize="0.8rem"
-                fontStyle="italic"
-                color="#666"
-                //   className="date"
-              >
-                {item.published ? item.published : "unavailable"}
-              </Box>
-              <Link
-                fontSize="0.8rem"
-                fontStyle="italic"
-                color="#666"
-                //   className="date"
-                href={item.link}
-              >
-                {item.link}
-              </Link>
-              <Box
-                marginTop="8px"
-                //   className="content"
-              >
-                {contentHandler(item)}
-              </Box>
-            </Box>
+              {item.link}
+            </Link>
             <Box
+              marginTop="8px"
+              //   className="content"
+            >
+              {contentHandler(item)}
+            </Box>
+          </Box>
+          <Box
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            marginBottom="16px"
+            // className='bookmark-button'
+          >
+            <Input
+              id={index + "_input"}
+              type="text"
+              value={item.tags ? item.tags : tag}
+              onChange={handleTagsChange}
+              placeholder="Add tags for example Apple, Banana, ..."
+              disabled={item.tags}
+              //    className="input"
+              padding="8px"
+              fontSize="16px"
+              border="1px solid #ccc"
+              borderRadius="4px"
+              marginRight="8px"
+              flexGrow="1"
+              marginLeft="5px"
+              display="none"
+            />
+            <Box
+              style={{ display: item.tags ? "flex" : "none" }}
               display="flex"
               flexDirection="row"
-              alignItems="center"
-              marginBottom="16px"
-              // className='bookmark-button'
+              width="max-content"
+              margin="auto"
+              marginLeft="0"
+              //  className='tag_container'
             >
-              <Input
-                id={index + "_input"}
-                type="text"
-                value={item.tags ? item.tags : tag}
-                onChange={handleTagsChange}
-                placeholder="Add tags for example Apple, Banana, ..."
-                disabled={item.tags}
-                //    className="input"
-                padding="8px"
-                fontSize="16px"
-                border="1px solid #ccc"
-                borderRadius="4px"
-                marginRight="8px"
-                flexGrow="1"
-                marginLeft="5px"
-                display="none"
-              />
-              <Box
-                style={{ display: item.tags ? "flex" : "none" }}
-                display="flex"
-                flexDirection="row"
-                width="max-content"
-                margin="auto"
-                marginLeft="0"
-                //  className='tag_container'
-              >
-                {Array.isArray(item.tags)
-                  ? item.tags.map((tag, index) => {
-                      return (
-                        <Box
-                          border="1px solid gray"
-                          margin="0 5px"
-                          display="flex"
-                          flexDirection="revert"
-                          height="maxContent"
-                          backgroundColor="#EBEBEB"
-                          borderRadius="20px"
-                          padding="5px 10px"
-                          // className="tag"
-                          key={index}
+              {Array.isArray(item.tags)
+                ? item.tags.map((tag, index) => {
+                    return (
+                      <Box
+                        border="1px solid gray"
+                        margin="0 5px"
+                        display="flex"
+                        flexDirection="revert"
+                        height="maxContent"
+                        backgroundColor="#EBEBEB"
+                        borderRadius="20px"
+                        padding="5px 10px"
+                        // className="tag"
+                        key={index}
+                      >
+                        <Image src="/Tag.svg" height="max-content" />
+                        <Text
+                          height="max-content"
+                          marginLeft="5px"
+                          fontWeight="600"
+                          color="#666666"
                         >
-                          <Image 
-                            src="/Tag.svg"
-                            height="max-content"
-                          />
-                          <Text
-                            height="max-content"
-                            marginLeft="5px"
-                            fontWeight="600"
-                            color="#666666"
-                          >
-                            {tag}
-                          </Text>
-                        </Box>
-                      );
-                    })
-                  : null}
-              </Box>
-              <Button
-                border="1px solid black"
-                borderColor="black"
-                backgroundColor="black"
-                width="max-content"
-                fontSize="12px"
-                fontWeight="bold"
-                borderRadius="4px"
-                padding="0 16px"
-                color="white"
-                // transition="background-color 0.2s ease-in-out"
-                // className="button add_btn"
-                id={index + "_btn"}
-                disabled={item.bookmarked}
-                onClick={() => {
-                  let buttonText = document.getElementById(index + "_btn").innerText;
-                  if (buttonText == "Save") {
-                    addFeed(item);
-                    document.getElementById(index + "_input").style.display = "none";
-                    document.getElementById(index + "_btn").innerText = "Bookmarked";
-                  } else {
-                    document.getElementById(index + "_btn").innerText = "Save";
-                    document.getElementById(index + "_input").style.display = "unset";
-                  }
-                }}
-              >
-                {item.bookmarked ? "Bookmarked" : "Bookmark"}
-              </Button>
+                          {tag}
+                        </Text>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
-          </ListItem>
-        ))
-      : showData == "saved" ? (
-        <Box
-          display="flex"
-          padding="30px 40px"
-          border="1px solid #EBEBEB"
-          borderRadius="12px"
-        >
-          there is no item to be shown :(
-        </Box>
-      ) : null
+            <Button
+              border="1px solid black"
+              borderColor="black"
+              backgroundColor="black"
+              width="max-content"
+              fontSize="12px"
+              fontWeight="bold"
+              borderRadius="4px"
+              padding="0 16px"
+              color="white"
+              // transition="background-color 0.2s ease-in-out"
+              // className="button add_btn"
+              id={index + "_btn"}
+              disabled={item.bookmarked}
+              onClick={() => {
+                let buttonText = document.getElementById(index + "_btn").innerText;
+                if (buttonText == "Save") {
+                  addFeed(item);
+                  document.getElementById(index + "_input").style.display = "none";
+                  document.getElementById(index + "_btn").innerText = "Bookmarked";
+                } else {
+                  document.getElementById(index + "_btn").innerText = "Save";
+                  document.getElementById(index + "_input").style.display = "unset";
+                }
+              }}
+            >
+              {item.bookmarked ? "Bookmarked" : "Bookmark"}
+            </Button>
+          </Box>
+        </ListItem>
+      ))
+    ) : showData == "saved" ? (
+      <Box display="flex" padding="30px 40px" border="1px solid #EBEBEB" borderRadius="12px">
+        there is no item to be shown :(
+      </Box>
+    ) : null;
   };
 
   return (
@@ -585,7 +577,13 @@ function AllFeeds() {
           maxWidth="900px"
           // className='info-container'
         >
-          <UnorderedList listStyle="none" marginTop="2rem" padding="0" width="100%" margin="20px auto">
+          <UnorderedList
+            listStyle="none"
+            marginTop="2rem"
+            padding="0"
+            width="100%"
+            margin="20px auto"
+          >
             {/* show data */}
             {showDataFunction()}
             {(showData == "fetched" && feedData.length) ||
