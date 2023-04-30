@@ -13,7 +13,6 @@ import { extract } from "@extractus/feed-extractor";
 import { useEffect, useState } from "react";
 import { Navbar } from "components/Navbar";
 
-
 // import { Link } from "react-router-dom";
 
 // check tag format and save it like an array
@@ -280,11 +279,11 @@ function AllFeeds() {
   };
 
   const deleteFeeds = () => {
-    if(showData == 'fetched'){
+    if (showData == "fetched") {
       console.log("deleteFetchedFeeds");
       localStorage.setItem("fetchedFeeds", JSON.stringify([]));
       setFeedData([]);
-    }else if(showData == 'saved'){
+    } else if (showData == "saved") {
       let newFeedData = feedData;
       for (let index = 0; index < newFeedData.length; index++) {
         newFeedData[index].bookmarked = false;
@@ -293,7 +292,7 @@ function AllFeeds() {
       localStorage.setItem("savedFeeds", JSON.stringify([]));
       localStorage.setItem("fetchedFeeds", JSON.stringify(newFeedData));
       setFeedData(newFeedData);
-      setSelectedFeeds([])
+      setSelectedFeeds([]);
     }
   };
 
@@ -311,7 +310,7 @@ function AllFeeds() {
     if (showData == "fetched") {
       setShowData("saved");
     }
-  }
+  };
 
   const showDataFunction = () => {
     let data = [];
@@ -329,8 +328,9 @@ function AllFeeds() {
             flexDirection="column"
             marginBottom="1rem"
             padding="1rem"
-            backgroundColor="#f2f2f2"
+            backgroundColor="white"
             borderRadius="0.5rem"
+            border="1px solid #EBEBEB"
           >
             <Box
               display="flex"
@@ -361,7 +361,7 @@ function AllFeeds() {
                   {item.title}
                 </Text>
                 <Text
-                  font-size="0.85rem"
+                  fontSize="0.85rem"
                   margin="0"
                   margin-top="5px"
                   color="#2e2e2e"
@@ -442,14 +442,29 @@ function AllFeeds() {
                   ? item.tags.map((tag, index) => {
                       return (
                         <Box
-                          padding="7px"
                           border="1px solid gray"
                           margin="0 5px"
-                          borderRadius="7px"
+                          display="flex"
+                          flexDirection="revert"
+                          height="maxContent"
+                          backgroundColor="#EBEBEB"
+                          borderRadius="20px"
+                          padding="5px 10px"
                           // className="tag"
                           key={index}
                         >
-                          {tag}
+                          <Image 
+                            src="/Tag.svg"
+                            height="max-content"
+                          />
+                          <Text
+                            height="max-content"
+                            marginLeft="5px"
+                            fontWeight="600"
+                            color="#666666"
+                          >
+                            {tag}
+                          </Text>
                         </Box>
                       );
                     })
@@ -486,12 +501,21 @@ function AllFeeds() {
             </Box>
           </ListItem>
         ))
-      : null;
+      : showData == "saved" ? (
+        <Box
+          display="flex"
+          padding="30px 40px"
+          border="1px solid #EBEBEB"
+          borderRadius="12px"
+        >
+          there is no item to be shown :(
+        </Box>
+      ) : null
   };
 
   return (
     <Box
-      bg="light.100"
+      bg="white"
       _dark={{ bg: "dark.900" }}
       display="flex"
       flexDirection="column"
@@ -508,12 +532,14 @@ function AllFeeds() {
         height="max-content"
         padding="3rem"
         backgroundColor="white"
+        width="100%"
       >
         {/* subscribe form */}
-        {showData == 'fetched' ? 
+        {showData == "fetched" ? (
           <FormControl
             display="flex"
             flexDirection="column"
+            width="70%"
             // className="form"
           >
             <Input
@@ -521,6 +547,7 @@ function AllFeeds() {
               border="#aca8a8 1px solid"
               padding="1rem"
               fontSize="medium"
+              margin="20px auto"
               //   className='input'
               type="text"
               placeholder="Enter feed URL"
@@ -541,8 +568,8 @@ function AllFeeds() {
             >
               Subscribe
             </Button>
-          </FormControl> : null 
-        }
+          </FormControl>
+        ) : null}
         {error && (
           <Box
             color="red"
@@ -558,37 +585,43 @@ function AllFeeds() {
           maxWidth="900px"
           // className='info-container'
         >
-          <UnorderedList listStyle="none" marginTop="2rem" padding="0" width="100%">
+          <UnorderedList listStyle="none" marginTop="2rem" padding="0" width="100%" margin="20px auto">
             {/* show data */}
             {showDataFunction()}
-            { (showData == 'fetched' && feedData.length) || (showData == 'saved' && selectedFeeds.length) ? (
-            // delete btn
-            <Box
-              display="flex"
-              flex-direction="row"
-              // className='btn_container'
-            >
-              <Button
-                border="1px solid black"
-                borderColor="black"
-                backgroundColor="black"
-                width="max-content"
-                margin="25px auto"
-                fontSize="12px"
-                fontWeight="bold"
-                borderRadius="4px"
-                padding="0 16px"
-                color="white"
-                //   className='button delete_btn'
-                onClick={deleteFeeds}
+            {(showData == "fetched" && feedData.length) ||
+            (showData == "saved" && selectedFeeds.length) ? (
+              // delete btn
+              <Box
+                display="flex"
+                flex-direction="row"
+                // className='btn_container'
               >
-                { showData == 'fetched' ? 'Delete Fetched Feeds' : showData == 'saved' ? 'Delete Bookmarked Feeds' : ''}
-              </Button>
-            </Box>
-          ) : null}
-          {/* pagination */}
+                <Button
+                  border="1px solid black"
+                  borderColor="black"
+                  backgroundColor="black"
+                  width="max-content"
+                  margin="25px auto"
+                  fontSize="12px"
+                  fontWeight="bold"
+                  borderRadius="4px"
+                  padding="0 16px"
+                  color="white"
+                  //   className='button delete_btn'
+                  onClick={deleteFeeds}
+                >
+                  {showData == "fetched"
+                    ? "Delete Fetched Feeds"
+                    : showData == "saved"
+                    ? "Delete Bookmarked Feeds"
+                    : ""}
+                </Button>
+              </Box>
+            ) : null}
+            {/* pagination */}
           </UnorderedList>
-          {(showData == 'fetched' && feedData.length) || (showData == 'saved' && selectedFeeds.length) ? (
+          {(showData == "fetched" && feedData.length) ||
+          (showData == "saved" && selectedFeeds.length) ? (
             <Box
               width="max-content"
               margin="auto"
@@ -694,30 +727,51 @@ function AllFeeds() {
         position="fixed"
         bottom="0"
       >
-      <Box display="flex" alignItems="center" width="33%" flexDirection="column" onClick={viewAllFeeds} cursor="pointer">
-        {/* <Logo w={3.5} strokeWidth={1.8} />
+        <Box
+          display="flex"
+          alignItems="center"
+          width="33%"
+          flexDirection="column"
+          onClick={viewAllFeeds}
+          cursor="pointer"
+        >
+          {/* <Logo w={3.5} strokeWidth={1.8} />
         <Text ml={2}>© 2022 Grateape.</Text> */}
-        <Image src="/home.svg" width="auto" height="30px" margin="2px auto" />
-        <Text display={{ sm: "block" }} fontWeight="bold">
-          Home
-        </Text>
-      </Box>
-      <Box display="flex" alignItems="center" width="33%" flexDirection="column" onClick={viewSavedFeeds} cursor="pointer">
-        {/* <ThemeSwitcher button={compact} /> */}
-        <Image src="/bookmark.svg" width="auto" height="30px" margin="2px auto" />
-        <Text display={{ sm: "block" }} fontWeight="bold">
-          Bookmarked
-        </Text>
-      </Box>
-      <Box display="flex" alignItems="center" width="33%" flexDirection="column" onClick={download} cursor="pointer">
-        {/* <ThemeSwitcher button={compact} /> */}
-        <Image src="/download.svg" width="auto" height="30px" margin="2px auto" />
-        <Text display={{ sm: "block" }} fontWeight="bold">
-          Download
-        </Text>
+          <Image src="/home.svg" width="auto" height="30px" margin="2px auto" />
+          <Text display={{ sm: "block" }} fontWeight="bold">
+            Home
+          </Text>
+        </Box>
+        <Box
+          display="flex"
+          alignItems="center"
+          width="33%"
+          flexDirection="column"
+          onClick={viewSavedFeeds}
+          cursor="pointer"
+        >
+          {/* <ThemeSwitcher button={compact} /> */}
+          <Image src="/bookmark.svg" width="auto" height="30px" margin="2px auto" />
+          <Text display={{ sm: "block" }} fontWeight="bold">
+            Bookmarked
+          </Text>
+        </Box>
+        <Box
+          display="flex"
+          alignItems="center"
+          width="33%"
+          flexDirection="column"
+          onClick={download}
+          cursor="pointer"
+        >
+          {/* <ThemeSwitcher button={compact} /> */}
+          <Image src="/download.svg" width="auto" height="30px" margin="2px auto" />
+          <Text display={{ sm: "block" }} fontWeight="bold">
+            Download
+          </Text>
+        </Box>
       </Box>
     </Box>
-  </Box>
   );
 }
 
