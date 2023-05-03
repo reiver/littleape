@@ -1,4 +1,4 @@
-import { AlertIcon, Box, Heading, Text } from "@chakra-ui/react";
+import { AlertIcon, Box, Heading, Text, Link } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -46,7 +46,14 @@ const Login: FC = () => {
       <Head>
         <title>Greatape | Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"xs"}>
+      <Box mx="auto" mt="10" w="full" maxW={"xs"}
+        width="100%"
+        margin="auto"
+        /* padding: 20px; */
+        border="1px solid #b9b9b9"
+        padding="15px"
+        borderRadius="7px"
+      >
         <Box
           display="flex"
           experimental_spaceX={"2"}
@@ -55,6 +62,7 @@ const Login: FC = () => {
             textColor: "slate.200",
           }}
           flexDirection="column"
+          
         >
           {/* <Logo maxW="8" strokeWidth={2} /> */}
           <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
@@ -121,7 +129,10 @@ const Login: FC = () => {
               color="black"
               marginTop="10px !important"
             >
-              Register!
+              <Link href="/auth/register">
+                {/* <a className="hashtag">{content}</a> */}
+                Register!
+              </Link>
             </Heading>
           </Box>
           <Box marginTop="80px !important">

@@ -34,7 +34,7 @@ export const MainLayout: FC<PropsWithChildren<BoxProps>> = (props) => {
           // h="full"
           height="88vh"
         >{children}</Box>
-        <Footer />
+        {/* <Footer /> */}
       </Container>
     </Box>
   );

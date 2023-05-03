@@ -9,6 +9,7 @@ import {
   Text,
   useToast,
   VStack,
+  Link
 } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
@@ -56,7 +57,13 @@ const RegistrationForm: FC<{
       });
   };
   return (
-    <Box display="flex" flexDirection="column" height="100%" width="100%">
+    <Box display="flex" flexDirection="column" width="100%"
+      margin="auto"
+      height="max-content"
+      padding="15px"
+      border="1px solid #b9b9b9"
+      borderRadius="7px"
+    >
       <Box
         display="flex"
         experimental_spaceX={"2"}
@@ -67,7 +74,6 @@ const RegistrationForm: FC<{
         flexDirection="column"
         height="max-content"
         margin="auto 0"
-        marginBottom="0"
       >
         {/* <Logo maxW="8" strokeWidth={2} /> */}
         <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
@@ -133,7 +139,9 @@ const RegistrationForm: FC<{
             color="black"
             marginTop="10px !important"
           >
-            Login!
+            <Link href="/auth/login">
+              Login!
+            </Link>
           </Heading>
         </Box>
         <Box marginTop="80px !important">
@@ -146,7 +154,9 @@ const RegistrationForm: FC<{
             border="1px solid black"
             borderColor="black"
           >
-            Register
+            <Link href="/">
+              Register
+            </Link>
           </Button>
         </Box>
         {/* <Box>
