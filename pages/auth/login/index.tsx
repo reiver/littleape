@@ -46,13 +46,18 @@ const Login: FC = () => {
       <Head>
         <title>Greatape | Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"xs"}
+      <Box
+        mx="auto"
+        mt="10"
+        w="full"
+        maxW={"xs"}
         width="100%"
         margin="auto"
         /* padding: 20px; */
         border="1px solid #b9b9b9"
         padding="15px"
         borderRadius="7px"
+        paddingTop="8%"
       >
         <Box
           display="flex"
@@ -62,7 +67,6 @@ const Login: FC = () => {
             textColor: "slate.200",
           }}
           flexDirection="column"
-          
         >
           {/* <Logo maxW="8" strokeWidth={2} /> */}
           <Heading as="h1" display="block" textAlign="left" fontSize="3xl" fontWeight="semibold">
@@ -72,15 +76,21 @@ const Login: FC = () => {
             Please enter your info. to continue
           </Text>
         </Box>
-        <Form
-          onSubmit={handleLogin}
-          mt="8"
-          display="flex"
-          flexDirection="column"
-          experimental_spaceY={4}
-        >
-          <Input autoFocus {...register("email")} error={errors.email} />
-          <Input type="password" {...register("password")} error={errors.password} />
+        <Form onSubmit={handleLogin} display="flex" flexDirection="column" experimental_spaceY={4}>
+          <Input
+            autoFocus
+            {...register("email")}
+            error={errors.email}
+            placeholder="Email"
+            _placeholder={{ color: " #A8A8A8" }}
+          />
+          <Input
+            type="password"
+            {...register("password")}
+            error={errors.password}
+            placeholder="Password"
+            _placeholder={{ color: " #A8A8A8" }}
+          />
 
           {/* <Input
             autoFocus
@@ -118,7 +128,7 @@ const Login: FC = () => {
               width="100%"
               marginTop="15px !important"
             >
-              Don&rsquo;t have an account?
+              Don&rsquo;t have an account yet?
             </Text>
             <Heading
               as="h3"
