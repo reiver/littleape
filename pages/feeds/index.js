@@ -35,6 +35,7 @@ function AllFeeds() {
   const [tag, setTag] = useState("");
   const [showData, setShowData] = useState("fetched");
 
+
   useEffect(() => {
     // fetching selected feeds from local storage -> in order to show navigation buttons (download and view btns)
     let storedArray = JSON.parse(localStorage.getItem("savedFeeds"));
@@ -50,46 +51,51 @@ function AllFeeds() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // fetch and parse the feed here
-    let result = await extract("http://127.0.0.1:8080/" + feedUrl, {
-      normalization: false,
-    });
-    console.log(result);
-    let concatFeeds = null;
-    if (result.entry) {
-      console.log("atom");
-      result = addAuthorInfo(result, "atom");
-      // handling feeds without published date (only updated date)
-      if (!result.entry[0].published) {
-        changeFieldNameOfArray("updated", "published", result.entry);
+    if(feedUrl == ""){
+      setError('please insert a url!')
+    }else{
+      setError("")
+      // fetch and parse the feed here
+      let result = await extract("http://127.0.0.1:8080/" + feedUrl, {
+        normalization: false,
+      });
+      console.log(result);
+      let concatFeeds = null;
+      if (result.entry) {
+        console.log("atom");
+        result = addAuthorInfo(result, "atom");
+        // handling feeds without published date (only updated date)
+        if (!result.entry[0].published) {
+          changeFieldNameOfArray("updated", "published", result.entry);
+        }
+        concatFeeds = feedData.concat(result.entry);
+      } else if (result.item) {
+        console.log("rss");
+        result = addAuthorInfo(result, "rss");
+        changeFieldNameOfArray("pubDate", "published", result.item);
+        concatFeeds = feedData.concat(result.item);
+      } else if (result.items) {
+        console.log("json");
+        result = addAuthorInfo(result, "json");
+        // normalizing json fields
+        changeFieldNameOfArray("date_published", "published", result.items);
+        changeFieldNameOfArray("content_html", "content", result.items);
+        changeFieldNameOfArray("url", "link", result.items);
+        concatFeeds = feedData.concat(result.items);
       }
-      concatFeeds = feedData.concat(result.entry);
-    } else if (result.item) {
-      console.log("rss");
-      result = addAuthorInfo(result, "rss");
-      changeFieldNameOfArray("pubDate", "published", result.item);
-      concatFeeds = feedData.concat(result.item);
-    } else if (result.items) {
-      console.log("json");
-      result = addAuthorInfo(result, "json");
-      // normalizing json fields
-      changeFieldNameOfArray("date_published", "published", result.items);
-      changeFieldNameOfArray("content_html", "content", result.items);
-      changeFieldNameOfArray("url", "link", result.items);
-      concatFeeds = feedData.concat(result.items);
+      concatFeeds = sortAccordingToDate(concatFeeds);
+  
+      // Filter out duplicates
+      let uniqueResults = Array.from(new Set(concatFeeds.map((result) => result.id))).map((id) => {
+        return concatFeeds.find((result) => result.id === id);
+      });
+      // adding bookmarked status for newly fetched items
+      uniqueResults = addBookMarkedStatus(uniqueResults);
+      setFeedData(uniqueResults);
+      // updating local storage and saving newly fetched feeds
+      localStorage.setItem("fetchedFeeds", JSON.stringify(uniqueResults));
+      setFeedUrl("");
     }
-    concatFeeds = sortAccordingToDate(concatFeeds);
-
-    // Filter out duplicates
-    let uniqueResults = Array.from(new Set(concatFeeds.map((result) => result.id))).map((id) => {
-      return concatFeeds.find((result) => result.id === id);
-    });
-    // adding bookmarked status for newly fetched items
-    uniqueResults = addBookMarkedStatus(uniqueResults);
-    setFeedData(uniqueResults);
-    // updating local storage and saving newly fetched feeds
-    localStorage.setItem("fetchedFeeds", JSON.stringify(uniqueResults));
-    setFeedUrl("");
   };
 
   // calculate the total number of pages
@@ -302,15 +308,22 @@ function AllFeeds() {
 
   const viewAllFeeds = (event) => {
     if (showData == "saved") {
+      setError("")
       setShowData("fetched");
     }
   };
 
   const viewSavedFeeds = () => {
     if (showData == "fetched") {
+      setError("")
       setShowData("saved");
     }
   };
+
+  // const onChange = (e) => {
+  //   console.log('in test')
+  //   console.log(e)
+  // }
 
   const showDataFunction = () => {
     let data = [];
@@ -477,6 +490,13 @@ function AllFeeds() {
               borderRadius="4px"
               padding="0 16px"
               color="white"
+              _disabled={{
+                backgroundColor: "#EBEBEB",
+                borderColor: "gray",
+                color: "#666666",
+                cursor: "default"
+              }}
+              _hover={{ bg: '#EBEBEB', color: "#666666" }}
               // transition="background-color 0.2s ease-in-out"
               // className="button add_btn"
               id={index + "_btn"}
@@ -544,7 +564,11 @@ function AllFeeds() {
               type="text"
               placeholder="Enter feed URL"
               value={feedUrl}
-              onChange={(event) => setFeedUrl(event.target.value)}
+              onChange={(event) => {
+                            setFeedUrl(event.target.value)
+                            setError("")
+                          }
+                        }
             />
             <Button
               border="1px solid black"
@@ -568,7 +592,7 @@ function AllFeeds() {
             marginTop="1rem"
             // className="error"
           >
-            {error.message}
+            {error.message ? error.message : error}
           </Box>
         )}
         <Box
@@ -735,7 +759,7 @@ function AllFeeds() {
         >
           {/* <Logo w={3.5} strokeWidth={1.8} />
         <Text ml={2}>© 2022 Grateape.</Text> */}
-          <Image src="/home.svg" width="auto" height="30px" margin="2px auto" />
+          <Image src={showData == "saved" ? "/home.svg" : "/homeYellow.svg"} width="auto" height="30px" margin="2px auto" />
           <Text display={{ sm: "block" }} fontWeight="bold">
             Home
           </Text>
@@ -749,7 +773,7 @@ function AllFeeds() {
           cursor="pointer"
         >
           {/* <ThemeSwitcher button={compact} /> */}
-          <Image src="/bookmark.svg" width="auto" height="30px" margin="2px auto" />
+          <Image src={ showData == "saved" ? "bookmarkYellow.png" : "/bookmark.png"} width="auto" height="25px" margin="4px auto" />
           <Text display={{ sm: "block" }} fontWeight="bold">
             Bookmarked
           </Text>

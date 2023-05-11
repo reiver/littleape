@@ -5,7 +5,7 @@ import { $fetch } from "ohmyfetch";
 const token = Cookie.get(AUTH_KEY);
 
 const fetch$ = $fetch.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URI,
+  baseURL: "https://social.xeronith.com/",
   headers: token && {
     Authorization: `Bearer ${token}`,
   },
