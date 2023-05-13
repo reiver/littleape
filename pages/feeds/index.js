@@ -23,18 +23,13 @@ import { Navbar } from "components/Navbar";
 // move delete fetched feed btn upper
 // fix hover style of bookmarked btn
 
-const PAGE_SIZE = 10; // number of items to show per page
-const PAGE_RANGE = 5; // number of page buttons to show in the range
-
 function AllFeeds() {
   const [feedUrl, setFeedUrl] = useState("");
   const [feedData, setFeedData] = useState([]);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedFeeds, setSelectedFeeds] = useState([]);
   const [tag, setTag] = useState("");
   const [showData, setShowData] = useState("fetched");
-
 
   useEffect(() => {
     // fetching selected feeds from local storage -> in order to show navigation buttons (download and view btns)
@@ -56,84 +51,61 @@ function AllFeeds() {
     }else{
       setError("")
       // fetch and parse the feed here
-      let result = await extract("http://127.0.0.1:8080/" + feedUrl, {
+      let result = null
+      await extract("http://127.0.0.1:8080/" + feedUrl, {
         normalization: false,
+      }).then((r) => {
+        result = r
+        console.log(result);
+      }).catch((error) => {
+        // Your error is here!
+        console.log(error)
+        setError("the url is invalid!")
       });
-      console.log(result);
-      let concatFeeds = null;
-      if (result.entry) {
-        console.log("atom");
-        result = addAuthorInfo(result, "atom");
-        // handling feeds without published date (only updated date)
-        if (!result.entry[0].published) {
-          changeFieldNameOfArray("updated", "published", result.entry);
+      if(result){
+        let concatFeeds = null;
+        if (result.entry) {
+          console.log("atom");
+          result = addAuthorInfo(result, "atom");
+          // handling feeds without published date (only updated date)
+          if (!result.entry[0].published) {
+            changeFieldNameOfArray("updated", "published", result.entry);
+          }
+          concatFeeds = feedData.concat(result.entry);
+        } else if (result.item) {
+          console.log("rss");
+          result = addAuthorInfo(result, "rss");
+          changeFieldNameOfArray("pubDate", "published", result.item);
+          addRssId(result.item)
+          concatFeeds = feedData.concat(result.item);
+        } else if (result.items) {
+          console.log("json");
+          result = addAuthorInfo(result, "json");
+          // normalizing json fields
+          changeFieldNameOfArray("date_published", "published", result.items);
+          changeFieldNameOfArray("content_html", "content", result.items);
+          changeFieldNameOfArray("url", "link", result.items);
+          concatFeeds = feedData.concat(result.items);
         }
-        concatFeeds = feedData.concat(result.entry);
-      } else if (result.item) {
-        console.log("rss");
-        result = addAuthorInfo(result, "rss");
-        changeFieldNameOfArray("pubDate", "published", result.item);
-        concatFeeds = feedData.concat(result.item);
-      } else if (result.items) {
-        console.log("json");
-        result = addAuthorInfo(result, "json");
-        // normalizing json fields
-        changeFieldNameOfArray("date_published", "published", result.items);
-        changeFieldNameOfArray("content_html", "content", result.items);
-        changeFieldNameOfArray("url", "link", result.items);
-        concatFeeds = feedData.concat(result.items);
+        concatFeeds = sortAccordingToDate(concatFeeds);
+    
+        // Filter out duplicates
+        let uniqueResults = Array.from(new Set(concatFeeds.map((result) => result.id))).map((id) => {
+          return concatFeeds.find((result) => result.id === id);
+        });
+
+
+        // let uniqueResults = concatFeeds
+        // adding bookmarked status for newly fetched items
+        uniqueResults = addBookMarkedStatus(uniqueResults);
+
+        setFeedData(uniqueResults);
+        // updating local storage and saving newly fetched feeds
+        localStorage.setItem("fetchedFeeds", JSON.stringify(uniqueResults));
+        setFeedUrl("");
       }
-      concatFeeds = sortAccordingToDate(concatFeeds);
-  
-      // Filter out duplicates
-      let uniqueResults = Array.from(new Set(concatFeeds.map((result) => result.id))).map((id) => {
-        return concatFeeds.find((result) => result.id === id);
-      });
-      // adding bookmarked status for newly fetched items
-      uniqueResults = addBookMarkedStatus(uniqueResults);
-      setFeedData(uniqueResults);
-      // updating local storage and saving newly fetched feeds
-      localStorage.setItem("fetchedFeeds", JSON.stringify(uniqueResults));
-      setFeedUrl("");
     }
   };
-
-  // calculate the total number of pages
-  const totalPages = Math.ceil(feedData.length / PAGE_SIZE);
-
-  // calculate the range of page numbers to display
-  let pageRangeStart = Math.max(1, currentPage - PAGE_RANGE);
-  let pageRangeEnd = Math.min(totalPages, currentPage + PAGE_RANGE);
-  if (pageRangeEnd - pageRangeStart < PAGE_RANGE * 2) {
-    // adjust the range if it's too small
-    if (pageRangeStart === 1) {
-      pageRangeEnd = Math.min(totalPages, pageRangeStart + PAGE_RANGE * 2);
-    } else {
-      pageRangeStart = Math.max(1, pageRangeEnd - PAGE_RANGE * 2);
-    }
-  }
-
-  // create an array of page numbers to display
-  const pageNumbers = [];
-  if (pageRangeStart > 1) {
-    pageNumbers.push(1);
-    if (pageRangeStart > 2) {
-      pageNumbers.push("...");
-    }
-  }
-  for (let i = pageRangeStart; i <= pageRangeEnd; i++) {
-    pageNumbers.push(i);
-  }
-  if (pageRangeEnd < totalPages) {
-    if (pageRangeEnd < totalPages - 1) {
-      pageNumbers.push("...");
-    }
-    pageNumbers.push(totalPages);
-  }
-
-  // calculate the start and end index of the current page
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const endIndex = startIndex + PAGE_SIZE;
 
   const addBookMarkedStatus = (array) => {
     for (let index = 0; index < array.length; index++) {
@@ -194,6 +166,12 @@ function AllFeeds() {
     localStorage.setItem("fetchedFeeds", JSON.stringify(feedData));
     setTag("");
   };
+
+  const addRssId = (feeds) => {
+    for (let index = 0; index < feeds.length; index++) {
+      feeds[index].id = feeds[index].title + feeds[index].published;
+    }
+  }
 
   const addAuthorInfo = (feeds, type) => {
     if (type == "atom") {
@@ -333,7 +311,7 @@ function AllFeeds() {
       data = selectedFeeds;
     }
     return data.length ? (
-      data.slice(startIndex, endIndex).map((item, index) => (
+      data.map((item, index) => (
         <ListItem
           key={index}
           position="relative"
@@ -423,6 +401,8 @@ function AllFeeds() {
             flexDirection="row"
             alignItems="center"
             marginBottom="16px"
+            style={{ flexFlow: item.tags[0] && item.tags[0].length ? "unset" : "row-reverse" }}
+
             // className='bookmark-button'
           >
             <Input
@@ -443,7 +423,7 @@ function AllFeeds() {
               display="none"
             />
             <Box
-              style={{ display: item.tags ? "flex" : "none" }}
+              style={{ display: item.tags[0] && item.tags[0].length ? "flex" : "none" }}
               display="flex"
               flexDirection="row"
               width="max-content"
@@ -481,7 +461,7 @@ function AllFeeds() {
                 : null}
             </Box>
             <Button
-              border="1px solid black"
+              border="2px solid black"
               borderColor="black"
               backgroundColor="black"
               width="max-content"
@@ -640,92 +620,7 @@ function AllFeeds() {
                 </Button>
               </Box>
             ) : null}
-            {/* pagination */}
           </UnorderedList>
-          {(showData == "fetched" && feedData.length) ||
-          (showData == "saved" && selectedFeeds.length) ? (
-            <Box
-              width="max-content"
-              margin="auto"
-              //   className='pagination_wrapper'
-            >
-              <Button
-                color="white"
-                border="none"
-                cursor="pointer"
-                fontSize="large"
-                width="max-content"
-                padding="10px 15px"
-                margin="5px"
-                borderRadius="30px"
-                backgroundColor="#0077cc"
-                // className='button'
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-              >
-                First
-              </Button>
-              <Button
-                color="white"
-                border="none"
-                cursor="pointer"
-                fontSize="large"
-                width="max-content"
-                padding="10px 15px"
-                margin="5px"
-                borderRadius="30px"
-                backgroundColor="#0077cc"
-                // className='button'
-                onClick={() => setCurrentPage((prevPage) => prevPage - 1)}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              {pageNumbers.map((pageNumber) => (
-                <Button
-                  color="white"
-                  border="none"
-                  cursor="pointer"
-                  fontSize="large"
-                  width="max-content"
-                  padding="10px 15px"
-                  margin="5px"
-                  borderRadius="30px"
-                  backgroundColor="#0077cc"
-                  // className='button'
-                  key={pageNumber}
-                  onClick={() => setCurrentPage(pageNumber)}
-                  disabled={currentPage === pageNumber}
-                >
-                  {pageNumber}
-                </Button>
-              ))}
-              <Button
-                color="white"
-                border="none"
-                cursor="pointer"
-                fontSize="large"
-                width="max-content"
-                padding="10px 15px"
-                margin="5px"
-                borderRadius="30px"
-                backgroundColor="#0077cc"
-                // className='button'
-                onClick={() => setCurrentPage((prevPage) => prevPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-              <Button
-                c
-                // className='button'
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                Last
-              </Button>
-            </Box>
-          ) : null}
         </Box>
       </Box>
       {/* footer */}
