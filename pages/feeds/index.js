@@ -1,17 +1,17 @@
 import {
-  Box,
-  Button,
-  FormControl,
-  Image,
-  Input,
-  Link,
-  ListItem,
-  Text,
-  UnorderedList,
+	Box,
+	Button,
+	FormControl,
+	Image,
+	Input,
+	Link,
+	ListItem,
+	Text,
+	UnorderedList,
 } from "@chakra-ui/react";
 import { extract } from "@extractus/feed-extractor";
-import { useEffect, useState } from "react";
 import { Navbar } from "components/Navbar";
+import { useEffect, useState } from "react";
 
 // import { Link } from "react-router-dom";
 
@@ -49,10 +49,10 @@ function AllFeeds() {
     if(feedUrl == ""){
       setError('please insert a url!')
     }else{
-      setError("")
+			setError("")
       // fetch and parse the feed here
       let result = null
-      await extract("http://127.0.0.1:8080/" + feedUrl, {
+      await extract(window.location.origin + "/api/feed?url=" + feedUrl, {
         normalization: false,
       }).then((r) => {
         result = r
@@ -88,7 +88,7 @@ function AllFeeds() {
           concatFeeds = feedData.concat(result.items);
         }
         concatFeeds = sortAccordingToDate(concatFeeds);
-    
+
         // Filter out duplicates
         let uniqueResults = Array.from(new Set(concatFeeds.map((result) => result.id))).map((id) => {
           return concatFeeds.find((result) => result.id === id);
