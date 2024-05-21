@@ -12,19 +12,6 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user:{
-    api_key:"",
-    avatar:"",
-    banner:"",
-    bio:"",
-    display_name:"",
-    email:"",
-    github:"",
-    id:0,
-    publicKey:"",
-    username:"zaid"
-    
-  },
   authorized: false,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
