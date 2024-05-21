@@ -1,11 +1,4 @@
-import {
-  Avatar,
-  Box,
-  BoxProps,
-  chakra,
-  IconButton,
-  Text,
-} from "@chakra-ui/react";
+import { Avatar, Box, BoxProps, chakra, IconButton, Text } from "@chakra-ui/react";
 import {
   BookmarkIcon,
   ChatBubbleOvalLeftEllipsisIcon,
@@ -43,8 +36,7 @@ export const FeedCard: FC<FeedCardProps> = ({ item, ...props }) => {
               {typeof item.actor == "string" && item.actor}
             </Text>
             <Text fontSize="xs" opacity={0.5} mt={-1}>
-              {typeof item.actor == "string" &&
-                dayjs().from(dayjs(item.published))}
+              {typeof item.actor == "string" && dayjs().from(dayjs(item.published))}
             </Text>
           </Box>
         </Box>

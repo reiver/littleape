@@ -59,13 +59,7 @@ const Login: FC = () => {
           }}
         >
           <Logo maxW="8" strokeWidth={2} />
-          <Heading
-            as="h1"
-            display="block"
-            textAlign="center"
-            fontSize="3xl"
-            fontWeight="semibold"
-          >
+          <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
             Login
           </Heading>
         </Box>
@@ -77,11 +71,7 @@ const Login: FC = () => {
           experimental_spaceY={4}
         >
           <Input autoFocus {...register("email")} error={errors.email} />
-          <Input
-            type="password"
-            {...register("password")}
-            error={errors.password}
-          />
+          <Input type="password" {...register("password")} error={errors.password} />
           {error && (
             <Alert status="error">
               <AlertIcon />
@@ -89,13 +79,7 @@ const Login: FC = () => {
             </Alert>
           )}
           <Box>
-            <Button
-              primary
-              w="full"
-              type="submit"
-              mt={error ? 0 : 3}
-              isLoading={loading}
-            >
+            <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
               Login
             </Button>
           </Box>

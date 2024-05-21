@@ -54,12 +54,7 @@ const MenuItem: FC<MenuItemType> = ({ href, ...props }) => {
 
 export const MainMenu: FC<BoxProps> = (props) => {
   return (
-    <Box
-      {...props}
-      display="flex"
-      flexDirection="column"
-      experimental_spaceY={3}
-    >
+    <Box {...props} display="flex" flexDirection="column" experimental_spaceY={3}>
       <MenuItem href="/" leftIcon={<FeedIcon w="4" />}>
         Feed
       </MenuItem>

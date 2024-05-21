@@ -1,10 +1,4 @@
-import {
-  Box,
-  BoxProps,
-  chakra,
-  IconButton,
-  useColorMode,
-} from "@chakra-ui/react";
+import { Box, BoxProps, chakra, IconButton, useColorMode } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { FC } from "react";
 

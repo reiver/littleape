@@ -50,11 +50,7 @@ export const TrendingTags: FC<BoxProps> = (props) => {
                   <Text fontSize="14" fontWeight="bold" noOfLines={1}>
                     #{user.name}
                   </Text>
-                  <Text
-                    fontSize="xs"
-                    noOfLines={1}
-                    _dark={{ color: "gray.500" }}
-                  >
+                  <Text fontSize="xs" noOfLines={1} _dark={{ color: "gray.500" }}>
                     {user.people} people talking
                   </Text>
                 </Box>

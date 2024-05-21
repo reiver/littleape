@@ -69,27 +69,27 @@ export default function UserProfile() {
 export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
   const username = ctx.params.username.toString();
   let user = {
-    api_key:"",
-    avatar:"",
-    banner:"",
-    bio:"",
-    display_name:"",
-    email:"",
-    github:"",
-    id:0,
-    publicKey:"",
-    username:"zaid"
+    api_key: "",
+    avatar: "",
+    banner: "",
+    bio: "",
+    display_name: "",
+    email: "",
+    github: "",
+    id: 0,
+    publicKey: "",
+    username: "zaid",
   };
-//   try {
-//     user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
-//       activityPub: true,
-//     });
-//   } catch (e) {
-//     console.error(e);
-//     return {
-//       notFound: true,
-//     };
-//   }
+  //   try {
+  //     user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
+  //       activityPub: true,
+  //     });
+  //   } catch (e) {
+  //     console.error(e);
+  //     return {
+  //       notFound: true,
+  //     };
+  //   }
 
   return {
     props: {

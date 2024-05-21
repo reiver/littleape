@@ -8,10 +8,7 @@ import {
   FormErrorMessage,
   Text,
 } from "@chakra-ui/react";
-import {
-  PhotoIcon as HeroIconPhotoIcon,
-  VideoCameraIcon,
-} from "@heroicons/react/24/outline";
+import { PhotoIcon as HeroIconPhotoIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/Button";
 import { Card } from "components/Card";
 import { Form } from "components/Form";
@@ -26,9 +23,7 @@ import { joinURL } from "ufo";
 import { z } from "zod";
 import { EditorProps } from "./Editor";
 
-const Editor = dynamic<EditorProps>(() =>
-  import("./Editor").then((module) => module.Editor)
-);
+const Editor = dynamic<EditorProps>(() => import("./Editor").then((module) => module.Editor));
 
 const PhotoIcon = chakra(HeroIconPhotoIcon);
 const VideoIcon = chakra(VideoCameraIcon);
@@ -77,16 +72,9 @@ export const NewPostCard: FC<BoxProps> = () => {
     post(e)
       .then(() => {
         reset();
-        if (editorRef.current && editorRef.current.clearContent)
-          editorRef.current.clearContent();
+        if (editorRef.current && editorRef.current.clearContent) editorRef.current.clearContent();
       })
-      .then(
-        mutate.bind(
-          null,
-          API_OUTBOX(user.username),
-          cache.get(API_OUTBOX(user.username))
-        )
-      );
+      .then(mutate.bind(null, API_OUTBOX(user.username), cache.get(API_OUTBOX(user.username))));
   };
   return (
     <Card>
@@ -109,9 +97,7 @@ export const NewPostCard: FC<BoxProps> = () => {
               rounded="md"
               fontSize="sm"
             />
-            {errors.content && (
-              <FormErrorMessage>{errors.content.message}</FormErrorMessage>
-            )}
+            {errors.content && <FormErrorMessage>{errors.content.message}</FormErrorMessage>}
           </FormControl>
         </Box>
         <Box

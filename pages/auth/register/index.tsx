@@ -46,11 +46,7 @@ const RegistrationForm: FC<{
   const [error, setError] = useState(null);
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
-  }>(
-    API_SIGN_UP,
-    { email: "", password: "", username: "" },
-    registrationSchema
-  );
+  }>(API_SIGN_UP, { email: "", password: "", username: "" }, registrationSchema);
   const signUp = (e: FormEvent<HTMLFormElement>) => {
     post(e)
       .then(({ code }) => {
@@ -63,24 +59,10 @@ const RegistrationForm: FC<{
   };
   return (
     <>
-      <Form
-        onSubmit={signUp}
-        display="flex"
-        flexDirection="column"
-        experimental_spaceY={4}
-      >
-        <Input
-          autoFocus
-          {...register("username")}
-          error={errors.username}
-          label="Username"
-        />
+      <Form onSubmit={signUp} display="flex" flexDirection="column" experimental_spaceY={4}>
+        <Input autoFocus {...register("username")} error={errors.username} label="Username" />
         <Input {...register("email")} error={errors.email} />
-        <Input
-          type="password"
-          {...register("password")}
-          error={errors.password}
-        />
+        <Input type="password" {...register("password")} error={errors.password} />
         {error && (
           <Alert status="error">
             <AlertIcon />
@@ -88,13 +70,7 @@ const RegistrationForm: FC<{
           </Alert>
         )}
         <Box>
-          <Button
-            primary
-            w="full"
-            type="submit"
-            isLoading={loading}
-            mt={error ? 0 : 3}
-          >
+          <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
             Sign up
           </Button>
         </Box>
@@ -169,12 +145,7 @@ const VerifyRegistration: FC<{
           </Text>
           <FormControl isInvalid={!!errors.code}>
             <Box display="flex" justifyContent="space-between" w="full">
-              <PinInput
-                autoFocus
-                onChange={(code) => setValue("code", code)}
-                otp
-                size="lg"
-              >
+              <PinInput autoFocus onChange={(code) => setValue("code", code)} otp size="lg">
                 <PinInputField {...pinInputProps} />
                 <PinInputField {...pinInputProps} />
                 <PinInputField {...pinInputProps} />
@@ -182,9 +153,7 @@ const VerifyRegistration: FC<{
                 <PinInputField {...pinInputProps} />
                 <PinInputField {...pinInputProps} />
               </PinInput>
-              {!!errors.code && (
-                <FormErrorMessage>{errors.code.message}</FormErrorMessage>
-              )}
+              {!!errors.code && <FormErrorMessage>{errors.code.message}</FormErrorMessage>}
             </Box>
           </FormControl>
           {error && (
@@ -193,13 +162,7 @@ const VerifyRegistration: FC<{
               {error}
             </Alert>
           )}
-          <Button
-            isLoading={loading}
-            primary
-            w="full"
-            type="submit"
-            mt={error ? 0 : 3}
-          >
+          <Button isLoading={loading} primary w="full" type="submit" mt={error ? 0 : 3}>
             Verify
           </Button>
         </VStack>
@@ -253,13 +216,7 @@ const Register: FC = () => {
           }}
         >
           <Logo maxW="8" strokeWidth={2} />
-          <Heading
-            as="h1"
-            display="block"
-            textAlign="center"
-            fontSize="3xl"
-            fontWeight="semibold"
-          >
+          <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
             Register
           </Heading>
         </Box>
@@ -267,10 +224,7 @@ const Register: FC = () => {
           {!email ? (
             <RegistrationForm onRegister={onRegister} />
           ) : (
-            <VerifyRegistration
-              email={email}
-              backToRegistration={backToRegistration}
-            />
+            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
           )}
         </Box>
       </Box>
