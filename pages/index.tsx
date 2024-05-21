@@ -7,7 +7,6 @@ import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
-import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useAuthStore } from "store";
 
@@ -83,10 +82,10 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps = withAuth("authorized", (ctx) => {
-  return {
-    props: {
-      ...authProps(ctx),
-    },
-  };
-});
+// export const getServerSideProps = withAuth("authorized", (ctx) => {
+//   return {
+//     props: {
+//       ...authProps(ctx),
+//     },
+//   };
+// });

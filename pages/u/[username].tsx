@@ -4,13 +4,11 @@ import { MightLikeCard } from "components/MightLikeCard";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
 import { TrendingTags } from "components/TrendingTags";
-import { API_USER_PROFILE } from "constants/API";
 import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FETCH_USER_PROFILE } from "services/api";
-import { serverFetch } from "services/http.server";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { ActivityUser } from "types/User";
@@ -70,17 +68,28 @@ export default function UserProfile() {
 
 export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
   const username = ctx.params.username.toString();
-  let user;
-  try {
-    user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
-      activityPub: true,
-    });
-  } catch (e) {
-    console.error(e);
-    return {
-      notFound: true,
-    };
-  }
+  let user = {
+    api_key:"",
+    avatar:"",
+    banner:"",
+    bio:"",
+    display_name:"",
+    email:"",
+    github:"",
+    id:0,
+    publicKey:"",
+    username:"zaid"
+  };
+//   try {
+//     user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
+//       activityPub: true,
+//     });
+//   } catch (e) {
+//     console.error(e);
+//     return {
+//       notFound: true,
+//     };
+//   }
 
   return {
     props: {
