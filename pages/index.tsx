@@ -9,6 +9,7 @@ import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
 import Head from "next/head";
 import { useAuthStore } from "store";
+import { authProps, withAuth } from "lib/withAuth";
 
 export default function Home() {
   const user = useAuthStore((state) => state.user);
@@ -76,10 +77,10 @@ export default function Home() {
   );
 }
 
-// export const getServerSideProps = withAuth("authorized", (ctx) => {
-//   return {
-//     props: {
-//       ...authProps(ctx),
-//     },
-//   };
-// });
+export const getServerSideProps = withAuth("authorized", (ctx) => {
+  return {
+    props: {
+      ...authProps(ctx),
+    },
+  };
+});

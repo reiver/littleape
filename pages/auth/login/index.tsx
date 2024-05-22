@@ -4,9 +4,9 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
-import { API_LOGIN } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
+import { PocketBaseManager, SignInData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import Link from "next/link";
@@ -17,6 +17,7 @@ import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
+const pbManager = PocketBaseManager.getInstance();
 
 const schema = z.object({
   email: z.string().email().min(1),
@@ -26,23 +27,47 @@ const schema = z.object({
 const Login: FC = () => {
   const router = useRouter();
   const [error, setError] = useState(null);
-  const { register, errors, post, loading } = useForm<{
+  const { register, errors, loading, getValues } = useForm<{
     auth: Auth;
     user: User;
-  }>(API_LOGIN, { email: "", password: "" }, schema);
+  }>(null, { email: "", password: "" }, schema);
 
   const setAuth = useAuthStore((state) => state.setAuth);
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-    post(e)
-      .then(({ auth, user }) => {
-        setAuth(auth.token, user);
-        router.push("/");
-      })
-      .catch((e) => {
-        const err: Error = e.response?._data;
-        if (err?.type === "server_error") setError(err.payload);
-      });
+
+  const handleLoginViaPocketBase = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    const { email, password } = getValues();
+
+    const signInData = new SignInData(String(email), String(password));
+
+    try {
+      const authData = await pbManager.signIn(signInData);
+      console.log("Sign in successful:", authData);
+
+      var record = authData.record
+
+      const user: User = {
+        api_key: "",
+        avatar: record.avatar,
+        banner: "",
+        bio: "",
+        display_name: record.name,
+        email: record.email,
+        github: "",
+        id: record.id,
+        publicKey: "",
+        username: record.username,
+      };
+
+      setAuth(authData.token, user);
+      router.push("/");
+    } catch (error) {
+      console.error("Sign in error:", error);
+      const err: Error = error.response?._data;
+      if (err?.type === "server_error") setError(err.payload);
+    }
   };
+
   return (
     <MainLayout>
       <Head>
@@ -64,7 +89,7 @@ const Login: FC = () => {
           </Heading>
         </Box>
         <Form
-          onSubmit={handleLogin}
+          onSubmit={handleLoginViaPocketBase}
           mt="8"
           display="flex"
           flexDirection="column"
