@@ -7,9 +7,9 @@ export class SignUpData {
   emailVisibility: boolean;
   passwordConfirm: string;
   name: string;
-  avatar:File
+  avatar: File;
 
-  constructor(username: string, email: string, password: string,avatar:File) {
+  constructor(username: string, email: string, password: string, avatar: File) {
     this.username = username;
     this.email = email;
     this.password = password;
@@ -58,8 +58,8 @@ export class PocketBaseManager {
     this.pocketBase.authStore.clear();
   }
 
-  public async verifyEmail(email:string):  Promise<any>{
-    return await this.pocketBase.collection('users').requestVerification(email);
+  public async verifyEmail(email: string): Promise<any> {
+    return await this.pocketBase.collection("users").requestVerification(email);
   }
 
   public async signUp(signUpData: SignUpData): Promise<any> {
@@ -69,7 +69,7 @@ export class PocketBaseManager {
       password: signUpData.password,
       passwordConfirm: signUpData.passwordConfirm,
       name: signUpData.name,
-      avatar: signUpData.avatar
+      avatar: signUpData.avatar,
     };
 
     const record = await this.pocketBase.collection("users").create(formattedSignUpData);
@@ -78,7 +78,9 @@ export class PocketBaseManager {
   }
 
   public async signIn(signInData: SignInData): Promise<any> {
-    const authData = await this.pocketBase.collection("users").authWithPassword(signInData.email, signInData.password);
+    const authData = await this.pocketBase
+      .collection("users")
+      .authWithPassword(signInData.email, signInData.password);
     return authData;
   }
 }

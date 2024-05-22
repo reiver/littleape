@@ -44,7 +44,7 @@ const Login: FC = () => {
       const authData = await pbManager.signIn(signInData);
       console.log("Sign in successful:", authData);
 
-      var record = authData.record
+      var record = authData.record;
 
       const user: User = {
         api_key: "",

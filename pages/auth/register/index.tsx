@@ -29,7 +29,7 @@ import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
-const pbManager = PocketBaseManager.getInstance()
+const pbManager = PocketBaseManager.getInstance();
 
 const registrationSchema = z.object({
   username: z.string().min(1),
@@ -65,23 +65,21 @@ const RegistrationForm: FC<{
     const { email, password, username } = getValues();
 
     try {
-      console.log("Inside try")
-      var signUpData = new SignUpData(String(username), String(email), String(password), null)
+      console.log("Inside try");
+      var signUpData = new SignUpData(String(username), String(email), String(password), null);
       const response = await pbManager.signUp(signUpData);
 
       if (response.code != undefined) {
         //failed to register
-        console.error("Failed to register user: ", response)
-
+        console.error("Failed to register user: ", response);
       } else {
-        console.log("Registered: Response: ", response)
+        console.log("Registered: Response: ", response);
 
-        const verify = await pbManager.verifyEmail(String(email))
-        console.log("Verify: ", verify)
+        const verify = await pbManager.verifyEmail(String(email));
+        console.log("Verify: ", verify);
 
         onRegister("200", email.toString());
       }
-
     } catch (e) {
       const err: Error = e.response?._data;
       if (err?.type === "server_error") setError(err.payload);
@@ -90,7 +88,12 @@ const RegistrationForm: FC<{
 
   return (
     <>
-      <Form onSubmit={signUpViaPocketBase} display="flex" flexDirection="column" experimental_spaceY={4}>
+      <Form
+        onSubmit={signUpViaPocketBase}
+        display="flex"
+        flexDirection="column"
+        experimental_spaceY={4}
+      >
         <Input autoFocus {...register("username")} error={errors.username} label="Username" />
         <Input {...register("email")} error={errors.email} />
         <Input type="password" {...register("password")} error={errors.password} />
