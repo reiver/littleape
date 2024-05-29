@@ -18,7 +18,7 @@ import { Logo } from "components/Logo";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
-import { PocketBaseManager, SignUpData } from "lib/pocketBaseManager";
+import { OtpRequestBody, PocketBaseManager, SignUpData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import Link from "next/link";
@@ -75,13 +75,14 @@ const RegistrationForm: FC<{
       } else {
         console.log("Registered: Response: ", response);
 
-        const verify = await pbManager.verifyEmail(String(email));
-        console.log("Verify: ", verify);
+        // const verify = await pbManager.verifyEmail(String(email));
+        // console.log("Verify: ", verify);
 
         onRegister("200", email.toString());
       }
     } catch (e) {
       const err: Error = e.response?._data;
+      console.log("Error:",err)
       if (err?.type === "server_error") setError(err.payload);
     }
   };
@@ -154,20 +155,29 @@ const VerifyRegistration: FC<{
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState(null);
-  const { setValue, errors, post, loading } = useForm<{
+  const { setValue, errors, post, loading,getValues } = useForm<{
     auth: Auth;
     user: User;
   }>(API_VERIFY_SIGN_UP, { code: "", email }, verifySchema);
-  const verify = (e) => {
-    post(e)
-      .then(({ auth, user }) => {
-        setAuth(auth.token, user);
-        router.push("/");
-      })
-      .catch((e) => {
-        const err: Error = e.response?._data;
-        if (err?.type === "server_error") setError(err.payload);
-      });
+  const verify = async (e) => {
+    e.preventDefault();
+    const { code} = getValues();
+  
+    // post(e)
+    //   .then(({ auth, user }) => {
+    //     setAuth(auth.token, user);
+    //     router.push("/");
+    //   })
+    //   .catch((e) => {
+    //     const err: Error = e.response?._data;
+    //     if (err?.type === "server_error") setError(err.payload);
+    //   });
+
+    var otpRequest = new OtpRequestBody(code);
+    console.log("Sending OTP: ",code)
+    const response = await pbManager.verifyOtp(otpRequest);
+    console.log("Otp response: ",response)
+
   };
 
   return (

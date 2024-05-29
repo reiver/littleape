@@ -9,10 +9,10 @@ import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
 import Head from "next/head";
 import { useAuthStore } from "store";
-import { authProps, withAuth } from "lib/withAuth";
 
 export default function Home() {
   const user = useAuthStore((state) => state.user);
+  console.log("user: ",user)
   return (
     <>
       <Head>
@@ -25,7 +25,10 @@ export default function Home() {
         gridGap={3}
         mt={1}
       >
-        <Box gridColumn="span 5 / span 5" display={{ base: "none", lg: "block" }}>
+        <Box
+          gridColumn="span 5 / span 5"
+          display={{ base: "none", lg: "block" }}
+        >
           <Box
             position="sticky"
             top="75px"
@@ -55,7 +58,10 @@ export default function Home() {
           <NewPostCard />
           <Feed username={user.username} />
         </Box>
-        <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
+        <Box
+          gridColumn="span 6 / span 6"
+          display={{ base: "none", lg: "block" }}
+        >
           <Box
             position="sticky"
             top="75px"
@@ -77,10 +83,10 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps = withAuth("authorized", (ctx) => {
-  return {
-    props: {
-      ...authProps(ctx),
-    },
-  };
-});
+// export const getServerSideProps = withAuth("authorized", (ctx) => {
+//   return {
+//     props: {
+//       ...authProps(ctx),
+//     },
+//   };
+// });

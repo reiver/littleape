@@ -1,5 +1,6 @@
 import { AUTH_KEY } from "constants/app";
 import Cookies from "js-cookie";
+import { PocketBaseManager } from "lib/pocketBaseManager";
 import { User } from "types/User";
 import create from "zustand";
 
@@ -10,6 +11,8 @@ interface AuthState {
   setAuth: (token: string, user: User) => void;
   logout: () => void;
 }
+
+const pbManager = PocketBaseManager.getInstance();
 
 export const useAuthStore = create<AuthState>((set) => ({
   // user:{
@@ -24,12 +27,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   //   publicKey:"",
   //   username:"zaid"
   // },
+  user: pbManager.fetchUser(),  
   authorized: true,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
     set(() => ({
       token,
-      user,
+      // user,
     }));
   },
   logout: () => {

@@ -19,6 +19,8 @@ export type WithAuthType = (
 export const withAuth: WithAuthType = (authorizationType, cb) => async (ctx) => {
   const context: WithAuthContext = ctx;
   const token = ctx.req.cookies[AUTH_KEY];
+  console.log("Token: ",token)
+  console.log("user:",)
   let user;
   if (token)
     try {

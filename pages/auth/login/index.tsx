@@ -59,7 +59,7 @@ const Login: FC = () => {
         username: record.username,
       };
 
-      setAuth(authData.token, user);
+      setAuth(record.email, user);
       router.push("/");
     } catch (error) {
       console.error("Sign in error:", error);
