@@ -149,7 +149,7 @@ export const Navbar: FC<BoxProps> = (props) => {
 
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
-  console.log("User in messaagesPOp:",user)
+  console.log("User in messaagesPOp:", user);
   const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user.username));
 
   return (

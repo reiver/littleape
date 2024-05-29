@@ -12,7 +12,7 @@ import { useAuthStore } from "store";
 
 export default function Home() {
   const user = useAuthStore((state) => state.user);
-  console.log("user: ",user)
+  console.log("user: ", user);
   return (
     <>
       <Head>
@@ -25,10 +25,7 @@ export default function Home() {
         gridGap={3}
         mt={1}
       >
-        <Box
-          gridColumn="span 5 / span 5"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 5 / span 5" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"
@@ -58,10 +55,7 @@ export default function Home() {
           <NewPostCard />
           <Feed username={user.username} />
         </Box>
-        <Box
-          gridColumn="span 6 / span 6"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"

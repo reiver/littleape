@@ -82,7 +82,7 @@ const RegistrationForm: FC<{
       }
     } catch (e) {
       const err: Error = e.response?._data;
-      console.log("Error:",err)
+      console.log("Error:", err);
       if (err?.type === "server_error") setError(err.payload);
     }
   };
@@ -155,14 +155,14 @@ const VerifyRegistration: FC<{
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState(null);
-  const { setValue, errors, post, loading,getValues } = useForm<{
+  const { setValue, errors, post, loading, getValues } = useForm<{
     auth: Auth;
     user: User;
   }>(API_VERIFY_SIGN_UP, { code: "", email }, verifySchema);
   const verify = async (e) => {
     e.preventDefault();
-    const { code} = getValues();
-  
+    const { code } = getValues();
+
     // post(e)
     //   .then(({ auth, user }) => {
     //     setAuth(auth.token, user);
@@ -174,10 +174,9 @@ const VerifyRegistration: FC<{
     //   });
 
     var otpRequest = new OtpRequestBody(code);
-    console.log("Sending OTP: ",code)
+    console.log("Sending OTP: ", code);
     const response = await pbManager.verifyOtp(otpRequest);
-    console.log("Otp response: ",response)
-
+    console.log("Otp response: ", response);
   };
 
   return (
