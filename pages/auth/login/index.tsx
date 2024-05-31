@@ -29,7 +29,7 @@ const Login: FC = () => {
   const { register, errors, loading, getValues } = useForm<{
     auth: Auth;
     user: User;
-  }>(null, { email: ""}, schema);
+  }>(null, { email: "" }, schema);
 
   const setAuth = useAuthStore((state) => state.setAuth);
 
