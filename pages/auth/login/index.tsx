@@ -21,7 +21,6 @@ const pbManager = PocketBaseManager.getInstance();
 
 const schema = z.object({
   email: z.string().email().min(1),
-  password: z.string().min(1),
 });
 
 const Login: FC = () => {
@@ -30,15 +29,15 @@ const Login: FC = () => {
   const { register, errors, loading, getValues } = useForm<{
     auth: Auth;
     user: User;
-  }>(null, { email: "", password: "" }, schema);
+  }>(null, { email: ""}, schema);
 
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLoginViaPocketBase = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission behavior
-    const { email, password } = getValues();
+    const { email } = getValues();
 
-    const signInData = new SignInData(String(email), String(password));
+    const signInData = new SignInData(String(email), String("12345678"));
 
     try {
       const authData = await pbManager.signIn(signInData);
@@ -96,7 +95,6 @@ const Login: FC = () => {
           experimental_spaceY={4}
         >
           <Input autoFocus {...register("email")} error={errors.email} />
-          <Input type="password" {...register("password")} error={errors.password} />
           {error && (
             <Alert status="error">
               <AlertIcon />

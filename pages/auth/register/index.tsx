@@ -32,9 +32,8 @@ import { z } from "zod";
 const pbManager = PocketBaseManager.getInstance();
 
 const registrationSchema = z.object({
-  username: z.string().min(1),
+  displayname: z.string().min(1),
   email: z.string().email().min(1),
-  password: z.string().min(1),
 });
 
 const verifySchema = z.object({
@@ -48,7 +47,7 @@ const RegistrationForm: FC<{
   const [error, setError] = useState(null);
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
-  }>(API_SIGN_UP, { email: "", password: "", username: "" }, registrationSchema);
+  }>(API_SIGN_UP, { email: "", displayname: "" }, registrationSchema);
   const signUp = (e: FormEvent<HTMLFormElement>) => {
     post(e)
       .then(({ code }) => {
@@ -62,11 +61,11 @@ const RegistrationForm: FC<{
 
   const signUpViaPocketBase = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { email, password, username } = getValues();
+    const { email, displayname } = getValues();
 
     try {
       console.log("Inside try");
-      var signUpData = new SignUpData(String(username), String(email), String(password), null);
+      var signUpData = new SignUpData(String(displayname), String(email), String("12345678"), null);
       const response = await pbManager.signUp(signUpData);
 
       if (response.code != undefined) {
@@ -95,9 +94,8 @@ const RegistrationForm: FC<{
         flexDirection="column"
         experimental_spaceY={4}
       >
-        <Input autoFocus {...register("username")} error={errors.username} label="Username" />
+        <Input autoFocus {...register("displayname")} error={errors.displayname} label="Name" />
         <Input {...register("email")} error={errors.email} />
-        <Input type="password" {...register("password")} error={errors.password} />
         {error && (
           <Alert status="error">
             <AlertIcon />
