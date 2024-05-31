@@ -8,7 +8,7 @@ import {
   PinInputField,
   Text,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
@@ -172,11 +172,11 @@ const VerifyRegistration: FC<{
     //     if (err?.type === "server_error") setError(err.payload);
     //   });
 
-    var otpRequest = new OtpRequestBody(code,email);
+    var otpRequest = new OtpRequestBody(code, email);
     console.log("Sending OTP: ", code);
     const response = await pbManager.verifyOtp(otpRequest);
     console.log("Otp response: ", response);
-    if(response.code=="200"){
+    if (response.code == "200") {
       toast({
         title: "OTP verified",
         description: ``,
@@ -185,7 +185,7 @@ const VerifyRegistration: FC<{
         isClosable: true,
       });
       router.push("/");
-    }else if(response.code=="201"){
+    } else if (response.code == "201") {
       toast({
         title: "Invalid OTP",
         description: `Please enter valid OTP`,
@@ -193,7 +193,7 @@ const VerifyRegistration: FC<{
         duration: 9000,
         isClosable: true,
       });
-    }else if(response.code=="202"){
+    } else if (response.code == "202") {
       toast({
         title: "User not found",
         description: `User with ${email} not found`,
@@ -202,8 +202,6 @@ const VerifyRegistration: FC<{
         isClosable: true,
       });
     }
-
-
   };
 
   return (

@@ -2,18 +2,18 @@ import PocketBase from "pocketbase";
 
 export class OtpRequestBody {
   otp: string;
-  email:String;
+  email: String;
 
-  constructor(otp,email) {
+  constructor(otp, email) {
     this.otp = otp;
-    this.email=email;
+    this.email = email;
   }
 }
 
 // Define the data type for the response
 interface ApiResponse {
   message: string;
-  code:string;
+  code: string;
   error: string;
 }
 
