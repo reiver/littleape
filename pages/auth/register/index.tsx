@@ -73,7 +73,7 @@ const RegistrationForm: FC<{
       if (response.code != undefined) {
         //failed to register
         console.error("Failed to register user: ", response);
-        if(response.code==400){
+        if (response.code == 400) {
           toast({
             title: "The email is invalid or already in use.",
             description: ``,

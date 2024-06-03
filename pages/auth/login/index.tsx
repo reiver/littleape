@@ -1,5 +1,6 @@
 import {
-  AlertIcon, Box,
+  AlertIcon,
+  Box,
   FormControl,
   FormErrorMessage,
   Heading,
@@ -7,7 +8,7 @@ import {
   PinInputField,
   Text,
   VStack,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
@@ -39,7 +40,6 @@ const verifySchema = z.object({
   email: z.string().min(1),
 });
 
-
 const Login: FC = () => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -65,7 +65,6 @@ const Login: FC = () => {
       console.log("Sign in successful:", authData);
 
       setEmail(String(email));
-
 
       var record = authData.record;
 
@@ -103,7 +102,6 @@ const Login: FC = () => {
         <title>Greatape | Login</title>
       </Head>
       <Box mx="auto" mt="10" w="full" maxW={"xs"}>
-
         <Box
           display="flex"
           alignItems="center"
@@ -113,60 +111,53 @@ const Login: FC = () => {
             textColor: "slate.200",
           }}
         >
-
           <Logo maxW="8" strokeWidth={2} />
           <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
             Login
           </Heading>
         </Box>
 
-
-        {
-          !email ? (
-            <div>
-              <Form
-                onSubmit={handleLoginViaPocketBase}
-                mt="8"
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY={4}
-              >
-                <Input autoFocus {...register("email")} error={errors.email} />
-                {error && (
-                  <Alert status="error">
-                    <AlertIcon />
-                    {error}
-                  </Alert>
-                )}
-                <Box>
-                  <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                    Login
-                  </Button>
-                </Box>
-              </Form>
-
-              <Box
-                mt="6"
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY="4"
-                textAlign="center"
-                color="slate.500"
-                _dark={{ color: "slate.400" }}
-              >
-                <span>Don&rsquo;t have an account?</span>
-                <Link href="/auth/register">
-                  <Button className="block w-full">Register now</Button>
-                </Link>
+        {!email ? (
+          <div>
+            <Form
+              onSubmit={handleLoginViaPocketBase}
+              mt="8"
+              display="flex"
+              flexDirection="column"
+              experimental_spaceY={4}
+            >
+              <Input autoFocus {...register("email")} error={errors.email} />
+              {error && (
+                <Alert status="error">
+                  <AlertIcon />
+                  {error}
+                </Alert>
+              )}
+              <Box>
+                <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                  Login
+                </Button>
               </Box>
+            </Form>
 
-            </div>
-
-          ) : (
-            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
-          )
-        }
-
+            <Box
+              mt="6"
+              display="flex"
+              flexDirection="column"
+              experimental_spaceY="4"
+              textAlign="center"
+              color="slate.500"
+              _dark={{ color: "slate.400" }}
+            >
+              <span>Don&rsquo;t have an account?</span>
+              <Link href="/auth/register">
+                <Button className="block w-full">Register now</Button>
+              </Link>
+            </Box>
+          </div>
+        ) : (
+          <VerifyRegistration email={email} backToRegistration={backToRegistration} />
+        )}
       </Box>
     </MainLayout>
   );
@@ -290,7 +281,6 @@ const VerifyRegistration: FC<{
     </>
   );
 };
-
 
 export const getServerSideProps = withAuth("notAuthorized", (ctx) => {
   return {
