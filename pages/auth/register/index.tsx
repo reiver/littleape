@@ -45,6 +45,8 @@ const RegistrationForm: FC<{
   onRegister: (code: string, email: string) => void;
 }> = ({ onRegister }) => {
   const [error, setError] = useState(null);
+  const toast = useToast();
+
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
   }>(API_SIGN_UP, { email: "", displayname: "" }, registrationSchema);
@@ -71,6 +73,15 @@ const RegistrationForm: FC<{
       if (response.code != undefined) {
         //failed to register
         console.error("Failed to register user: ", response);
+        if(response.code==400){
+          toast({
+            title: "The email is invalid or already in use.",
+            description: ``,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
       } else {
         console.log("Registered: Response: ", response);
 
@@ -80,6 +91,13 @@ const RegistrationForm: FC<{
         onRegister("200", email.toString());
       }
     } catch (e) {
+      toast({
+        title: "The email is invalid or already in use.",
+        description: ``,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
       const err: Error = e.response?._data;
       console.log("Error:", err);
       if (err?.type === "server_error") setError(err.payload);
@@ -181,7 +199,7 @@ const VerifyRegistration: FC<{
         title: "OTP verified",
         description: ``,
         status: "success",
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
       router.push("/");
@@ -190,7 +208,7 @@ const VerifyRegistration: FC<{
         title: "Invalid OTP",
         description: `Please enter valid OTP`,
         status: "error",
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
     } else if (response.code == "202") {
@@ -198,7 +216,7 @@ const VerifyRegistration: FC<{
         title: "User not found",
         description: `User with ${email} not found`,
         status: "error",
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
     }
@@ -258,13 +276,13 @@ const Register: FC = () => {
   const toast = useToast();
   const onRegister = (code, email) => {
     setEmail(email);
-    toast({
-      title: "Code [Development]",
-      description: `Code is: ${code}`,
-      status: "success",
-      duration: 9000,
-      isClosable: true,
-    });
+    // toast({
+    //   title: "Code [Development]",
+    //   description: `Code is: ${code}`,
+    //   status: "success",
+    //   duration: 9000,
+    //   isClosable: true,
+    // });
   };
   const backToRegistration = setEmail.bind(null, undefined);
 
