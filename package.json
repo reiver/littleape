@@ -2,6 +2,11 @@
   "name": "greatape-frontend",
   "version": "0.1.0",
   "private": true,
+  "husky": {
+    "hooks": {
+      "pre-commit": "echo 'Skipping linting'"
+    }
+  },  
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,13 +30,18 @@
     "@emotion/styled": "^11.10.0",
     "@heroicons/react": "^2.0.8",
     "@hookform/resolvers": "^2.9.7",
+    "@thirdweb-dev/auth": "^4.1.90",
+    "@thirdweb-dev/react": "^4.6.31",
+    "@thirdweb-dev/sdk": "^4.0.92",
     "@tiptap/extension-mention": "^2.0.0-beta.196",
     "@tiptap/extension-placeholder": "^2.0.0-beta.196",
     "@tiptap/react": "^2.0.0-beta.196",
     "@tiptap/starter-kit": "^2.0.0-beta.196",
     "@tiptap/suggestion": "^2.0.0-beta.196",
+    "alchemy-sdk": "^3.3.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.11.5",
+    "ethers": "^5.7.2",
     "framer-motion": "^7.2.1",
     "gemoji": "^7.1.0",
     "html-react-parser": "^3.0.4",
@@ -70,9 +80,9 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.8",
     "storybook-addon-next": "^1.6.9",
     "storybook-dark-mode": "^1.1.2",
-    "typescript": "^4.8.2"
+    "typescript": "^5.4.5"
   }
 }

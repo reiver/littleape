@@ -27,7 +27,7 @@ export const TrendingTags: FC<BoxProps> = (props) => {
       <Box display="flex" flexDirection="column" experimental_spaceY={2} mt={3}>
         {tags.map((user) => {
           return (
-            <Link key={user.name} href={`/topic/${user.name}`} passHref>
+            <Link key={user?.name || ''} href={`/topic/${user?.name || ''}`} passHref>
               <Box
                 as="a"
                 display="flex"
@@ -48,10 +48,10 @@ export const TrendingTags: FC<BoxProps> = (props) => {
               >
                 <Box maxW="calc(100% - 50px)">
                   <Text fontSize="14" fontWeight="bold" noOfLines={1}>
-                    #{user.name}
+                    #{user?.name || ''}
                   </Text>
                   <Text fontSize="xs" noOfLines={1} _dark={{ color: "gray.500" }}>
-                    {user.people} people talking
+                    {user?.people || ''} people talking
                   </Text>
                 </Box>
               </Box>

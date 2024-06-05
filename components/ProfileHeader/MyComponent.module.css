@@ -1,0 +1,8 @@
+.connectButton {
+    color: black !important;
+    background-color: transparent !important;
+    width: fit-content !important;
+    height: 32px !important;
+    padding: 0px 8px 0px 8px !important;
+    font-size: medium !important;
+  }

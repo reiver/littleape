@@ -15,25 +15,13 @@ interface AuthState {
 const pbManager = PocketBaseManager.getInstance();
 
 export const useAuthStore = create<AuthState>((set) => ({
-  // user:{
-  //   api_key:"",
-  //   avatar:"",
-  //   banner:"",
-  //   bio:"",
-  //   display_name:"",
-  //   email:"",
-  //   github:"",
-  //   id:0,
-  //   publicKey:"",
-  //   username:"zaid"
-  // },
   user: pbManager.fetchUser(),  
   authorized: true,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
     set(() => ({
       token,
-      // user,
+      user,
     }));
   },
   logout: () => {

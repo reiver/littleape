@@ -53,7 +53,7 @@ export default function Home() {
           experimental_spaceY={3}
         >
           <NewPostCard />
-          <Feed username={user.username} />
+          <Feed username={user?.username || ''} />
         </Box>
         <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
           <Box

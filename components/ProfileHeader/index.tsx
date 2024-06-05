@@ -27,6 +27,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
+import { ConnectWallet } from "@thirdweb-dev/react";
 import { FileUpload } from "components/FileUpload";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
@@ -48,6 +49,8 @@ import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
 import { z } from "zod";
+import styles from "./MyComponent.module.css";
+const verifyicon = require("public/Verify.svg") as string;
 
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
@@ -263,7 +266,7 @@ const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name, userna
             <Text fontWeight="bold">{name} from other servers are not displayed</Text>
             <Text as="span" display="block">
               Browse more on the{" "}
-              <Link color="primary.500" href={user && user.id}>
+              <Link color="primary.500" href={user && user?.id || ''}>
                 original profile
               </Link>
             </Text>
@@ -391,7 +394,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       v = values;
       return values;
     }).then((response) => {
-      mutate([API_USER_PROFILE(String(user.username)), { activity: true }]);
+      mutate([API_USER_PROFILE(String(user?.username || '')), { activity: true }]);
       useAuthStore.setState({ user: { ...user, ...v } });
       reset(v);
     });
@@ -470,9 +473,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         watch("avatar") instanceof File &&
                         (watch("avatar") as File)
                       }
-                      src={user.avatar}
-                      name={user.display_name}
-                      username={user.username}
+                      src={user?.avatar || ''}
+                      name={user?.display_name || ''}
+                      username={user?.username || ''}
                       link={false}
                       w="110px"
                       h="110px"
@@ -522,6 +525,25 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                 rows={5}
                 h="unset"
               />
+
+              <Box
+                className={styles.connectButton}
+                border={"2px"}
+                alignContent="center"
+                borderColor={"#1A1A1A"}
+                borderRadius="4px"
+              >
+                <ConnectWallet
+                  className={styles.connectButton}
+                  auth={{
+                    loginOptional: true,
+                  }}
+                  btnTitle="Verify Your Wallet Address"
+                // onConnect={(wallet) => {
+                //   console.log("connected to", wallet)
+                // }}
+                />
+              </Box>
             </Box>
           </ModalBody>
 

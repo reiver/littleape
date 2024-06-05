@@ -122,9 +122,9 @@ export const Navbar: FC<BoxProps> = (props) => {
                   h={7}
                   size="sm"
                   link={false}
-                  name={user.display_name}
-                  src={user.avatar}
-                  username={user.username}
+                  name={user?.display_name || ''}
+                  src={user?.avatar || ''}
+                  username={user?.username || ''}
                 />
               </MenuButton>
               <MenuList
@@ -134,7 +134,7 @@ export const Navbar: FC<BoxProps> = (props) => {
                   bg: "dark.700",
                 }}
               >
-                <Link href={`/u/${user.username}`} passHref>
+                <Link href={`/u/${user?.username || ''}`} passHref>
                   <MenuItem as="a">Profile</MenuItem>
                 </Link>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -150,7 +150,7 @@ export const Navbar: FC<BoxProps> = (props) => {
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
   console.log("User in messaagesPOp:", user);
-  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user.username));
+  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user?.username || ''));
 
   return (
     <Menu placement="bottom-end">
@@ -176,9 +176,9 @@ const MessagesPopup: FC = () => {
                   <HStack experimental_spaceX={3} alignItems="flex-start">
                     <UserAvatar
                       size="sm"
-                      src={user.avatar}
+                      src={user?.avatar || ''}
                       name={actorUsername}
-                      username={user.username}
+                      username={user?.username || ''}
                     />
                     <VStack
                       alignItems="flex-start"

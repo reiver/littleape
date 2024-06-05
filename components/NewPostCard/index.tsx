@@ -58,12 +58,12 @@ export const NewPostCard: FC<BoxProps> = () => {
   const { cache, mutate } = useSWRConfig();
   const editorRef = useRef<{ clearContent: () => void }>();
   const { post, loading, errors, reset, setValue } = useForm(
-    API_OUTBOX(user.username),
+    API_OUTBOX(user?.username || ''),
     {
       "@context": "https://www.w3.org/ns/activitystreams",
       type: "Note",
       to: ["https://www.w3.org/ns/activitystreams#Public"],
-      attributedTo: joinURL(HOST, "/u/", user.username),
+      attributedTo: joinURL(HOST, "/u/", user?.username || ''),
       content: "",
     },
     schema
@@ -74,7 +74,7 @@ export const NewPostCard: FC<BoxProps> = () => {
         reset();
         if (editorRef.current && editorRef.current.clearContent) editorRef.current.clearContent();
       })
-      .then(mutate.bind(null, API_OUTBOX(user.username), cache.get(API_OUTBOX(user.username))));
+      .then(mutate.bind(null, API_OUTBOX(user?.username || ''), cache.get(API_OUTBOX(user?.username || ''))));
   };
   return (
     <Card>
@@ -85,9 +85,9 @@ export const NewPostCard: FC<BoxProps> = () => {
             h={8}
             mt="1"
             size="sm"
-            username={user.username}
-            name={user.display_name}
-            src={user.avatar}
+            username={user?.username || ''}
+            name={user?.display_name || ''}
+            src={user?.avatar || ''}
           />
           <FormControl isInvalid={!!errors.content}>
             <Editor

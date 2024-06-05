@@ -50,11 +50,11 @@ export class SignInData {
 export class PocketBaseManager {
   private static instance: PocketBaseManager;
   private pocketBase: PocketBase;
-  private url = "http://127.0.0.1:8090";
+  private url = "https://pb.greatape.stream";
 
   private constructor() {
     // Initialize PocketBase with your base URL
-    this.pocketBase = new PocketBase("http://127.0.0.1:8090"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
+    this.pocketBase = new PocketBase("https://pb.greatape.stream"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
   }
 
   public static getInstance(): PocketBaseManager {
