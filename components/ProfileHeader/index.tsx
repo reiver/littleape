@@ -27,7 +27,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
-import { ConnectWallet } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 import { FileUpload } from "components/FileUpload";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
@@ -41,7 +41,9 @@ import {
 } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { isOtherServer } from "lib/isOtherServer";
-import { FC, useState } from "react";
+import { PocketBaseManager, WalletData } from "lib/pocketBaseManager";
+import { lookUpENS } from "lib/resolveens";
+import { FC, useEffect, useState } from "react";
 import { FETCH_USER_PROFILE } from "services/api";
 import { uploadFile } from "services/http";
 import { useAuthStore } from "store";
@@ -51,6 +53,9 @@ import { ActivityUser, User } from "types/User";
 import { z } from "zod";
 import styles from "./MyComponent.module.css";
 const verifyicon = require("public/Verify.svg") as string;
+
+const pbManager = PocketBaseManager.getInstance()
+const userModel = pbManager.fetchUser()
 
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
@@ -366,6 +371,13 @@ type EditProfileModalProps = {
 } & Omit<ModalProps, "children">;
 
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
+  const [walletConnected, setWalletConnected] = useState(false)
+  const [walletDataSaved, setWalletDataSaved] = useState(false)
+  const [ens, setEns] = useState('');
+  const connectionStatus = useConnectionStatus();
+  const address = useAddress();
+  const sdk = useSDK();
+
   const { post, errors, register, reset, watch, setValue, loading } = useForm(
     API_PROFILE,
     user,
@@ -399,6 +411,45 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       reset(v);
     });
   };
+
+  useEffect(() => {
+    const checkWalletStatus = () => {
+      if (connectionStatus === "disconnected") {
+        setWalletConnected(false)
+        setWalletDataSaved(false)
+        console.log("Wallet Disconneccted")
+      }
+    }
+
+    const fetchData = async () => {
+      console.log("Fetching Data...");
+      if (walletConnected && address && !walletDataSaved) {
+        try {
+          // Lookup ENS
+          const resolvedName = await lookUpENS(address);
+          if (resolvedName) {
+            setEns(resolvedName);
+          } else {
+            setEns('Wallet Address could not be resolved');
+          }
+
+          // Save connected wallet to DB
+          const walletData = new WalletData(address, resolvedName || 'Wallet Address could not be resolved', userModel.id);
+          const res = await pbManager.saveWallet(walletData);
+          console.log('Wallet data saved: ', res);
+          if (res !== undefined) {
+            setWalletDataSaved(true);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    };
+
+    fetchData();
+    checkWalletStatus();
+  }, [walletConnected, address, userModel.id]);
+
   return (
     <Modal {...props}>
       <ModalOverlay />
@@ -535,14 +586,47 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
               >
                 <ConnectWallet
                   className={styles.connectButton}
-                  auth={{
-                    loginOptional: true,
-                  }}
+                  auth={{ loginOptional: true }}
                   btnTitle="Verify Your Wallet Address"
-                // onConnect={(wallet) => {
-                //   console.log("connected to", wallet)
-                // }}
+                  showThirdwebBranding={false}
+                  onConnect={async (wallet) => {
+                    console.log("connected to", wallet);
+                    setWalletConnected(true);
+                  }
+
+                  }
                 />
+
+
+
+                {/* {
+                  !walletConnected ? (
+                    <ConnectWallet
+                      className={styles.connectButton}
+                      auth={{ loginOptional: true }}
+                      btnTitle="Verify Your Wallet Address"
+                      onConnect={(wallet) => {
+                        console.log("connected to", wallet);
+                        setWalletConnected(true);
+
+                        //save connected wallet to db
+                        pbManager.saveWallet()
+
+                      }
+                      
+                    }
+                    />
+                  ) : (
+                    <p>Wallet is Connected</p>
+                    // <ConnectWallet
+                    //   theme={"light"}
+                    //   auth={{ loginOptional: true }}
+                    //   btnTitle="Verify Your Wallet Address"
+                    // />
+                  )
+                } */}
+
+
               </Box>
             </Box>
           </ModalBody>

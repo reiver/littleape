@@ -47,6 +47,18 @@ export class SignInData {
   }
 }
 
+export class WalletData {
+  address: String;
+  ens: String;
+  userId: String;
+
+  constructor(address: String, ens: String, userid: String) {
+    this.address = address;
+    this.ens = ens;
+    this.userId = userid;
+  }
+}
+
 export class PocketBaseManager {
   private static instance: PocketBaseManager;
   private pocketBase: PocketBase;
@@ -93,6 +105,33 @@ export class PocketBaseManager {
     const record = await this.pocketBase.collection("users").create(formattedSignUpData);
 
     return record;
+  }
+
+  public async getWallet(address): Promise<any> {
+    try {
+      const wallet = await this.pocketBase
+        .collection("wallets")
+        .getFirstListItem(`address="${address}"`);
+
+      console.log("Wallet found: ", wallet);
+      return wallet;
+    } catch (error) {
+      console.log("Wallet not found: ", error.data);
+      return error.data;
+    }
+  }
+
+  public async saveWallet(walletData): Promise<any> {
+    //check if wallet data already exists or nor
+
+    const wall = await this.getWallet(walletData.address);
+    if (wall.code && wall.code == 404) {
+      //save wallet
+      const record = await this.pocketBase.collection("wallets").create(walletData);
+      return record;
+    }
+
+    return wall;
   }
 
   public async signIn(signInData: SignInData): Promise<any> {
