@@ -51,11 +51,15 @@ export class WalletData {
   address: String;
   ens: String;
   userId: String;
+  message: String;
+  signature: String;
 
-  constructor(address: String, ens: String, userid: String) {
+  constructor(address: String, ens: String, userid: String, message: String, signature: String) {
     this.address = address;
     this.ens = ens;
     this.userId = userid;
+    this.message = message;
+    this.signature = signature;
   }
 }
 

@@ -34,6 +34,7 @@ import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   API_PROFILE,
@@ -427,12 +428,79 @@ type EditProfileModalProps = {
 } & Omit<ModalProps, "children">;
 
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
-  const [walletConnected, setWalletConnected] = useState(false)
-  const [walletDataSaved, setWalletDataSaved] = useState(false)
-  const [ens, setEns] = useState('');
+
   const connectionStatus = useConnectionStatus();
   const address = useAddress();
   const sdk = useSDK();
+
+  const [walletConnected, setWalletConnected] = useState(false)
+  const [messageSigned, setMessageSigned] = useState(false)
+  const [walletDataSaved, setWalletDataSaved] = useState(false)
+  const [ens, setEns] = useState('');
+  const [message, setMessage] = useState('')
+  const [signature, setSignature] = useState('N/A');
+
+  useEffect(() => {
+    const createMessageAndSign = async () => {
+      console.log("Addess: ", address)
+      console.log("walletConnected: ", walletConnected)
+      console.log("messageSigned: ", messageSigned)
+      if (address != undefined && walletConnected && !messageSigned) {
+        console.log("Address is : ", address)
+        console.log("SDK is: ", sdk.wallet)
+
+        const message = await createMessage()
+
+        //sign message
+        await signMessage(message)
+      }
+    };
+    createMessageAndSign()
+  }, [address, walletConnected])
+
+
+  const createMessage = async () => {
+    const currentDate = new Date();
+    const expirationDate = new Date(currentDate.getTime() + 30 * 60000);
+    const notBefore = new Date(currentDate.getTime() + 10 * 60000);
+    const randomUUID = uuidv4();
+
+    const loginOptions = {
+      "Version": "1",
+      "ChainId": "1",
+      "Nonce": randomUUID,
+      "Issued At": currentDate.toISOString(),
+      "Expiration Time": expirationDate.toISOString(),
+      "Not Before": notBefore.toISOString(),
+    };
+
+    const objectToString = (obj) => {
+      return Object.entries(obj)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+    }
+
+    const messageText = `${window.location.host} wants you to sign in with your Ethereum account:\n${address}\n\nPlease ensure that the domain above matches the URL of the current website.\n\n${objectToString(loginOptions)}`;
+
+    return messageText
+
+  }
+
+
+  const signMessage = async (message) => {
+    console.log("MESAAGE:", message)
+
+    const sig = await sdk?.wallet?.sign(message);
+
+    if (!sig) {
+      throw new Error('Failed to sign message');
+    }
+
+    setMessageSigned(true)
+    setMessage(message)
+    setSignature(sig);
+  }
+
 
   const { post, errors, register, reset, watch, setValue, loading } = useForm(
     API_PROFILE,
@@ -473,13 +541,16 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       if (connectionStatus === "disconnected") {
         setWalletConnected(false)
         setWalletDataSaved(false)
+        setSignature(null)
+        setMessageSigned(false)
+        setMessage(null)
         console.log("Wallet Disconneccted")
       }
     }
 
     const fetchData = async () => {
       console.log("Fetching Data...");
-      if (walletConnected && address && !walletDataSaved) {
+      if (walletConnected && messageSigned && address && signature && message && !walletDataSaved) {
         try {
           // Lookup ENS
           const resolvedName = await lookUpENS(address);
@@ -492,7 +563,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           }
 
           // Save connected wallet to DB
-          const walletData = new WalletData(address, resolvedName, userModel.id);
+          const walletData = new WalletData(address, resolvedName, userModel.id, message, signature);
           const res = await pbManager.saveWallet(walletData);
           console.log('Wallet data saved: ', res);
           if (res !== undefined) {
@@ -506,7 +577,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
     fetchData();
     checkWalletStatus();
-  }, [walletConnected, address, userModel.id]);
+  }, [walletConnected, address, userModel.id, messageSigned, signature]);
 
   return (
     <Modal {...props}>
@@ -649,7 +720,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   showThirdwebBranding={false}
                   onConnect={async (wallet) => {
                     console.log("connected to", wallet);
-                    setWalletConnected(true);
+                    setWalletConnected(true)
                   }
 
                   }
