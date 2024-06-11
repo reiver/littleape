@@ -17,6 +17,10 @@ export default function Home() {
     <>
       <Head>
         <title>Greatape</title>
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, email=no, address=no"
+        />
       </Head>
       <DashboardLayout
         footer={false}

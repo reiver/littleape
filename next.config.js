@@ -11,7 +11,17 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
   swcMinify: true,
+  webpack: (config, { isServer }) => {
+    // Add SVGR loader for SVG files
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+
+    return config;
+  },
   async rewrites() {
     return {
       beforeFiles: [

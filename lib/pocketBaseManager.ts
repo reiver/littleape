@@ -147,6 +147,17 @@ export class PocketBaseManager {
     return usermodel;
   }
 
+  public async fetchMyWallets(userId): Promise<any> {
+    try {
+      const wallets = await this.pocketBase.collection("wallets").getFullList({
+        sort: "-created",
+        filter: `userId= '${userId}'`,
+      });
+      return wallets;
+    } catch (error) {
+      return error.data;
+    }
+  }
   //custom api
   verifyOtp = async (data: OtpRequestBody): Promise<ApiResponse> => {
     console.log("JSON.stringify(data): ", JSON.stringify(data));

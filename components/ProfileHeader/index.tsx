@@ -2,7 +2,7 @@ import {
   Box,
   BoxProps,
   Button,
-  chakra,
+  Flex,
   Link,
   Modal,
   ModalBody,
@@ -23,8 +23,9 @@ import {
   SkeletonCircle,
   Spinner,
   Text,
+  chakra,
   useDisclosure,
-  useMediaQuery,
+  useMediaQuery
 } from "@chakra-ui/react";
 import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { ConnectWallet, useAddress, useConnectionStatus, useSDK } from "@thirdweb-dev/react";
@@ -33,6 +34,7 @@ import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
+
 import {
   API_PROFILE,
   API_USER_FOLLOWERS,
@@ -51,6 +53,8 @@ import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
 import { z } from "zod";
+import CopyIcon from '../../public/Copy.svg';
+import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
 const verifyicon = require("public/Verify.svg") as string;
 
@@ -60,11 +64,27 @@ const userModel = pbManager.fetchUser()
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
 
+
 type ProfileHeaderProps = {
   username: string;
 } & BoxProps;
 
+const copyToClipboard = (address: string) => {
+  navigator.clipboard.writeText(address)
+};
+
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
+  const [wallets, setWallets] = useState([]);
+
+  useEffect(() => {
+    const fetchWallets = async () => {
+      const list = await pbManager.fetchMyWallets(userModel.id);
+      setWallets(list);
+    };
+
+    fetchWallets();
+  }, []);
+
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
   const {
@@ -197,6 +217,37 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
             {!username.includes("@") && "@" + process.env.NEXT_PUBLIC_HANDLE}
           </Text>
         </Box>
+        {wallets != null && wallets.length > 0 &&
+          <Flex wrap="wrap" className={styles.walletBox} padding="2">
+            {wallets.map((element, index) => (
+              <Box key={index} width={wallets.length > 1 ? "50%" : "100%"}>
+                <Flex alignItems="center" justifyContent="space-between">
+                  <CheckIcon className={styles.icon} />
+                  <Flex direction="column" flex="1">
+                    {
+                      element.ens && <Text className={styles.walletText}>
+                        {element.ens}
+                      </Text>
+                    }
+                    <Text className={styles.walletText}>
+                      {maskAddress(element.address)}
+                    </Text>
+                  </Flex>
+
+                  <Button
+                    onClick={() => copyToClipboard(element.address)}
+                    className={styles.iconButton}
+                  >
+                    <CopyIcon className={styles.icon} />
+                  </Button>
+                </Flex>
+              </Box>
+            ))}
+
+          </Flex>
+        }
+
+
         <Skeleton h={!!!user && "24px"} maxW={!!!user && "350px"} isLoaded={!!user} w="full">
           <Box fontSize={{ base: "sm", md: "md" }}>
             <Text whiteSpace="pre-wrap" dangerouslySetInnerHTML={{ __html: user?.summary }} />
@@ -237,6 +288,11 @@ type FollowListProps = {
   title: string;
   name: string;
   username: string;
+};
+
+const maskAddress = (address: string) => {
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 7)}***${address.slice(-4)}`;
 };
 
 const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name, username }) => {
@@ -427,14 +483,16 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         try {
           // Lookup ENS
           const resolvedName = await lookUpENS(address);
+          console.log("resolvedName: ", resolvedName)
           if (resolvedName) {
             setEns(resolvedName);
           } else {
+
             setEns('Wallet Address could not be resolved');
           }
 
           // Save connected wallet to DB
-          const walletData = new WalletData(address, resolvedName || 'Wallet Address could not be resolved', userModel.id);
+          const walletData = new WalletData(address, resolvedName, userModel.id);
           const res = await pbManager.saveWallet(walletData);
           console.log('Wallet data saved: ', res);
           if (res !== undefined) {
@@ -586,7 +644,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
               >
                 <ConnectWallet
                   className={styles.connectButton}
-                  auth={{ loginOptional: true }}
+                  auth={{ loginOptional: false }}
                   btnTitle="Verify Your Wallet Address"
                   showThirdwebBranding={false}
                   onConnect={async (wallet) => {
@@ -642,3 +700,4 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     </Modal>
   );
 };
+

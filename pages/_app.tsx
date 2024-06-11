@@ -1,5 +1,10 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
+
+import {
+  QueryClient,
+  QueryClientProvider
+} from '@tanstack/react-query';
 import theme from "chakra.config";
 import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
@@ -13,12 +18,13 @@ import "../styles/styles.css";
 
 dayjs.extend(relativeTime);
 
+const queryClient = new QueryClient()
 function App({ Component, pageProps }) {
   const setAuth = useAuthStore((state) => state.setAuth);
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <ThirdwebProvider activeChain="ethereum">
+    <ThirdwebProvider>
       <SWRConfig
         value={{
           provider: () => new Map(),
@@ -36,6 +42,7 @@ function App({ Component, pageProps }) {
         </ChakraProvider>
       </SWRConfig>
     </ThirdwebProvider>
+
   );
 }
 
