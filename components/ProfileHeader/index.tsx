@@ -903,31 +903,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   ) : null // Handle any other conditions if necessary
                 }
 
-
-
-                {/* {
-                  currentlyConnectedWallet == null ? (<ConnectWallet
-                    className={styles.connectButton}
-                    auth={{ loginOptional: false }}
-                    btnTitle="Verify Your Wallet Address"
-                    showThirdwebBranding={false}
-                    onConnect={async (wallet) => {
-                      console.log("connected to", wallet);
-                      setWalletConnected(true)
-                      setShowConnectedWallets(true)
-                    }
-                    }
-                  />) : (
-                    <Flex alignItems="center" cursor="pointer" onClick={(() => {
-                      setShowConnectedWallets(true)
-                    })}>
-                      <BlackCheckIcon className={styles.blackIcon} />
-                      <Text className={styles.textBold11}>
-                        Your Wallet Address Is Verified
-                      </Text>
-                    </Flex>)
-                } */}
-
               </Box>
             </Box>
           </ModalBody>
