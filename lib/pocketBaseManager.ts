@@ -48,6 +48,7 @@ export class SignInData {
 }
 
 export class WalletData {
+  id: String;
   address: String;
   ens: String;
   userId: String;
@@ -56,6 +57,7 @@ export class WalletData {
   isConnected: Boolean;
 
   constructor(
+    id: String,
     address: String,
     ens: String,
     userid: String,
@@ -63,6 +65,7 @@ export class WalletData {
     signature: String,
     isConnected: Boolean
   ) {
+    this.id = id;
     this.address = address;
     this.ens = ens;
     this.userId = userid;
@@ -149,8 +152,13 @@ export class PocketBaseManager {
     return updateWall;
   }
 
+  public async updateWallet(walletData): Promise<any> {
+    const wall = await this.pocketBase.collection("wallets").update(walletData.id, walletData);
+    return wall;
+  }
+
   public async updateWalletConnectionStatus(id, status): Promise<any> {
-    await this.pocketBase.autoCancellation(false)
+    await this.pocketBase.autoCancellation(false);
     const wall = await this.pocketBase.collection("wallets").update(id, { isConnected: status });
     return wall;
   }

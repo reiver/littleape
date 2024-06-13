@@ -688,8 +688,10 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           }
 
           // Save connected wallet to DB
-          const walletData = new WalletData(address, resolvedName, userModel.id, message, signature, true);
-          const res = await pbManager.saveWallet(walletData);
+          const savedWallet = await pbManager.getWallet(address)
+
+          const walletData = new WalletData(savedWallet.id, address, resolvedName, userModel.id, message, signature, true);
+          const res = await pbManager.updateWallet(walletData);
           setCurrentlyConnectedWallet(res);
           console.log('Wallet data saved: ', res);
           if (res !== undefined) {
@@ -712,11 +714,17 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       if (walletConnected && address) {
         //update wallet connection status based on wallet address
         const wallFound = await pbManager.getWallet(address)
-        if (wallFound != undefined) {
+        if (wallFound.code != undefined && wallFound.code == 404) {
+          //save wallet to db, without verification
+          const walletData = new WalletData(null, address, null, null, null, null, true)
+          const newWalletSaved = await pbManager.saveWallet(walletData)
+          console.log("newWalletSaved: ", newWalletSaved)
+        } else {
           const walletStatusUpdated = await pbManager.updateWalletConnectionStatus(wallFound.id, true)
           console.log("Wallet connection status Updated on Connection:", walletStatusUpdated)
           setCurrentlyConnectedWallet(walletStatusUpdated)
         }
+
       }
     }
 
@@ -863,6 +871,41 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
               >
 
                 {
+                  currentlyConnectedWallet == null && walletConnected ? (
+                    // Show some text when wallet is connected but currentlyConnectedWallet is null
+                    <Flex alignItems="center" cursor="pointer" onClick={() => setShowConnectedWallets(true)}>
+                      <BlackCheckIcon className={styles.blackIcon} />
+                      <Text className={styles.textBold11}>
+                        Verify Your Wallet Address
+                      </Text>
+                    </Flex>
+                  ) : currentlyConnectedWallet != null && walletConnected ? (
+                    // Show verified wallet address text field
+                    <Flex alignItems="center" cursor="pointer" onClick={() => setShowConnectedWallets(true)}>
+                      <BlackCheckIcon className={styles.blackIcon} />
+                      <Text className={styles.textBold11}>
+                        Your Wallet Address Is Verified
+                      </Text>
+                    </Flex>
+                  ) : !walletConnected ? (
+                    // Show ConnectWallet component when wallet is not connected
+                    <ConnectWallet
+                      className={styles.connectButton}
+                      auth={{ loginOptional: false }}
+                      btnTitle="Connect Your Wallet"
+                      showThirdwebBranding={false}
+                      onConnect={async (wallet) => {
+                        console.log("connected to", wallet);
+                        setWalletConnected(true);
+                        setShowConnectedWallets(true);
+                      }}
+                    />
+                  ) : null // Handle any other conditions if necessary
+                }
+
+
+
+                {/* {
                   currentlyConnectedWallet == null ? (<ConnectWallet
                     className={styles.connectButton}
                     auth={{ loginOptional: false }}
@@ -883,38 +926,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         Your Wallet Address Is Verified
                       </Text>
                     </Flex>)
-                }
-
-
-
-
-                {/* {
-                  !walletConnected ? (
-                    <ConnectWallet
-                      className={styles.connectButton}
-                      auth={{ loginOptional: true }}
-                      btnTitle="Verify Your Wallet Address"
-                      onConnect={(wallet) => {
-                        console.log("connected to", wallet);
-                        setWalletConnected(true);
-
-                        //save connected wallet to db
-                        pbManager.saveWallet()
-
-                      }
-                      
-                    }
-                    />
-                  ) : (
-                    <p>Wallet is Connected</p>
-                    // <ConnectWallet
-                    //   theme={"light"}
-                    //   auth={{ loginOptional: true }}
-                    //   btnTitle="Verify Your Wallet Address"
-                    // />
-                  )
                 } */}
-
 
               </Box>
             </Box>
