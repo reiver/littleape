@@ -77,6 +77,7 @@ const copyToClipboard = (address: string) => {
 
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
+  const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { walletConnected } = useWallet();
   const { setOnSignMessage } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
@@ -85,6 +86,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     const fetchWallets = async () => {
       const list = await pbManager.fetchMyWallets(userModel.id);
       setWallets(list);
+
+      console.log("Wallets List: ", list)
+      //get connected wallet
+      list.map((element, index) => {
+        if (element.isConnected) {
+          setCurrentlyConnectedWallet(element)
+        }
+      });
     };
 
     fetchWallets();
@@ -113,10 +122,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   }, [walletConnected, onSignWalletOpen]);
 
   useEffect(() => {
+    console.log("Opening connected wallet: ", showConnectedWallets)
+
     if (showConnectedWallets) {
       onSignWalletOpen();
+    } else {
+      onSignWalletClose();
     }
-  }, [showConnectedWallets, onSignWalletOpen])
+  }, [showConnectedWallets, onSignWalletOpen, onSignWalletClose])
 
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
@@ -529,6 +542,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const { walletConnected, setWalletConnected } = useWallet();
   const { onSignMessage, setOnSignMessage } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
+  const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
 
   const [messageSigned, setMessageSigned] = useState(false)
   const [walletDataSaved, setWalletDataSaved] = useState(false)
@@ -637,7 +651,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   };
 
   useEffect(() => {
-    const checkWalletStatus = () => {
+    const checkWalletStatus = async () => {
       if (connectionStatus === "disconnected") {
         setWalletConnected(false)
         setWalletDataSaved(false)
@@ -645,7 +659,17 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         setMessageSigned(false)
         setMessage(null)
         setOnSignMessage(false);
-        console.log("Wallet Disconneccted")
+        setShowConnectedWallets(false)
+
+        //update wallet connection status in DB
+        if (currentlyConnectedWallet) {
+          console.log("Disconnected wallet address: ", currentlyConnectedWallet)
+
+          const res = await pbManager.updateWalletConnectionStatus(currentlyConnectedWallet.id, false)
+          console.log("Wallet status updated: ", res)
+
+          setCurrentlyConnectedWallet(null)
+        }
       }
     }
 
@@ -664,8 +688,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           }
 
           // Save connected wallet to DB
-          const walletData = new WalletData(address, resolvedName, userModel.id, message, signature);
+          const walletData = new WalletData(address, resolvedName, userModel.id, message, signature, true);
           const res = await pbManager.saveWallet(walletData);
+          setCurrentlyConnectedWallet(res);
           console.log('Wallet data saved: ', res);
           if (res !== undefined) {
             setWalletDataSaved(true);
@@ -681,6 +706,24 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     checkWalletStatus();
   }, [walletConnected, address, userModel.id, messageSigned, signature]);
 
+
+  useEffect(() => {
+    const updateWalletStatusUponConnection = async () => {
+      if (walletConnected && address) {
+        //update wallet connection status based on wallet address
+        const wallFound = await pbManager.getWallet(address)
+        if (wallFound != undefined) {
+          const walletStatusUpdated = await pbManager.updateWalletConnectionStatus(wallFound.id, true)
+          console.log("Wallet connection status Updated on Connection:", walletStatusUpdated)
+          setCurrentlyConnectedWallet(walletStatusUpdated)
+        }
+      }
+    }
+
+    if (walletConnected && address) {
+      updateWalletStatusUponConnection()
+    }
+  }, [walletConnected, address])
 
 
 
@@ -818,8 +861,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                 borderColor={"#1A1A1A"}
                 borderRadius="4px"
               >
+
                 {
-                  !walletConnected && !walletDataSaved ? (<ConnectWallet
+                  currentlyConnectedWallet == null ? (<ConnectWallet
                     className={styles.connectButton}
                     auth={{ loginOptional: false }}
                     btnTitle="Verify Your Wallet Address"
@@ -827,6 +871,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                     onConnect={async (wallet) => {
                       console.log("connected to", wallet);
                       setWalletConnected(true)
+                      setShowConnectedWallets(true)
                     }
                     }
                   />) : (
