@@ -56,6 +56,7 @@ import { ActivityUser, User } from "types/User";
 import { z } from "zod";
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
+import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
 const verifyicon = require("public/Verify.svg") as string;
 
@@ -76,6 +77,8 @@ const copyToClipboard = (address: string) => {
 
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
+  const { walletConnected } = useWallet();
+  const { setOnSignMessage } = useWallet()
 
   useEffect(() => {
     const fetchWallets = async () => {
@@ -93,7 +96,21 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     onOpen: onEditProfileOpen,
     onClose: onEditProfileClose,
   } = useDisclosure();
+
+  const {
+    isOpen: isSignWalletOpen,
+    onOpen: onSignWalletOpen,
+    onClose: onSignWalletClose,
+  } = useDisclosure();
+
   const loggedInUser = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    if (walletConnected) {
+      onSignWalletOpen();
+    }
+  }, [walletConnected, onSignWalletOpen]);
+
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
       <Skeleton isLoaded={!!user}>
@@ -178,11 +195,23 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
                 >
                   {isLargerThanSM ? "Edit Profile" : <EditIcon w="3" />}
                 </Button>
+
+
+                <SignWalletModal
+                  user={loggedInUser}
+                  isOpen={isSignWalletOpen}
+                  onClose={onSignWalletClose}
+                  onSignMessage={(value) => {
+                    return setOnSignMessage(value);
+                  }}
+                />
+
                 <EditProfileModal
                   user={loggedInUser}
                   isOpen={isEditProfileOpen}
                   onClose={onEditProfileClose}
                 />
+
               </>
             )}
           </Box>
@@ -427,13 +456,60 @@ type EditProfileModalProps = {
   user: User;
 } & Omit<ModalProps, "children">;
 
-const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
+interface SignWalletModalProps {
+  user: User;
+  isOpen: boolean;
+  onClose: () => void;
+  onSignMessage: (value: Boolean) => void;
+}
 
-  const connectionStatus = useConnectionStatus();
+
+const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, ...props }) => {
+  console.log("Sign wallet modal triggered");
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} {...props}>
+      <ModalOverlay />
+      <ModalContent mx="3" _dark={{ bg: "dark.700" }}>
+        <Box>
+          <ModalHeader
+            px={{
+              base: "4",
+              md: "6",
+            }}
+          >
+            <Text fontSize={{ base: "md", md: "inherit" }}>Wallet Address Verification</Text>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody
+            pb={6}
+            px={{
+              base: "4",
+              md: "6",
+            }}
+          >
+            <Box display="flex" flexDirection="column" experimental_spaceY={4}>
+              <ConnectWallet />
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={() => { onSignMessage(true) }}>Sign</Button>
+            <Button onClick={onClose}>Not now</Button>
+          </ModalFooter>
+        </Box>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const address = useAddress();
   const sdk = useSDK();
+  const connectionStatus = useConnectionStatus();
 
-  const [walletConnected, setWalletConnected] = useState(false)
+  const { walletConnected, setWalletConnected } = useWallet();
+  const { onSignMessage, setOnSignMessage } = useWallet();
+
   const [messageSigned, setMessageSigned] = useState(false)
   const [walletDataSaved, setWalletDataSaved] = useState(false)
   const [ens, setEns] = useState('');
@@ -455,8 +531,12 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         await signMessage(message)
       }
     };
-    createMessageAndSign()
-  }, [address, walletConnected])
+    //sign message only if onSignMessage is true
+    if (onSignMessage) {
+      console.log("onSignMessage: ", onSignMessage)
+      createMessageAndSign()
+    }
+  }, [address, walletConnected, onSignMessage])
 
 
   const createMessage = async () => {
@@ -544,6 +624,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         setSignature(null)
         setMessageSigned(false)
         setMessage(null)
+        setOnSignMessage(false);
         console.log("Wallet Disconneccted")
       }
     }
@@ -568,6 +649,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           console.log('Wallet data saved: ', res);
           if (res !== undefined) {
             setWalletDataSaved(true);
+            setOnSignMessage(false);
           }
         } catch (error) {
           console.error('Error:', error);
@@ -578,6 +660,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     fetchData();
     checkWalletStatus();
   }, [walletConnected, address, userModel.id, messageSigned, signature]);
+
+
+
 
   return (
     <Modal {...props}>
@@ -721,6 +806,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                   onConnect={async (wallet) => {
                     console.log("connected to", wallet);
                     setWalletConnected(true)
+
                   }
 
                   }

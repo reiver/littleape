@@ -4,6 +4,7 @@ import { MightLikeCard } from "components/MightLikeCard";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
 import { TrendingTags } from "components/TrendingTags";
+import { WalletProvider } from "components/Wallet/walletContext";
 import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
@@ -40,6 +41,7 @@ export default function UserProfile() {
           flexDirection="column"
           experimental_spaceY={3}
         >
+
           <ProfileHeader username={String(username)} />
           {user && username == loggedInUser?.username && <NewPostCard />}
           {user && <Feed username={String(username)} />}

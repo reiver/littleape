@@ -15,6 +15,8 @@ import { useAuthStore } from "store";
 import "styles/global.css";
 import { SWRConfig } from "swr";
 import "../styles/styles.css";
+import { WalletProvider } from "components/Wallet/walletContext";
+
 
 dayjs.extend(relativeTime);
 
@@ -24,24 +26,26 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <ThirdwebProvider>
-      <SWRConfig
-        value={{
-          provider: () => new Map(),
-          fetcher,
-          revalidateOnFocus: false,
-          revalidateIfStale: false,
-          fallback: {
-            [API_PROFILE]: pageProps.user,
-            ...pageProps.swrFallback,
-          },
-        }}
-      >
-        <ChakraProvider theme={theme}>
-          <Component {...pageProps} />
-        </ChakraProvider>
-      </SWRConfig>
-    </ThirdwebProvider>
+    <WalletProvider>
+      <ThirdwebProvider>
+        <SWRConfig
+          value={{
+            provider: () => new Map(),
+            fetcher,
+            revalidateOnFocus: false,
+            revalidateIfStale: false,
+            fallback: {
+              [API_PROFILE]: pageProps.user,
+              ...pageProps.swrFallback,
+            },
+          }}
+        >
+          <ChakraProvider theme={theme}>
+            <Component {...pageProps} />
+          </ChakraProvider>
+        </SWRConfig>
+      </ThirdwebProvider>
+    </WalletProvider>
 
   );
 }
