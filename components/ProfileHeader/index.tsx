@@ -54,11 +54,11 @@ import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
 import { z } from "zod";
+import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
-const verifyicon = require("public/Verify.svg") as string;
 
 const pbManager = PocketBaseManager.getInstance()
 const userModel = pbManager.fetchUser()
@@ -78,7 +78,8 @@ const copyToClipboard = (address: string) => {
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
   const { walletConnected } = useWallet();
-  const { setOnSignMessage } = useWallet()
+  const { setOnSignMessage } = useWallet();
+  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
 
   useEffect(() => {
     const fetchWallets = async () => {
@@ -110,6 +111,12 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       onSignWalletOpen();
     }
   }, [walletConnected, onSignWalletOpen]);
+
+  useEffect(() => {
+    if (showConnectedWallets) {
+      onSignWalletOpen();
+    }
+  }, [showConnectedWallets, onSignWalletOpen])
 
   return (
     <Box rounded="lg" bg="light.50" p="2" _dark={{ bg: "dark.700" }} {...props}>
@@ -200,7 +207,10 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
                 <SignWalletModal
                   user={loggedInUser}
                   isOpen={isSignWalletOpen}
-                  onClose={onSignWalletClose}
+                  onClose={(() => {
+                    onSignWalletClose()
+                    setShowConnectedWallets(false)
+                  })}
                   onSignMessage={(value) => {
                     return setOnSignMessage(value);
                   }}
@@ -466,6 +476,8 @@ interface SignWalletModalProps {
 
 const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, ...props }) => {
   console.log("Sign wallet modal triggered");
+  const address = useAddress();
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} {...props}>
@@ -490,10 +502,17 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
           >
             <Box display="flex" flexDirection="column" experimental_spaceY={4}>
               <ConnectWallet />
+              <Text>
+                Address is: {address}
+              </Text>
+
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => { onSignMessage(true) }}>Sign</Button>
+            <Button onClick={() => {
+              onSignMessage(true)
+              onClose()
+            }}>Sign</Button>
             <Button onClick={onClose}>Not now</Button>
           </ModalFooter>
         </Box>
@@ -509,6 +528,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
   const { walletConnected, setWalletConnected } = useWallet();
   const { onSignMessage, setOnSignMessage } = useWallet();
+  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
 
   const [messageSigned, setMessageSigned] = useState(false)
   const [walletDataSaved, setWalletDataSaved] = useState(false)
@@ -517,20 +537,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const [signature, setSignature] = useState('N/A');
 
   useEffect(() => {
-    const createMessageAndSign = async () => {
-      console.log("Addess: ", address)
-      console.log("walletConnected: ", walletConnected)
-      console.log("messageSigned: ", messageSigned)
-      if (address != undefined && walletConnected && !messageSigned) {
-        console.log("Address is : ", address)
-        console.log("SDK is: ", sdk.wallet)
-
-        const message = await createMessage()
-
-        //sign message
-        await signMessage(message)
-      }
-    };
     //sign message only if onSignMessage is true
     if (onSignMessage) {
       console.log("onSignMessage: ", onSignMessage)
@@ -538,6 +544,20 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     }
   }, [address, walletConnected, onSignMessage])
 
+  const createMessageAndSign = async () => {
+    console.log("Addess: ", address)
+    console.log("walletConnected: ", walletConnected)
+    console.log("messageSigned: ", messageSigned)
+    if (address != undefined && walletConnected && !messageSigned) {
+      console.log("Address is : ", address)
+      console.log("SDK is: ", sdk.wallet)
+
+      const message = await createMessage()
+
+      //sign message
+      await signMessage(message)
+    }
+  };
 
   const createMessage = async () => {
     const currentDate = new Date();
@@ -798,19 +818,28 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                 borderColor={"#1A1A1A"}
                 borderRadius="4px"
               >
-                <ConnectWallet
-                  className={styles.connectButton}
-                  auth={{ loginOptional: false }}
-                  btnTitle="Verify Your Wallet Address"
-                  showThirdwebBranding={false}
-                  onConnect={async (wallet) => {
-                    console.log("connected to", wallet);
-                    setWalletConnected(true)
+                {
+                  !walletConnected && !walletDataSaved ? (<ConnectWallet
+                    className={styles.connectButton}
+                    auth={{ loginOptional: false }}
+                    btnTitle="Verify Your Wallet Address"
+                    showThirdwebBranding={false}
+                    onConnect={async (wallet) => {
+                      console.log("connected to", wallet);
+                      setWalletConnected(true)
+                    }
+                    }
+                  />) : (
+                    <Flex alignItems="center" cursor="pointer" onClick={(() => {
+                      setShowConnectedWallets(true)
+                    })}>
+                      <BlackCheckIcon className={styles.blackIcon} />
+                      <Text className={styles.textBold11}>
+                        Your Wallet Address Is Verified
+                      </Text>
+                    </Flex>)
+                }
 
-                  }
-
-                  }
-                />
 
 
 

@@ -22,6 +22,15 @@
   height: 24px !important;
 }
 
+.textBold11 {
+  font-weight: 600 !important;
+  font-size: medium !important;
+}
+
+.blackIcon {
+  margin-right: 6px !important;
+}
+
 .walletBox {
   background-color: #0070001a !important;
 }
