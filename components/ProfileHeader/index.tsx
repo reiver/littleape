@@ -598,7 +598,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       const message = await createMessage()
 
       //sign message
-      await signMessage(message)
+      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
     }
   };
 
@@ -633,15 +633,24 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const signMessage = async (message) => {
     console.log("MESAAGE:", message)
 
-    const sig = await sdk?.wallet?.sign(message);
+    try {
+      const sig = await sdk?.wallet?.sign(message);
 
-    if (!sig) {
-      throw new Error('Failed to sign message');
+      if (!sig) {
+        throw new Error('Failed to sign message');
+      }
+
+      setMessageSigned(true)
+      setMessage(message)
+      setSignature(sig);
+    
+    } catch (error) {
+      console.log("Error while signing: ", error)
+      setMessageSigned(false)
+      setOnSignMessage(false)
     }
 
-    setMessageSigned(true)
-    setMessage(message)
-    setSignature(sig);
+
   }
 
 
