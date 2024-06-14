@@ -11,7 +11,8 @@ export const WalletProvider = ({ children }) => {
   const [onSignMessage, setOnSignMessage] = useState(false);
   const [showConnectedWallets, setShowConnectedWallets] = useState(false);
   const [currentlyConnectedWallet, setCurrentlyConnectedWallet] = useState(null);
-
+  const [walletVerified, setWalletVerified] = useState(null);
+  const [walletDataSaved, setWalletDataSaved] = useState(null);
   return (
     <WalletContext.Provider
       value={{
@@ -23,6 +24,10 @@ export const WalletProvider = ({ children }) => {
         setShowConnectedWallets,
         currentlyConnectedWallet,
         setCurrentlyConnectedWallet,
+        walletVerified,
+        setWalletVerified,
+        walletDataSaved,
+        setWalletDataSaved,
       }}
     >
       {children}

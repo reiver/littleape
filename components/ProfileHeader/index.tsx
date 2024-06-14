@@ -78,26 +78,46 @@ const copyToClipboard = (address: string) => {
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
-  const { walletConnected } = useWallet();
+  const { walletConnected, setWalletConnected } = useWallet();
   const { setOnSignMessage } = useWallet();
+  const { walletVerified, setWalletVerified } = useWallet();
+  const { walletDataSaved, setWalletDataSaved } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
 
   useEffect(() => {
     const fetchWallets = async () => {
       const list = await pbManager.fetchMyWallets(userModel.id);
-      setWallets(list);
+
+      //show only verified wallets
+      var verifiedWalletsList: any[] = [];
+
+      list.map((element, index) => {
+        if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
+          verifiedWalletsList.push(element);
+        }
+      });
+
+      setWallets(verifiedWalletsList);
 
       console.log("Wallets List: ", list)
+      console.log("Verified Wallets List: ", verifiedWalletsList)
+
       //get connected wallet
-      list.map((element, index) => {
+      list.map((element) => {
         if (element.isConnected) {
           setCurrentlyConnectedWallet(element)
+          setWalletConnected(true);
+
+          if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
+            setWalletVerified(true);
+          }
+
         }
       });
     };
 
     fetchWallets();
-  }, []);
+  }, [walletDataSaved]);
 
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
@@ -115,11 +135,11 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
   const loggedInUser = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    if (walletConnected) {
-      onSignWalletOpen();
-    }
-  }, [walletConnected, onSignWalletOpen]);
+  // useEffect(() => {
+  //   if (walletConnected) {
+  //     onSignWalletOpen();
+  //   }
+  // }, [walletConnected, onSignWalletOpen]);
 
   useEffect(() => {
     console.log("Opening connected wallet: ", showConnectedWallets)
@@ -491,6 +511,7 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
   console.log("Sign wallet modal triggered");
   const address = useAddress();
 
+  const { walletVerified, setWalletVerified } = useWallet();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} {...props}>
@@ -522,11 +543,18 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => {
-              onSignMessage(true)
-              onClose()
-            }}>Sign</Button>
-            <Button onClick={onClose}>Not now</Button>
+            {
+              !walletVerified && (
+                <Button onClick={() => {
+                  onSignMessage(true)
+                  onClose()
+                }}>Sign</Button>
+              )
+            }
+            {
+              walletVerified ? (<Button onClick={onClose}>Close</Button>) : (<Button onClick={onClose}>Not now</Button>)
+            }
+
           </ModalFooter>
         </Box>
       </ModalContent>
@@ -541,11 +569,12 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
   const { walletConnected, setWalletConnected } = useWallet();
   const { onSignMessage, setOnSignMessage } = useWallet();
+  const { walletVerified, setWalletVerified } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
 
   const [messageSigned, setMessageSigned] = useState(false)
-  const [walletDataSaved, setWalletDataSaved] = useState(false)
+  const { walletDataSaved, setWalletDataSaved } = useWallet();
   const [ens, setEns] = useState('');
   const [message, setMessage] = useState('')
   const [signature, setSignature] = useState('N/A');
@@ -697,6 +726,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           if (res !== undefined) {
             setWalletDataSaved(true);
             setOnSignMessage(false);
+            setWalletVerified(true);
           }
         } catch (error) {
           console.error('Error:', error);
@@ -716,7 +746,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         const wallFound = await pbManager.getWallet(address)
         if (wallFound.code != undefined && wallFound.code == 404) {
           //save wallet to db, without verification
-          const walletData = new WalletData(null, address, null, null, null, null, true)
+          const walletData = new WalletData(null, address, null, userModel.id, null, null, true)
           const newWalletSaved = await pbManager.saveWallet(walletData)
           console.log("newWalletSaved: ", newWalletSaved)
         } else {
@@ -871,7 +901,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
               >
 
                 {
-                  currentlyConnectedWallet == null && walletConnected ? (
+                  walletConnected && !walletVerified ? (
                     // Show some text when wallet is connected but currentlyConnectedWallet is null
                     <Flex alignItems="center" cursor="pointer" onClick={() => setShowConnectedWallets(true)}>
                       <BlackCheckIcon className={styles.blackIcon} />
@@ -879,7 +909,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         Verify Your Wallet Address
                       </Text>
                     </Flex>
-                  ) : currentlyConnectedWallet != null && walletConnected ? (
+                  ) : currentlyConnectedWallet != null && walletConnected && walletVerified ? (
                     // Show verified wallet address text field
                     <Flex alignItems="center" cursor="pointer" onClick={() => setShowConnectedWallets(true)}>
                       <BlackCheckIcon className={styles.blackIcon} />
@@ -889,17 +919,21 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                     </Flex>
                   ) : !walletConnected ? (
                     // Show ConnectWallet component when wallet is not connected
-                    <ConnectWallet
-                      className={styles.connectButton}
-                      auth={{ loginOptional: false }}
-                      btnTitle="Connect Your Wallet"
-                      showThirdwebBranding={false}
-                      onConnect={async (wallet) => {
-                        console.log("connected to", wallet);
-                        setWalletConnected(true);
-                        setShowConnectedWallets(true);
-                      }}
-                    />
+                    <Flex alignItems="center" cursor="pointer">
+                      <BlackCheckIcon className={styles.blackIcon} />
+                      <ConnectWallet
+                        className={styles.connectButton}
+                        auth={{ loginOptional: false }}
+                        btnTitle="Verify Your Wallet Address"
+                        showThirdwebBranding={false}
+                        onConnect={async (wallet) => {
+                          console.log("connected to", wallet);
+                          setWalletConnected(true);
+                          setShowConnectedWallets(true);
+                        }}
+                      />
+                    </Flex>
+
                   ) : null // Handle any other conditions if necessary
                 }
 
