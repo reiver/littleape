@@ -534,25 +534,34 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
               md: "6",
             }}
           >
-            <Box display="flex" flexDirection="column" experimental_spaceY={4}>
-              <ConnectWallet />
-              <Text>
-                Address is: {address}
+            <Box display="flex" flexDirection="column" experimental_spaceY={4} className={styles.walletVerifyBox}>
+              <ConnectWallet theme="light" className={styles.connectButtonLight} />
+              <Text className={styles.walletVerifyBoxText}>
+                {`Address is:\n${address}`}
               </Text>
-
             </Box>
           </ModalBody>
           <ModalFooter>
             {
               !walletVerified && (
-                <Button onClick={() => {
-                  onSignMessage(true)
-                  onClose()
-                }}>Sign</Button>
+                <Button
+                  size={{
+                    base: "sm",
+                    md: "md",
+                  }}
+                  mr={{
+                    md: "20px",
+                  }}
+                  colorScheme="primary"
+                  onClick={() => {
+                    onSignMessage(true)
+                    onClose()
+                  }}>Sign</Button>
               )
             }
             {
-              walletVerified ? (<Button onClick={onClose}>Close</Button>) : (<Button onClick={onClose}>Not now</Button>)
+              walletVerified ? (<Button
+                onClick={onClose}>Close</Button>) : (<Button onClick={onClose}>Not now</Button>)
             }
 
           </ModalFooter>
@@ -643,7 +652,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       setMessageSigned(true)
       setMessage(message)
       setSignature(sig);
-    
+
     } catch (error) {
       console.log("Error while signing: ", error)
       setMessageSigned(false)
@@ -931,6 +940,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                     <Flex alignItems="center" cursor="pointer">
                       <BlackCheckIcon className={styles.blackIcon} />
                       <ConnectWallet
+                        theme="light"
                         className={styles.connectButton}
                         auth={{ loginOptional: false }}
                         btnTitle="Verify Your Wallet Address"

@@ -7,6 +7,10 @@
   font-size: medium !important;
 }
 
+.connectButtonLight {
+  background-color: #ebebeb !important;
+}
+
 .connectedButton {
   background: transparent !important;
 }
@@ -37,6 +41,19 @@
 
 .walletText {
   color: #007000 !important;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.walletVerifyBox {
+  border: 2px solid #ebebeb !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+
+.walletVerifyBoxText {
+  color: #7e7e7e !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  white-space: pre-line !important;
 }
