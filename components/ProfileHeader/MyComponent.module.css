@@ -1,5 +1,5 @@
 .connectButton {
-  color: black !important;
+  color: #1a1a1a !important;
   background-color: transparent !important;
   width: fit-content !important;
   height: 32px !important;
@@ -56,4 +56,94 @@
   font-size: 12px !important;
   font-weight: 700 !important;
   white-space: pre-line !important;
+}
+
+.boxMargin {
+  margin-top: 24px !important;
+}
+
+.boxEnsList{
+  margin-top: 12px !important;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ebebeb;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  top: 2px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #1a1a1a;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 40px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Hide the default radio button */
+.customRadio {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #666666;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.customRadio:checked {
+  background-color: white;
+  border: 1px solid #1a1a1a;
+}
+
+.customRadio:checked::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

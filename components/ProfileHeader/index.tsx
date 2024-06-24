@@ -510,8 +510,14 @@ interface SignWalletModalProps {
 const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, ...props }) => {
   console.log("Sign wallet modal triggered");
   const address = useAddress();
+  const [ensList] = useState(["Abc.eth", "Myens.eth", "Zaid.eth"]);
+  const [isDisplayEnsNames, setIsDisplayEnsNames] = useState(false)
 
   const { walletVerified, setWalletVerified } = useWallet();
+
+  const handleDisplayEnsToggle = (event) => {
+    setIsDisplayEnsNames(event.target.checked)
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} {...props}>
@@ -539,6 +545,39 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
               <Text className={styles.walletVerifyBoxText}>
                 {`Address is:\n${address}`}
               </Text>
+            </Box>
+
+            {isDisplayEnsNames &&
+              <Box display="flex" flexDirection="column" className={styles.boxMargin}>
+                <Text className={styles.walletVerifyBoxText}>ENS Names:</Text>
+                {
+                  ensList.map((element, index) => (
+                    <Box display="flex" className={styles.boxEnsList} alignItems="center" justifyContent="space-between">
+                      <Text className={styles.walletVerifyBoxText}>{element}</Text>
+                      <label>
+                        <input
+                          type="radio"
+                          name="ensSelection"
+                          className={styles.customRadio}
+                        />
+                      </label>
+                    </Box>
+                  ))
+                }
+
+              </Box>
+            }
+
+
+            <Box display="flex" className={styles.boxMargin} alignItems="center" justifyContent="space-between">
+              <Text className={styles.walletVerifyBoxText}>Display the ENS name</Text>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  onChange={handleDisplayEnsToggle}
+                />
+                <span className={`${styles.slider} ${styles.round}`}></span>
+              </label>
             </Box>
           </ModalBody>
           <ModalFooter>
