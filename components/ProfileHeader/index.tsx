@@ -510,7 +510,7 @@ interface SignWalletModalProps {
 const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, ...props }) => {
   console.log("Sign wallet modal triggered");
   const address = useAddress();
-  const [ensList] = useState(["Abc.eth", "Myens.eth", "Zaid.eth"]);
+  const { ensList } = useWallet();
   const [isDisplayEnsNames, setIsDisplayEnsNames] = useState(false)
 
   const { walletVerified, setWalletVerified } = useWallet();
@@ -556,9 +556,8 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
                       <Text className={styles.walletVerifyBoxText}>{element}</Text>
                       <label>
                         <input
-                          type="radio"
-                          name="ensSelection"
-                          className={styles.customRadio}
+                          type="checkbox"
+                          className={styles.customCheckbox}
                         />
                       </label>
                     </Box>
@@ -569,16 +568,19 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
             }
 
 
-            <Box display="flex" className={styles.boxMargin} alignItems="center" justifyContent="space-between">
-              <Text className={styles.walletVerifyBoxText}>Display the ENS name</Text>
-              <label className={styles.switch}>
-                <input
-                  type="checkbox"
-                  onChange={handleDisplayEnsToggle}
-                />
-                <span className={`${styles.slider} ${styles.round}`}></span>
-              </label>
-            </Box>
+            {
+              ensList.length > 0 && <Box display="flex" className={styles.boxMargin} alignItems="center" justifyContent="space-between">
+                <Text className={styles.walletVerifyBoxText}>Display the ENS name</Text>
+                <label className={styles.switch}>
+                  <input
+                    type="checkbox"
+                    onChange={handleDisplayEnsToggle}
+                  />
+                  <span className={`${styles.slider} ${styles.round}`}></span>
+                </label>
+              </Box>
+            }
+
           </ModalBody>
           <ModalFooter>
             {
@@ -620,12 +622,26 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const { walletVerified, setWalletVerified } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
+  const { ensList, setEnsList } = useWallet();
+
 
   const [messageSigned, setMessageSigned] = useState(false)
   const { walletDataSaved, setWalletDataSaved } = useWallet();
   const [ens, setEns] = useState('');
   const [message, setMessage] = useState('')
   const [signature, setSignature] = useState('N/A');
+
+
+  useEffect(() => {
+    const run = async () => {
+      if (address) {
+        console.log("Looking up ens address now")
+        await lookUpEnsAddress(address)
+      }
+    };
+
+    run()
+  }, [address])
 
   useEffect(() => {
     //sign message only if onSignMessage is true
@@ -717,6 +733,21 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     setValue("banner", files[0]);
   };
 
+  const lookUpEnsAddress = async (address) => {
+    const resolvedName = await lookUpENS(address);
+    console.log("resolvedName: ", resolvedName)
+    if (resolvedName) {
+      setEns(resolvedName);
+
+      setEnsList([...ensList, resolvedName]);
+    } else {
+      setEns('Wallet Address could not be resolved');
+      setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"])
+    }
+
+    return resolvedName
+  }
+
   const handleProfileEdit = (e) => {
     let v = null;
     post(e, async (values) => {
@@ -764,14 +795,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       if (walletConnected && messageSigned && address && signature && message && !walletDataSaved) {
         try {
           // Lookup ENS
-          const resolvedName = await lookUpENS(address);
-          console.log("resolvedName: ", resolvedName)
-          if (resolvedName) {
-            setEns(resolvedName);
-          } else {
-
-            setEns('Wallet Address could not be resolved');
-          }
+          var resolvedName = await lookUpEnsAddress(address)
 
           // Save connected wallet to DB
           const savedWallet = await pbManager.getWallet(address)

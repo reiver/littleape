@@ -147,3 +147,35 @@ input:checked + .slider:before {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* Hide the default checkbox */
+.customCheckbox {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #666666;
+  border-radius: 4px; /* Make it square with slightly rounded corners */
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.customCheckbox:checked {
+  background-color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+}
+
+/* Tick mark for the checked state */
+.customCheckbox:checked::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}

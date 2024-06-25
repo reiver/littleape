@@ -13,6 +13,7 @@ export const WalletProvider = ({ children }) => {
   const [currentlyConnectedWallet, setCurrentlyConnectedWallet] = useState(null);
   const [walletVerified, setWalletVerified] = useState(null);
   const [walletDataSaved, setWalletDataSaved] = useState(null);
+  const [ensList, setEnsList] = useState([]);
   return (
     <WalletContext.Provider
       value={{
@@ -28,6 +29,8 @@ export const WalletProvider = ({ children }) => {
         setWalletVerified,
         walletDataSaved,
         setWalletDataSaved,
+        ensList,
+        setEnsList,
       }}
     >
       {children}
