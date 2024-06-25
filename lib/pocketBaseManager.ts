@@ -47,10 +47,23 @@ export class SignInData {
   }
 }
 
+export class EnsData {
+  id: String;
+  ens: String;
+  walletId: String;
+  public: Boolean;
+
+  constructor(id: String, ens: String, walletId: String, publicVisibility: Boolean) {
+    this.id = id;
+    this.ens = ens;
+    this.walletId = walletId;
+    this.public = publicVisibility;
+  }
+}
+
 export class WalletData {
   id: String;
   address: String;
-  ens: String;
   userId: String;
   message: String;
   signature: String;
@@ -59,7 +72,6 @@ export class WalletData {
   constructor(
     id: String,
     address: String,
-    ens: String,
     userid: String,
     message: String,
     signature: String,
@@ -67,7 +79,6 @@ export class WalletData {
   ) {
     this.id = id;
     this.address = address;
-    this.ens = ens;
     this.userId = userid;
     this.message = message;
     this.signature = signature;
@@ -152,6 +163,11 @@ export class PocketBaseManager {
     return updateWall;
   }
 
+  public async saveEns(ensData): Promise<any> {
+    const ens = await this.pocketBase.collection("ens").create(ensData);
+    return ens;
+  }
+
   public async updateWallet(walletData): Promise<any> {
     const wall = await this.pocketBase.collection("wallets").update(walletData.id, walletData);
     return wall;
@@ -187,6 +203,19 @@ export class PocketBaseManager {
       return error.data;
     }
   }
+
+  public async fetchEnsList(walletId, publicVisibility): Promise<any> {
+    try {
+      const ens = await this.pocketBase.collection("ens").getFullList({
+        sort: "-created",
+        filter: `walletId= '${walletId}' && public= ${publicVisibility}`,
+      });
+      return ens;
+    } catch (error) {
+      return error.data;
+    }
+  }
+
   //custom api
   verifyOtp = async (data: OtpRequestBody): Promise<ApiResponse> => {
     console.log("JSON.stringify(data): ", JSON.stringify(data));
