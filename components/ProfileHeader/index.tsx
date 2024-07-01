@@ -127,43 +127,47 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
   const fetchEnsListOfWallets = async () => {
     if (verifiedWalletsList && verifiedWalletsList.length > 0) {
-      verifiedWalletsList.map(async (wallet, index) => {
-        const publicList = await pbManager.fetchEnsList(wallet.id, true)
-        console.log("publicList: ", publicList)
+      try {
+        // Loop through each wallet in verifiedWalletsList
+        for (let index = 0; index < verifiedWalletsList.length; index++) {
+          const wallet = verifiedWalletsList[index];
 
-        //copy ens names of list
-        if (publicList && publicList.length > 0) {
-          publicList.forEach(element => {
-            if (publicEnsList) {
-              setPublicEnsList([...publicEnsList, element.ens]);
-            } else {
-              setPublicEnsList([element.ens]);
-            }
-          });
+          // Fetch public list
+          const publicList = await pbManager.fetchEnsList(wallet.id, true);
+          console.log("publicList: ", publicList);
+
+          // Update publicEnsList state
+          if (publicList && publicList.length > 0) {
+            setPublicEnsList((prevList) => [
+              ...prevList,
+              ...publicList.map((element) => element.ens),
+            ]);
+          }
+
+          // Fetch private list
+          const privateList = await pbManager.fetchEnsList(wallet.id, false);
+          console.log("privateList: ", privateList);
+
+          // Update privateEnsList state
+          if (privateList && privateList.length > 0) {
+            setPrivateEnsList((prevList) => [
+              ...prevList,
+              ...privateList.map((element) => element.ens),
+            ]);
+          }
+
+          addWalletWithEnsData(wallet, publicList);
         }
 
-
-
-        //get private ens list
-        const privateList = await pbManager.fetchEnsList(wallet.id, false)
-        setPrivateEnsList(privateList)
-
-        //copy names of ens from list
-        if (privateList && privateList.length > 0) {
-          privateList.forEach(element => {
-            if (privateEnsList) {
-              setPrivateEnsList([...privateEnsList, element.ens]);
-            } else {
-              setPrivateEnsList([element.ens]);
-            }
-          });
-        }
-
-
-        addWalletWithEnsData(wallet, publicList)
-      })
+        // All fetch operations are completed here
+        console.log("All fetch operations completed.");
+      } catch (error) {
+        console.error("Error fetching ENS lists:", error);
+      }
     }
-  }
+  };
+
+
 
   useEffect(() => {
     const fetchWallets = async () => {
@@ -637,6 +641,7 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
     setIsDisplayEnsNames(false);
 
     //check if public ens list is not empty... The update their public visibility in DB
+    console.log("PublicENSLIST: ", publicEnsList)
     if (publicEnsList.length > 0) {
       for (const ens of publicEnsList) {
         console.log(ens);
@@ -648,6 +653,8 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
     console.log("//////////////////////////////////")
 
     //
+    console.log("PrivteENSLIST: ", privateEnsList)
+
     if (privateEnsList.length > 0) {
       for (const ens of privateEnsList) {
         console.log(ens);
@@ -900,8 +907,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       console.log("No ENS FOUND")
       setEns('Wallet Address could not be resolved');
       setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
-      setPrivateEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //
-
     }
 
     return resolvedName
