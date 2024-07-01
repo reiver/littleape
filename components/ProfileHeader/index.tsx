@@ -85,6 +85,10 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   const { walletVerified, setWalletVerified } = useWallet();
   const { walletDataSaved, setWalletDataSaved } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
+  const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
+  const { verifiedWalletsList, setVerifiedWalletsList } = useWallet();
+  const { publicEnsList, setPublicEnsList } = useWallet();
+  const { privateEnsList, setPrivateEnsList } = useWallet();
 
   //add wallet data and ens data in map
   const addWalletWithEnsData = (wallet, ensDataList) => {
@@ -115,33 +119,74 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     console.log("Updated walletsMap:", walletsMap);
   }, [walletsMap]);
 
+  useEffect(() => {
+    console.log("Trigger fetchEnsListOfWallets currently verified wallets list: ", verifiedWalletsList)
+    fetchEnsListOfWallets();
+    setEnsVisibiltyUpdated(false);
+  }, [ensVisibiltyUpdated, verifiedWalletsList])
+
+  const fetchEnsListOfWallets = async () => {
+    if (verifiedWalletsList && verifiedWalletsList.length > 0) {
+      verifiedWalletsList.map(async (wallet, index) => {
+        const publicList = await pbManager.fetchEnsList(wallet.id, true)
+        console.log("publicList: ", publicList)
+
+        //copy ens names of list
+        if (publicList && publicList.length > 0) {
+          publicList.forEach(element => {
+            if (publicEnsList) {
+              setPublicEnsList([...publicEnsList, element.ens]);
+            } else {
+              setPublicEnsList([element.ens]);
+            }
+          });
+        }
+
+
+
+        //get private ens list
+        const privateList = await pbManager.fetchEnsList(wallet.id, false)
+        setPrivateEnsList(privateList)
+
+        //copy names of ens from list
+        if (privateList && privateList.length > 0) {
+          privateList.forEach(element => {
+            if (privateEnsList) {
+              setPrivateEnsList([...privateEnsList, element.ens]);
+            } else {
+              setPrivateEnsList([element.ens]);
+            }
+          });
+        }
+
+
+        addWalletWithEnsData(wallet, publicList)
+      })
+    }
+  }
 
   useEffect(() => {
     const fetchWallets = async () => {
       const list = await pbManager.fetchMyWallets(userModel.id);
 
       //show only verified wallets
-      var verifiedWalletsList: any[] = [];
 
-      list.map((element, index) => {
-        if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
-          verifiedWalletsList.push(element);
+      list.map((element) => {
+        if (element.signature && element.signature !== "" && element.signature !== "N/A") {
+          console.log("Verified wallet:", element);
+          setVerifiedWalletsList((prevList) => {
+            if (prevList.some((el) => el.signature === element.signature)) {
+              return prevList; // Return the previous list if the element already exists
+            } else {
+              return [...prevList, element]; // Add the new element if it doesn't exist
+            }
+          });
         }
       });
-
-      //fetch ens list of verified wallets
-      for (const wallet of verifiedWalletsList) {
-        const ensListOfWallet = await pbManager.fetchEnsList(wallet.id, true)
-        console.log("Ens List: ", ensListOfWallet)
-
-        addWalletWithEnsData(wallet, ensListOfWallet)
-      }
 
 
       console.log("Wallets List: ", list)
       console.log("Verified Wallets List: ", verifiedWalletsList)
-
-
 
       //get connected wallet
       list.map((element) => {
@@ -178,11 +223,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
   const loggedInUser = useAuthStore((state) => state.user);
 
-  // useEffect(() => {
-  //   if (walletConnected) {
-  //     onSignWalletOpen();
-  //   }
-  // }, [walletConnected, onSignWalletOpen]);
 
   useEffect(() => {
     console.log("Opening connected wallet: ", showConnectedWallets)
@@ -557,16 +597,71 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
   console.log("Sign wallet modal triggered");
   const address = useAddress();
   const { ensList } = useWallet();
-  const [isDisplayEnsNames, setIsDisplayEnsNames] = useState(false)
-
+  const { publicEnsList, setPublicEnsList } = useWallet();
+  const { privateEnsList, setPrivateEnsList } = useWallet();
+  const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
+  const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
   const { walletVerified, setWalletVerified } = useWallet();
 
   const handleDisplayEnsToggle = (event) => {
     setIsDisplayEnsNames(event.target.checked)
+    // setPublicEnsList([])
+    // setPrivateEnsList([])
+  }
+
+  const handleCheckboxChange = (event, selectedEns) => {
+    if (event.target.checked) {
+      //add ens to publis list
+      setPublicEnsList([...publicEnsList, selectedEns])
+
+      //remove from private list
+      setPrivateEnsList(privateEnsList.filter(ens => ens !== selectedEns));
+
+    } else {
+      //remove ens from public list
+      setPublicEnsList(publicEnsList.filter(ens => ens !== selectedEns));
+
+      //add to private list
+      setPrivateEnsList([...privateEnsList, selectedEns])
+
+    }
+
+    console.log("Public ens list: ", publicEnsList)
+    console.log("Private ens list: ", privateEnsList)
+
+
+  };
+
+  const closeSignInModel = async () => {
+    onClose();
+    setIsDisplayEnsNames(false);
+
+    //check if public ens list is not empty... The update their public visibility in DB
+    if (publicEnsList.length > 0) {
+      for (const ens of publicEnsList) {
+        console.log(ens);
+        const visibilityUpdated = await pbManager.updateEnsVisibility(ens, true);
+        console.log("Ens Visibility public:", visibilityUpdated);
+      }
+    }
+
+    console.log("//////////////////////////////////")
+
+    //
+    if (privateEnsList.length > 0) {
+      for (const ens of privateEnsList) {
+        console.log(ens);
+        const visibilityUpdated = await pbManager.updateEnsVisibility(ens, false);
+        console.log("Ens Visibility private:", visibilityUpdated);
+      }
+    }
+
+    setEnsVisibiltyUpdated(true);
+
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} {...props}>
+    <Modal isOpen={isOpen} onClose={closeSignInModel} {...props}>
       <ModalOverlay />
       <ModalContent mx="3" _dark={{ bg: "dark.700" }}>
         <Box>
@@ -604,6 +699,10 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
                         <input
                           type="checkbox"
                           className={styles.customCheckbox}
+                          onChange={(event) => {
+                            handleCheckboxChange(event, element)
+                          }}
+                          checked={publicEnsList.includes(element)}
                         />
                       </label>
                     </Box>
@@ -642,13 +741,13 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
                   colorScheme="primary"
                   onClick={() => {
                     onSignMessage(true)
-                    onClose()
+                    closeSignInModel();
                   }}>Sign</Button>
               )
             }
             {
               walletVerified ? (<Button
-                onClick={onClose}>Close</Button>) : (<Button onClick={onClose}>Not now</Button>)
+                onClick={closeSignInModel}>Close</Button>) : (<Button onClick={closeSignInModel}>Not now</Button>)
             }
 
           </ModalFooter>
@@ -669,6 +768,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { ensList, setEnsList } = useWallet();
+  const { privateEnsList, setPrivateEnsList } = useWallet();
 
 
   const [messageSigned, setMessageSigned] = useState(false)
@@ -782,13 +882,26 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const lookUpEnsAddress = async (address) => {
     const resolvedName = await lookUpENS(address);
     console.log("resolvedName: ", resolvedName)
-    if (resolvedName) {
+    if (resolvedName != null) {
       setEns(resolvedName);
 
-      setEnsList([...ensList, resolvedName]);
+      if (ensList) {
+        setEnsList([...ensList, resolvedName]);
+      } else {
+        setEnsList([resolvedName]);
+      }
+
+      if (privateEnsList) {
+        setPrivateEnsList(...privateEnsList, resolvedName)
+      } else {
+        setPrivateEnsList(resolvedName)
+      }
     } else {
+      console.log("No ENS FOUND")
       setEns('Wallet Address could not be resolved');
-      // setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
+      setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
+      setPrivateEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //
+
     }
 
     return resolvedName
@@ -851,7 +964,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
           //save ens linked to wallet
           for (const ens of ensList) {
-            const ensData = new EnsData(null, ens, savedWallet.id, true);
+            const ensData = new EnsData(null, ens, savedWallet.id, false);
             const ensSaved = await pbManager.saveEns(ensData);
             console.log("Saved ens: ", ensSaved);
           }

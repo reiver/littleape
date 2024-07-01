@@ -168,6 +168,19 @@ export class PocketBaseManager {
     return ens;
   }
 
+  public async updateEnsVisibility(ensName, publicStatus): Promise<any> {
+    //fetch ens first
+    console.log("Ens name to search: ", ensName);
+    const record = await this.pocketBase.collection("ens").getFirstListItem(`ens="${ensName}"`);
+    console.log("Ens record found: ", record);
+
+    if (record != null) {
+      const updatedEnsData = new EnsData(record.id, record.ens, record.walletId, publicStatus);
+      const ens = await this.pocketBase.collection("ens").update(record.id, updatedEnsData);
+      return ens;
+    }
+  }
+
   public async updateWallet(walletData): Promise<any> {
     const wall = await this.pocketBase.collection("wallets").update(walletData.id, walletData);
     return wall;

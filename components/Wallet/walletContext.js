@@ -14,6 +14,12 @@ export const WalletProvider = ({ children }) => {
   const [walletVerified, setWalletVerified] = useState(null);
   const [walletDataSaved, setWalletDataSaved] = useState(null);
   const [ensList, setEnsList] = useState([]);
+  const [publicEnsList, setPublicEnsList] = useState([]);
+  const [privateEnsList, setPrivateEnsList] = useState([]);
+  const [isDisplayEnsNames, setIsDisplayEnsNames] = useState(false);
+  const [ensVisibiltyUpdated, setEnsVisibiltyUpdated] = useState(false);
+  const [verifiedWalletsList, setVerifiedWalletsList] = useState([]);
+
   return (
     <WalletContext.Provider
       value={{
@@ -31,6 +37,16 @@ export const WalletProvider = ({ children }) => {
         setWalletDataSaved,
         ensList,
         setEnsList,
+        publicEnsList,
+        setPublicEnsList,
+        isDisplayEnsNames,
+        setIsDisplayEnsNames,
+        ensVisibiltyUpdated,
+        setEnsVisibiltyUpdated,
+        verifiedWalletsList,
+        setVerifiedWalletsList,
+        privateEnsList,
+        setPrivateEnsList,
       }}
     >
       {children}
