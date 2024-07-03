@@ -2,7 +2,6 @@ import {
   Box,
   BoxProps,
   Button,
-  chakra,
   HStack,
   IconButton,
   IconButtonProps,
@@ -13,8 +12,10 @@ import {
   MenuList,
   Text,
   VStack,
+  chakra,
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
+import { useDisconnect } from "@thirdweb-dev/react";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
@@ -56,7 +57,10 @@ export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const disconnect = useDisconnect();
+
   const handleLogout = () => {
+    disconnect()
     logout();
     router.push("/auth/login");
   };

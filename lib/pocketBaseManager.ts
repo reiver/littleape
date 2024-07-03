@@ -205,6 +205,15 @@ export class PocketBaseManager {
     return usermodel;
   }
 
+  public async fetchUserById(id) {
+    try {
+      const user = await this.pocketBase.collection("users").getFirstListItem(`id="${id}"`);
+      return user;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
   public async fetchMyWallets(userId): Promise<any> {
     try {
       const wallets = await this.pocketBase.collection("wallets").getFullList({

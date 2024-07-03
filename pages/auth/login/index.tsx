@@ -10,6 +10,12 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
+import {
+  ConnectWallet,
+  useAddress,
+  useConnectionStatus,
+  useDisconnect,
+} from "@thirdweb-dev/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -21,14 +27,17 @@ import { MainLayout } from "layouts/Main";
 import { OtpRequestBody, PocketBaseManager, SignInData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, FormEvent, useState } from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
 import { useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
+import styles from "./MyComponent.module.css";
+import { useWallet } from "components/Wallet/walletContext";
+
+
 const pbManager = PocketBaseManager.getInstance();
 
 const schema = z.object({
@@ -39,6 +48,8 @@ const verifySchema = z.object({
   code: z.string().min(6),
   email: z.string().min(1),
 });
+
+
 
 const Login: FC = () => {
   const [email, setEmail] = useState<string | undefined>(undefined);
@@ -51,11 +62,108 @@ const Login: FC = () => {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const toast = useToast();
-
+  const disconnect = useDisconnect();
   const backToRegistration = setEmail.bind(null, undefined);
+  const connectionStatus = useConnectionStatus();
+  const { walletConnected, setWalletConnected } = useWallet()
+  const address = useAddress();
+
+
+  const checkWalletConnectionWithAccount = async (address) => {
+    console.log("Connected wallet address is: ", address)
+    const wallet = await pbManager.getWallet(address)
+    console.log("Wallet in DB: ", wallet)
+
+    if (wallet.code != undefined && wallet.code == 404) {
+      toast({
+        title: "This wallet is not connected to any account, please Login using Email & connect wallet",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    } else {
+      //get associated user from wallet
+      const userId = wallet.userId;
+
+      const user = await pbManager.fetchUserById(userId)
+      console.log("user by id: ", user)
+
+      if (user.code == undefined) {
+        const signInData = new SignInData(String(user.email), String("12345678"));
+
+        try {
+          const authData = await pbManager.signIn(signInData);
+          console.log("Sign in successful:", authData);
+
+          var record = authData.record;
+
+          const user: User = {
+            api_key: "",
+            avatar: record.avatar,
+            banner: "",
+            bio: "",
+            display_name: record.name,
+            email: record.email,
+            github: "",
+            id: record.id,
+            publicKey: "",
+            username: record.username,
+          };
+
+          setAuth(record.email, user);
+
+          router.push("/")
+        } catch (error) {
+          toast({
+            title: "The email is invalid.",
+            description: ``,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          console.error("Sign in error:", error);
+          const err: Error = error.response?._data;
+          if (err?.type === "server_error") setError(err.payload);
+        }
+
+      }
+
+
+
+    }
+  }
+
+  useEffect(() => {
+    const checkWalletStatus = async () => {
+      if (connectionStatus === "disconnected") {
+        setWalletConnected(false)
+      }
+    }
+    checkWalletStatus()
+  })
+
+  useEffect(() => {
+    if (address) {
+      setWalletConnected(true)
+      checkWalletConnectionWithAccount(address)
+    }
+  }, [address])
 
   const handleLoginViaPocketBase = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission behavior
+
+    if (walletConnected) {
+      toast({
+        title: "Please disconnect the wallet first!",
+        description: ``,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return
+    }
+
     const { email } = getValues();
 
     const signInData = new SignInData(String(email), String("12345678"));
@@ -140,6 +248,20 @@ const Login: FC = () => {
               </Box>
             </Form>
 
+            <Box>
+              <ConnectWallet
+                theme={walletConnected ? "light" : "dark"}
+                className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                auth={{ loginOptional: false }}
+                btnTitle="Continue With Your Wallet"
+                showThirdwebBranding={false}
+                onConnect={async (wallet) => {
+                  console.log("connected to", wallet);
+                  setWalletConnected(true);
+                }}
+              />
+            </Box>
+
             <Box
               mt="6"
               display="flex"
@@ -150,9 +272,20 @@ const Login: FC = () => {
               _dark={{ color: "slate.400" }}
             >
               <span>Don&rsquo;t have an account?</span>
-              <Link href="/auth/register">
-                <Button className="block w-full">Register now</Button>
-              </Link>
+              <Button className="block w-full" onClick={(() => {
+                if (walletConnected) {
+                  toast({
+                    title: "Please disconnect the wallet first!",
+                    description: ``,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  return
+                } else {
+                  router.push("/auth/register")
+                }
+              })}>Register now</Button>
             </Box>
           </div>
         ) : (

@@ -173,39 +173,41 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     const fetchWallets = async () => {
       const list = await pbManager.fetchMyWallets(userModel.id);
 
-      //show only verified wallets
+      if (list.code == undefined) {
 
-      list.map((element) => {
-        if (element.signature && element.signature !== "" && element.signature !== "N/A") {
-          console.log("Verified wallet:", element);
-          setVerifiedWalletsList((prevList) => {
-            if (prevList.some((el) => el.signature === element.signature)) {
-              return prevList; // Return the previous list if the element already exists
-            } else {
-              return [...prevList, element]; // Add the new element if it doesn't exist
-            }
-          });
-        }
-      });
-
-
-      console.log("Wallets List: ", list)
-      console.log("Verified Wallets List: ", verifiedWalletsList)
-
-      //get connected wallet
-      list.map((element) => {
-        if (element.isConnected) {
-          setCurrentlyConnectedWallet(element)
-          setWalletConnected(true);
-
-          if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
-            setWalletVerified(true);
+        //show only verified wallets
+        list.map((element) => {
+          if (element.signature && element.signature !== "" && element.signature !== "N/A") {
+            console.log("Verified wallet:", element);
+            setVerifiedWalletsList((prevList) => {
+              if (prevList.some((el) => el.signature === element.signature)) {
+                return prevList; // Return the previous list if the element already exists
+              } else {
+                return [...prevList, element]; // Add the new element if it doesn't exist
+              }
+            });
           }
+        });
 
-          //get connected wallet's ens
 
-        }
-      });
+        console.log("Wallets List: ", list)
+        console.log("Verified Wallets List: ", verifiedWalletsList)
+
+        //get connected wallet
+        list.map((element) => {
+          if (element.isConnected) {
+            setCurrentlyConnectedWallet(element)
+            setWalletConnected(true);
+
+            if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
+              setWalletVerified(true);
+            }
+
+            //get connected wallet's ens
+
+          }
+        });
+      }
     };
 
     fetchWallets();
