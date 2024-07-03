@@ -94,7 +94,7 @@ export const Navbar: FC<BoxProps> = (props) => {
             color="primary.600"
           >
             <Logo w="5" strokeWidth="2" />
-            <Text display={{ base: "none", md: "block" }}>Greatape</Text>
+            <Text display={{ base: "none", md: "block" }}>GreatApe</Text>
           </Box>
         </Link>
         <SearchInput />
