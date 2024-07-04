@@ -33,9 +33,7 @@ const MentionList = forwardRef(function Mention(props: any, ref) {
   };
 
   const upHandler = () => {
-    setSelectedIndex(
-      (selectedIndex + props.items.length - 1) % props.items.length
-    );
+    setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
   };
 
   const downHandler = () => {
@@ -83,15 +81,9 @@ const MentionList = forwardRef(function Mention(props: any, ref) {
                   bg={selectedIndex === index ? "light.100" : "transparent"}
                   _dark={{
                     _hover: {
-                      bg:
-                        selectedIndex === index
-                          ? "whiteAlpha.100 !important"
-                          : "transparent",
+                      bg: selectedIndex === index ? "whiteAlpha.100 !important" : "transparent",
                     },
-                    bg:
-                      selectedIndex === index
-                        ? "whiteAlpha.100 !important"
-                        : "transpreant",
+                    bg: selectedIndex === index ? "whiteAlpha.100 !important" : "transpreant",
                   }}
                   key={index}
                   onMouseOver={() => setSelectedIndex(index)}
@@ -116,14 +108,7 @@ const suggestion = {
     //   setTimeout(r, 1000);
     // });
     // component.updateProps({ loading: false });
-    return [
-      "MahsaAmini",
-      "deadpool3",
-      "BeUnstopable",
-      "Samsung",
-      "Apple",
-      "Hamburg",
-    ]
+    return ["MahsaAmini", "deadpool3", "BeUnstopable", "Samsung", "Apple", "Hamburg"]
       .filter((item) => item.toLowerCase().startsWith(query.toLowerCase()))
       .slice(0, 5);
   },
@@ -239,15 +224,11 @@ const parseHashtags = (editor: Editor) => {
   for (const match of [...matches]) {
     const plusOne = match[0].startsWith(" ") ? 1 : 0;
     let nb = 0;
-    $position.parent.content.nodesBetween(
-      0,
-      match.index + match[0].length - 2,
-      (node) => {
-        if (!node.isText) {
-          nb++;
-        }
+    $position.parent.content.nodesBetween(0, match.index + match[0].length - 2, (node) => {
+      if (!node.isText) {
+        nb++;
       }
-    );
+    });
 
     chain
       .setTextSelection({
