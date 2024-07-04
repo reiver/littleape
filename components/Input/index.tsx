@@ -20,19 +20,11 @@ export type InputProps = ChakraInputProps &
     error?: Merge<FieldError, FieldErrorsImpl<{}>>;
   };
 
-const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
-  props,
-  ref
-) => {
+const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (props, ref) => {
   const { error, textarea, leftAddon, ...rest } = props;
   const isInvalid = !!error;
   return (
-    <FormControl
-      isInvalid={isInvalid}
-      role="group"
-      display="flex"
-      flexDirection="column"
-    >
+    <FormControl isInvalid={isInvalid} role="group" display="flex" flexDirection="column">
       {props.name.length > 0 && (
         <FormLabel
           textTransform="capitalize"
@@ -84,11 +76,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
             }
           : {})}
       >
-        {leftAddon && (
-          <InputLeftAddon _dark={{ bg: "dark.600" }}>
-            {leftAddon}
-          </InputLeftAddon>
-        )}
+        {leftAddon && <InputLeftAddon _dark={{ bg: "dark.600" }}>{leftAddon}</InputLeftAddon>}
         <ChakraInput
           as={textarea ? "textarea" : "input"}
           rounded="lg"
@@ -121,9 +109,7 @@ const InputComponent: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         />
       </InputGroup>
 
-      {error && (
-        <FormErrorMessage fontSize="sm">{error.message}</FormErrorMessage>
-      )}
+      {error && <FormErrorMessage fontSize="sm">{error.message}</FormErrorMessage>}
     </FormControl>
   );
 };

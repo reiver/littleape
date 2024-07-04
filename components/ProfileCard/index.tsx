@@ -14,12 +14,12 @@ export const ProfileCard: FC<BoxProps> = (props) => {
   const { data: following } = useSWR<OrderedCollection>(FETCH_USER_FOLLOWING(user));
   return (
     <Box rounded="lg" bg="light.50" _dark={{ bg: "dark.700" }} p={1} {...props}>
-      <UserCover ratio={16 / 6} src={user.banner} />
+      <UserCover ratio={16 / 6} src={user?.banner || ''} />
       <Box display="flex" justifyContent="center" mt={-3}>
         <UserAvatar
-          src={user.avatar}
-          username={user.username}
-          name={user.display_name}
+          src={user?.avatar || ''}
+          username={user?.username || ''}
+          name={user?.display_name || ''}
           borderStyle="solid"
           borderWidth="3px"
           borderColor="light.50"
@@ -58,8 +58,8 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         </Box>
       </Box>
       <Box textAlign="center" fontSize="sm" mt={4} px={1}>
-        <Text fontWeight="semibold">{user.display_name}</Text>
-        <Text fontSize="xs">@{user.username}</Text>
+        <Text fontWeight="semibold">{user?.display_name || ''}</Text>
+        <Text fontSize="xs">@{user?.username || ''}</Text>
         <Text
           fontSize="xs"
           _dark={{
@@ -67,11 +67,11 @@ export const ProfileCard: FC<BoxProps> = (props) => {
           }}
           mt={2}
         >
-          {user.bio}
+          {user?.bio || ''}
         </Text>
       </Box>
       <Box p={2}>
-        <Link href={`/u/${user.username}`} passHref>
+        <Link href={`/u/${user?.username || ''}`} passHref>
           <Button
             as="a"
             w="full"

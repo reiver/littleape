@@ -31,7 +31,7 @@ export const MightLikeCard: FC<BoxProps> = (props) => {
       <Box display="flex" flexDirection="column" experimental_spaceY={2} mt={3}>
         {users.map((user) => {
           return (
-            <Link key={user.username} href={`/u/${user.username}`} passHref>
+            <Link key={user?.username || ''} href={`/u/${user?.username || ''}`} passHref>
               <Box
                 as="a"
                 display="flex"
@@ -50,23 +50,13 @@ export const MightLikeCard: FC<BoxProps> = (props) => {
                   bg: "light.200",
                 }}
               >
-                <Avatar
-                  w="10"
-                  h="10"
-                  size="md"
-                  name={user.name}
-                  src={user.avatar}
-                />
+                <Avatar w="10" h="10" size="md" name={user?.name || ''} src={user?.avatar || ''} />
                 <Box maxW="calc(100% - 50px)">
                   <Text fontSize="14" noOfLines={1}>
-                    {user.name}
+                    {user?.name || ''}
                   </Text>
-                  <Text
-                    fontSize="xs"
-                    noOfLines={1}
-                    _dark={{ color: "gray.500" }}
-                  >
-                    {user.username}
+                  <Text fontSize="xs" noOfLines={1} _dark={{ color: "gray.500" }}>
+                    {user?.username || ''}
                   </Text>
                 </Box>
               </Box>

@@ -7,16 +7,20 @@ import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
-import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useAuthStore } from "store";
 
 export default function Home() {
   const user = useAuthStore((state) => state.user);
+  console.log("user: ", user);
   return (
     <>
       <Head>
         <title>Greatape</title>
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, email=no, address=no"
+        />
       </Head>
       <DashboardLayout
         footer={false}
@@ -25,10 +29,7 @@ export default function Home() {
         gridGap={3}
         mt={1}
       >
-        <Box
-          gridColumn="span 5 / span 5"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 5 / span 5" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"
@@ -56,12 +57,9 @@ export default function Home() {
           experimental_spaceY={3}
         >
           <NewPostCard />
-          <Feed username={user.username} />
+          <Feed username={user?.username || ''} />
         </Box>
-        <Box
-          gridColumn="span 6 / span 6"
-          display={{ base: "none", lg: "block" }}
-        >
+        <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>
           <Box
             position="sticky"
             top="75px"
@@ -83,10 +81,10 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps = withAuth("authorized", (ctx) => {
-  return {
-    props: {
-      ...authProps(ctx),
-    },
-  };
-});
+// export const getServerSideProps = withAuth("authorized", (ctx) => {
+//   return {
+//     props: {
+//       ...authProps(ctx),
+//     },
+//   };
+// });

@@ -2,7 +2,6 @@ import {
   Box,
   BoxProps,
   Button,
-  chakra,
   HStack,
   IconButton,
   IconButtonProps,
@@ -13,8 +12,10 @@ import {
   MenuList,
   Text,
   VStack,
+  chakra,
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
+import { useDisconnect } from "@thirdweb-dev/react";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
@@ -56,7 +57,10 @@ export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const disconnect = useDisconnect();
+
   const handleLogout = () => {
+    disconnect()
     logout();
     router.push("/auth/login");
   };
@@ -122,9 +126,9 @@ export const Navbar: FC<BoxProps> = (props) => {
                   h={7}
                   size="sm"
                   link={false}
-                  name={user.display_name}
-                  src={user.avatar}
-                  username={user.username}
+                  name={user?.display_name || ''}
+                  src={user?.avatar || ''}
+                  username={user?.username || ''}
                 />
               </MenuButton>
               <MenuList
@@ -134,7 +138,7 @@ export const Navbar: FC<BoxProps> = (props) => {
                   bg: "dark.700",
                 }}
               >
-                <Link href={`/u/${user.username}`} passHref>
+                <Link href={`/u/${user?.username || ''}`} passHref>
                   <MenuItem as="a">Profile</MenuItem>
                 </Link>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -149,7 +153,8 @@ export const Navbar: FC<BoxProps> = (props) => {
 
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
-  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user.username));
+  console.log("User in messaagesPOp:", user);
+  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user?.username || ''));
 
   return (
     <Menu placement="bottom-end">
@@ -175,9 +180,9 @@ const MessagesPopup: FC = () => {
                   <HStack experimental_spaceX={3} alignItems="flex-start">
                     <UserAvatar
                       size="sm"
-                      src={user.avatar}
+                      src={user?.avatar || ''}
                       name={actorUsername}
-                      username={user.username}
+                      username={user?.username || ''}
                     />
                     <VStack
                       alignItems="flex-start"

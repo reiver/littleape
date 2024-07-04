@@ -1,10 +1,4 @@
-import {
-  chakra,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  InputProps,
-} from "@chakra-ui/react";
+import { chakra, Input, InputGroup, InputLeftAddon, InputProps } from "@chakra-ui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { FC } from "react";
 
