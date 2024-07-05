@@ -383,13 +383,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           <Flex wrap="wrap" className={styles.walletBox} padding="2">
 
             {Array.from(walletsMap.entries()).map(([wallet, ensList], index) => (
-              <Box key={index} width={walletsMap.size > 1 ? "50%" : "100%"}>
+              <Box key={wallet.address} width={walletsMap.size > 1 ? "50%" : "100%"}>
                 <Flex alignItems="center" justifyContent="space-between">
                   <CheckIcon className={styles.icon} />
                   <Flex direction="column" flex="1">
                     {
                       ensList != null && ensList.length > 0 && ensList.map(ens => (
-                        <Text className={styles.walletText}>
+                        <Text key={`${wallet.address}-${ens.ens}`} className={styles.walletText}>
                           {ens.ens}
                         </Text>
                       ))
