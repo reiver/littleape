@@ -61,11 +61,10 @@ import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
 
 const pbManager = PocketBaseManager.getInstance()
-const userModel = pbManager.fetchUser()
+let userModel = pbManager.fetchUser()
 
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
-
 
 type ProfileHeaderProps = {
   username: string;
@@ -173,26 +172,22 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     const fetchWallets = async () => {
       const list = await pbManager.fetchMyWallets(userModel.id);
 
-      if (list.code == undefined) {
+      if (list.code == undefined && list.length > 0) {
         console.log("List is: ", list)
 
         //show only verified wallets
-        if (list.length > 0) {
-          list.map((element) => {
-            if (element.signature && element.signature !== "" && element.signature !== "N/A") {
-              console.log("Verified wallet:", element);
-              setVerifiedWalletsList((prevList) => {
-                if (prevList.some((el) => el.signature === element.signature)) {
-                  return prevList; // Return the previous list if the element already exists
-                } else {
-                  return [...prevList, element]; // Add the new element if it doesn't exist
-                }
-              });
-            }
-          });
-        }
-
-
+        list.map((element) => {
+          if (element.signature && element.signature !== "" && element.signature !== "N/A") {
+            console.log("Verified wallet:", element);
+            setVerifiedWalletsList((prevList) => {
+              if (prevList.some((el) => el.signature === element.signature)) {
+                return prevList; // Return the previous list if the element already exists
+              } else {
+                return [...prevList, element]; // Add the new element if it doesn't exist
+              }
+            });
+          }
+        });
 
         console.log("Wallets List: ", list)
         console.log("Verified Wallets List: ", verifiedWalletsList)
@@ -216,8 +211,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
     if (userModel) {
       fetchWallets();
+    } else {
+      console.log("User model is Null fetching again")
+      //reload page to get user
+      userModel = pbManager.fetchUser()
     }
-  }, [walletDataSaved]);
+    console.log("User model is: ", userModel)
+  }, [walletDataSaved, userModel]);
 
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const [isLargerThanSM] = useMediaQuery("(min-width: 30em)");
@@ -964,7 +964,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
     const fetchData = async () => {
       console.log("Fetching Data...");
-      if (walletConnected && messageSigned && address && signature && message && !walletDataSaved) {
+      if (walletConnected && messageSigned && address && signature && message && !walletDataSaved && userModel) {
         try {
           // Lookup ENS
           var resolvedName = await lookUpEnsAddress(address)
@@ -998,7 +998,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
     fetchData();
     checkWalletStatus();
-  }, [walletConnected, address, userModel.id, messageSigned, signature]);
+  }, [walletConnected, address, userModel, messageSigned, signature]);
 
 
   useEffect(() => {
