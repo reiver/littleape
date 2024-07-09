@@ -214,7 +214,9 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       }
     };
 
-    fetchWallets();
+    if (userModel) {
+      fetchWallets();
+    }
   }, [walletDataSaved]);
 
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
@@ -466,7 +468,7 @@ const maskAddress = (address: string) => {
 
 const FollowList: FC<FollowListProps> = ({ user, urlFetcher, title, name, username }) => {
   const { data: followList, error } = useSWR<OrderedCollection>(
-    user && [urlFetcher(String(username)), { activity: true }]
+    user && [null, { activity: true }]//urlFetcher(String(username))
   );
   const isAnotherServer = isOtherServer(username);
   const trigger = (
