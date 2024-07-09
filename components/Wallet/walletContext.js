@@ -19,10 +19,39 @@ export const WalletProvider = ({ children }) => {
   const [isDisplayEnsNames, setIsDisplayEnsNames] = useState(false);
   const [ensVisibiltyUpdated, setEnsVisibiltyUpdated] = useState(false);
   const [verifiedWalletsList, setVerifiedWalletsList] = useState([]);
+  const [messageSigned, setMessageSigned] = useState(false);
+  const [message, setMessage] = useState("");
+  const [signature, setSignature] = useState("N/A");
+  const [walletIsSigned, setWalletIsSigned] = useState(false);
+
+  const resetAll = () => {
+    setWalletConnected(false);
+    setOnSignMessage(false);
+    setShowConnectedWallets(false);
+    setCurrentlyConnectedWallet(null);
+    setWalletVerified(null);
+    setWalletDataSaved(null);
+    setEnsList([]);
+    setPublicEnsList([]);
+    setPrivateEnsList([]);
+    setIsDisplayEnsNames(false);
+    setEnsVisibiltyUpdated(false);
+    setVerifiedWalletsList([]);
+    setMessageSigned(false);
+    setMessage("");
+    setSignature("N/A");
+    setWalletIsSigned(false);
+  };
 
   return (
     <WalletContext.Provider
       value={{
+        walletIsSigned,
+        setWalletIsSigned,
+        message,
+        setMessage,
+        signature,
+        setSignature,
         walletConnected,
         setWalletConnected,
         onSignMessage,
@@ -47,6 +76,9 @@ export const WalletProvider = ({ children }) => {
         setVerifiedWalletsList,
         privateEnsList,
         setPrivateEnsList,
+        messageSigned,
+        setMessageSigned,
+        resetAll,
       }}
     >
       {children}

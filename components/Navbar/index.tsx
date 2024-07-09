@@ -20,6 +20,7 @@ import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
+import { useWallet } from "components/Wallet/walletContext";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
@@ -58,9 +59,12 @@ export const Navbar: FC<BoxProps> = (props) => {
   const logout = useAuthStore((state) => state.logout);
   const disconnect = useDisconnect();
 
+  const { resetAll } = useWallet()
+
   const handleLogout = () => {
     disconnect()
     logout();
+    resetAll()
     router.push("/auth/login");
   };
   return (

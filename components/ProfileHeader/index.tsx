@@ -342,6 +342,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
                   onSignMessage={(value) => {
                     return setOnSignMessage(value);
                   }}
+                  forceSign={false}
                 />
 
                 <EditProfileModal
@@ -602,11 +603,12 @@ interface SignWalletModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSignMessage: (value: Boolean) => void;
+  forceSign: boolean;
 }
 
 
-const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, ...props }) => {
-  console.log("Sign wallet modal triggered");
+export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, forceSign, ...props }) => {
+  console.log("Sign wallet modal triggered: ", isOpen);
   const address = useAddress();
   const { ensList } = useWallet();
   const { publicEnsList, setPublicEnsList } = useWallet();
@@ -614,6 +616,10 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
   const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
   const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
   const { walletVerified, setWalletVerified } = useWallet();
+
+  if (forceSign) {
+    setWalletVerified(false);
+  }
 
   const handleDisplayEnsToggle = (event) => {
     setIsDisplayEnsNames(event.target.checked)
@@ -623,26 +629,28 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
 
   const handleCheckboxChange = (event, selectedEns) => {
     if (event.target.checked) {
-      //add ens to publis list
-      setPublicEnsList([...publicEnsList, selectedEns])
+      // Add ens to public list if it's not already there
+      if (!publicEnsList.includes(selectedEns)) {
+        setPublicEnsList([...publicEnsList, selectedEns]);
+      }
 
-      //remove from private list
+      // Remove from private list
       setPrivateEnsList(privateEnsList.filter(ens => ens !== selectedEns));
 
     } else {
-      //remove ens from public list
+      // Remove ens from public list
       setPublicEnsList(publicEnsList.filter(ens => ens !== selectedEns));
 
-      //add to private list
-      setPrivateEnsList([...privateEnsList, selectedEns])
-
+      // Add to private list if it's not already there
+      if (!privateEnsList.includes(selectedEns)) {
+        setPrivateEnsList([...privateEnsList, selectedEns]);
+      }
     }
 
-    console.log("Public ens list: ", publicEnsList)
-    console.log("Private ens list: ", privateEnsList)
-
-
+    console.log("Public ens list: ", publicEnsList);
+    console.log("Private ens list: ", privateEnsList);
   };
+
 
   const closeSignInModel = async () => {
     onClose();
@@ -772,25 +780,55 @@ const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSi
   );
 };
 
+export const createMessage = async (address) => {
+  const currentDate = new Date();
+  const expirationDate = new Date(currentDate.getTime() + 30 * 60000);
+  const notBefore = new Date(currentDate.getTime() + 10 * 60000);
+  const randomUUID = uuidv4();
+
+  const loginOptions = {
+    "Version": "1",
+    "ChainId": "1",
+    "Nonce": randomUUID,
+    "Issued At": currentDate.toISOString(),
+    "Expiration Time": expirationDate.toISOString(),
+    "Not Before": notBefore.toISOString(),
+  };
+
+  const objectToString = (obj) => {
+    return Object.entries(obj)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+  }
+
+  const messageText = `${window.location.host} wants you to sign in with your Ethereum account:\n${address}\n\nPlease ensure that the domain above matches the URL of the current website.\n\n${objectToString(loginOptions)}`;
+
+  return messageText
+
+}
+
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
-  const address = useAddress();
+  let address = useAddress();
   const sdk = useSDK();
   const connectionStatus = useConnectionStatus();
 
+  const { resetAll } = useWallet()
   const { walletConnected, setWalletConnected } = useWallet();
   const { onSignMessage, setOnSignMessage } = useWallet();
   const { walletVerified, setWalletVerified } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
+  const { walletIsSigned, setWalletIsSigned } = useWallet()
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { ensList, setEnsList } = useWallet();
   const { privateEnsList, setPrivateEnsList } = useWallet();
 
 
-  const [messageSigned, setMessageSigned] = useState(false)
+  const { messageSigned, setMessageSigned } = useWallet();
   const { walletDataSaved, setWalletDataSaved } = useWallet();
   const [ens, setEns] = useState('');
-  const [message, setMessage] = useState('')
-  const [signature, setSignature] = useState('N/A');
+  const { message, setMessage } = useWallet()
+  const { signature, setSignature } = useWallet()
+  const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
 
 
   useEffect(() => {
@@ -820,39 +858,13 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       console.log("Address is : ", address)
       console.log("SDK is: ", sdk.wallet)
 
-      const message = await createMessage()
+      const message = await createMessage(address)
 
       //sign message
       await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
     }
   };
 
-  const createMessage = async () => {
-    const currentDate = new Date();
-    const expirationDate = new Date(currentDate.getTime() + 30 * 60000);
-    const notBefore = new Date(currentDate.getTime() + 10 * 60000);
-    const randomUUID = uuidv4();
-
-    const loginOptions = {
-      "Version": "1",
-      "ChainId": "1",
-      "Nonce": randomUUID,
-      "Issued At": currentDate.toISOString(),
-      "Expiration Time": expirationDate.toISOString(),
-      "Not Before": notBefore.toISOString(),
-    };
-
-    const objectToString = (obj) => {
-      return Object.entries(obj)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('\n');
-    }
-
-    const messageText = `${window.location.host} wants you to sign in with your Ethereum account:\n${address}\n\nPlease ensure that the domain above matches the URL of the current website.\n\n${objectToString(loginOptions)}`;
-
-    return messageText
-
-  }
 
 
   const signMessage = async (message) => {
@@ -942,13 +954,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   useEffect(() => {
     const checkWalletStatus = async () => {
       if (connectionStatus === "disconnected") {
-        setWalletConnected(false)
-        setWalletDataSaved(false)
-        setSignature(null)
-        setMessageSigned(false)
-        setMessage(null)
-        setOnSignMessage(false);
-        setShowConnectedWallets(false)
+        resetAll()
+
+        address = undefined
 
         //update wallet connection status in DB
         if (currentlyConnectedWallet) {

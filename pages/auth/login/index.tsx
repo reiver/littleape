@@ -8,6 +8,7 @@ import {
   PinInputField,
   Text,
   VStack,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import {
@@ -15,12 +16,15 @@ import {
   useAddress,
   useConnectionStatus,
   useDisconnect,
+  useSDK,
 } from "@thirdweb-dev/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
+import { SignWalletModal, createMessage } from "components/ProfileHeader";
+import { useWallet } from "components/Wallet/walletContext";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
@@ -35,7 +39,6 @@ import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
 import styles from "./MyComponent.module.css";
-import { useWallet } from "components/Wallet/walletContext";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -66,7 +69,72 @@ const Login: FC = () => {
   const backToRegistration = setEmail.bind(null, undefined);
   const connectionStatus = useConnectionStatus();
   const { walletConnected, setWalletConnected } = useWallet()
-  const address = useAddress();
+  const { messageSigned, setMessageSigned } = useWallet();
+  const { message, setMessage } = useWallet()
+  const { signature, setSignature } = useWallet()
+  const { resetAll } = useWallet()
+  let address = useAddress();
+  const sdk = useSDK();
+
+  const loggedInUser = useAuthStore((state) => state.user);
+  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
+  const { onSignMessage, setOnSignMessage } = useWallet();
+  const { walletIsSigned, setWalletIsSigned } = useWallet();
+  const { setEnsList } = useWallet()
+
+
+  const {
+    isOpen: isSignWalletOpen,
+    onOpen: onSignWalletOpen,
+    onClose: onSignWalletClose,
+  } = useDisclosure();
+
+  useEffect(() => {
+    //sign message only if onSignMessage is true
+    if (onSignMessage) {
+      console.log("onSignMessage: ", onSignMessage)
+      createMessageAndSign()
+    }
+  }, [onSignMessage])
+
+  const createMessageAndSign = async () => {
+    console.log("Addess: ", address)
+    console.log("walletConnected: ", walletConnected)
+    console.log("messageSigned: ", messageSigned)
+    if (address != undefined && walletConnected && !messageSigned) {
+      console.log("Address is : ", address)
+      console.log("SDK is: ", sdk.wallet)
+
+      const message = await createMessage(address)
+
+      //sign message
+      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
+    }
+  };
+
+
+  const signMessage = async (message) => {
+    console.log("MESAAGE:", message)
+
+    try {
+      const sig = await sdk?.wallet?.sign(message);
+
+      if (!sig) {
+        throw new Error('Failed to sign message');
+      }
+
+      setMessageSigned(true)
+      setMessage(message)
+      setSignature(sig);
+      setWalletIsSigned(true)
+    } catch (error) {
+      console.log("Error while signing: ", error)
+      setMessageSigned(false)
+      setOnSignMessage(false)
+    }
+
+
+  }
 
 
   const checkWalletConnectionWithAccount = async (address) => {
@@ -137,18 +205,36 @@ const Login: FC = () => {
   useEffect(() => {
     const checkWalletStatus = async () => {
       if (connectionStatus === "disconnected") {
-        setWalletConnected(false)
+
+        resetAll()
+        address = undefined
+
+        // setWalletConnected(false)
+        // setWalletIsSigned(false)
+        // setSignature(null)
+        // setMessageSigned(false)
+        // setMessage(null)
+        // setOnSignMessage(false);
+        // setShowConnectedWallets(false)
+        // setEnsList([])
+
       }
     }
     checkWalletStatus()
-  })
+  }, [walletConnected])
 
   useEffect(() => {
-    if (address) {
+    if (address != undefined) {
       setWalletConnected(true)
-      checkWalletConnectionWithAccount(address)
+
+      if (walletIsSigned) {
+        checkWalletConnectionWithAccount(address)
+      }
+    } else {
+      setWalletConnected(false)
     }
-  }, [address])
+
+  }, [address, walletIsSigned])
 
   const handleLoginViaPocketBase = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission behavior
@@ -258,6 +344,7 @@ const Login: FC = () => {
                 onConnect={async (wallet) => {
                   console.log("connected to", wallet);
                   setWalletConnected(true);
+                  onSignWalletOpen()
                 }}
               />
             </Box>
@@ -291,6 +378,21 @@ const Login: FC = () => {
         ) : (
           <VerifyRegistration email={email} backToRegistration={backToRegistration} />
         )}
+
+        <SignWalletModal
+          user={loggedInUser}
+          isOpen={isSignWalletOpen}
+          onClose={(() => {
+            onSignWalletClose()
+            setShowConnectedWallets(false)
+          })}
+          onSignMessage={(value) => {
+            console.log("On Sign message Triggered: ", value)
+            return setOnSignMessage(value);
+          }}
+          forceSign={true}
+        />
+
       </Box>
     </MainLayout>
   );
