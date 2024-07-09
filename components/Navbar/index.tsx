@@ -170,7 +170,7 @@ const MessagesPopup: FC = () => {
           bg: "dark.700",
         }}
       >
-        {inbox &&
+        {inbox && inbox.orderedItems != null &&
           inbox.orderedItems.map((item, i) => {
             const actorUsername =
               item.object.attributedTo.split("/")[item.object.attributedTo.split("/").length - 1];

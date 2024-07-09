@@ -174,20 +174,24 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       const list = await pbManager.fetchMyWallets(userModel.id);
 
       if (list.code == undefined) {
+        console.log("List is: ", list)
 
         //show only verified wallets
-        list.map((element) => {
-          if (element.signature && element.signature !== "" && element.signature !== "N/A") {
-            console.log("Verified wallet:", element);
-            setVerifiedWalletsList((prevList) => {
-              if (prevList.some((el) => el.signature === element.signature)) {
-                return prevList; // Return the previous list if the element already exists
-              } else {
-                return [...prevList, element]; // Add the new element if it doesn't exist
-              }
-            });
-          }
-        });
+        if (list.length > 0) {
+          list.map((element) => {
+            if (element.signature && element.signature !== "" && element.signature !== "N/A") {
+              console.log("Verified wallet:", element);
+              setVerifiedWalletsList((prevList) => {
+                if (prevList.some((el) => el.signature === element.signature)) {
+                  return prevList; // Return the previous list if the element already exists
+                } else {
+                  return [...prevList, element]; // Add the new element if it doesn't exist
+                }
+              });
+            }
+          });
+        }
+
 
 
         console.log("Wallets List: ", list)
