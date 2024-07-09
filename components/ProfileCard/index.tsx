@@ -10,8 +10,8 @@ import { OrderedCollection } from "types/ActivityPub";
 
 export const ProfileCard: FC<BoxProps> = (props) => {
   const user = useAuthStore((state) => state.user);
-  const { data: followers } = useSWR<OrderedCollection>(FETCH_USER_FOLLOWERS(user));
-  const { data: following } = useSWR<OrderedCollection>(FETCH_USER_FOLLOWING(user));
+  const { data: followers } = useSWR<OrderedCollection>(null);//FETCH_USER_FOLLOWERS(user)
+  const { data: following } = useSWR<OrderedCollection>(null);//FETCH_USER_FOLLOWING(user)
   return (
     <Box rounded="lg" bg="light.50" _dark={{ bg: "dark.700" }} p={1} {...props}>
       <UserCover ratio={16 / 6} src={user?.banner || ''} />

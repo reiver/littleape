@@ -2,7 +2,6 @@ import { Box, BoxProps, Skeleton } from "@chakra-ui/react";
 import ResizeObserver from "rc-resize-observer";
 import { FC, useCallback, useRef } from "react";
 import { CellMeasurer, CellMeasurerCache, List, WindowScroller } from "react-virtualized";
-import { FETCH_USER_OUTBOX } from "services/api";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { FeedCard } from "./FeedCard";
@@ -19,7 +18,7 @@ const cache = new CellMeasurerCache({
 });
 
 export const Feed: FC<FeedProps> = ({ username, ...props }) => {
-  const { data } = useSWR<OrderedCollection>(FETCH_USER_OUTBOX(username));
+  const { data } = useSWR<OrderedCollection>(null);//FETCH_USER_OUTBOX(username)
   const listRef = useRef<List>();
   const rowRenderer = useCallback(
     (props) =>

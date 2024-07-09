@@ -23,7 +23,6 @@ import { UserAvatar } from "components/UserAvatar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
-import { FETCH_USER_INBOX } from "services/api";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
@@ -154,7 +153,7 @@ export const Navbar: FC<BoxProps> = (props) => {
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
   console.log("User in messaagesPOp:", user);
-  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user?.username || ''));
+  const { data: inbox } = useSWR<OrderedCollection>(null);//FETCH_USER_INBOX(user?.username || '')
 
   return (
     <Menu placement="bottom-end">
