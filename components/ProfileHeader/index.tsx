@@ -623,8 +623,6 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
 
   const handleDisplayEnsToggle = (event) => {
     setIsDisplayEnsNames(event.target.checked)
-    // setPublicEnsList([])
-    // setPrivateEnsList([])
   }
 
   const handleCheckboxChange = (event, selectedEns) => {
@@ -651,6 +649,13 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
     console.log("Private ens list: ", privateEnsList);
   };
 
+  useEffect(() => {
+    if (publicEnsList.length > 0) {
+      setIsDisplayEnsNames(true)
+    } else {
+      setIsDisplayEnsNames(false)
+    }
+  }, [publicEnsList])
 
   const closeSignInModel = async () => {
     onClose();
@@ -743,6 +748,7 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
                   <input
                     type="checkbox"
                     onChange={handleDisplayEnsToggle}
+                    checked={isDisplayEnsNames}
                   />
                   <span className={`${styles.slider} ${styles.round}`}></span>
                 </label>
@@ -1213,7 +1219,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="primary" mr={3} type="submit" isLoading={loading}>
+            <Button colorScheme="primary" mr={3} /*type="submit"*/ isLoading={loading} onClick={props.onClose}>
               Save
             </Button>
             <Button onClick={props.onClose}>Cancel</Button>
