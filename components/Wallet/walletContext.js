@@ -23,6 +23,7 @@ export const WalletProvider = ({ children }) => {
   const [message, setMessage] = useState("");
   const [signature, setSignature] = useState("N/A");
   const [walletIsSigned, setWalletIsSigned] = useState(false);
+  const [walletsMap, setWalletsMap] = useState(new Map());
 
   const resetAll = () => {
     setWalletConnected(false);
@@ -41,6 +42,7 @@ export const WalletProvider = ({ children }) => {
     setMessage("");
     setSignature("N/A");
     setWalletIsSigned(false);
+    setWalletsMap(new Map());
   };
 
   return (
@@ -79,6 +81,8 @@ export const WalletProvider = ({ children }) => {
         messageSigned,
         setMessageSigned,
         resetAll,
+        walletsMap,
+        setWalletsMap,
       }}
     >
       {children}

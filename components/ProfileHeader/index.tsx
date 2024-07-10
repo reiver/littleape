@@ -60,6 +60,7 @@ import CheckIcon from '../../public/IconFrame.svg';
 import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
 
+
 const pbManager = PocketBaseManager.getInstance()
 let userModel = pbManager.fetchUser()
 
@@ -74,9 +75,31 @@ const copyToClipboard = (address: string) => {
   navigator.clipboard.writeText(address)
 };
 
+//add wallet data and ens data in map
+const addWalletWithEnsData = (wallet, ensDataList, setWalletsMap) => {
+  setWalletsMap(prevMap => {
+    const newMap = new Map(prevMap);
+
+    // Check if a wallet with the same ID exists in the Map
+    for (const [existingWallet, existingEnsList] of newMap.entries()) {
+      if (existingWallet && existingWallet.id != undefined && existingWallet.id === wallet.id) {
+        // Remove the existing entry
+        newMap.delete(existingWallet);
+        break; // Exit the loop after removing the entry
+      }
+    }
+
+
+    newMap.set(wallet, ensDataList);
+    console.log("Updated Map:", newMap); // Debugging line
+    return newMap;
+  });
+};
+
+
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
-  const [walletsMap, setWalletsMap] = useState(new Map());
+  const { walletsMap, setWalletsMap } = useWallet();
 
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { walletConnected, setWalletConnected } = useWallet();
@@ -89,26 +112,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   const { publicEnsList, setPublicEnsList } = useWallet();
   const { privateEnsList, setPrivateEnsList } = useWallet();
 
-  //add wallet data and ens data in map
-  const addWalletWithEnsData = (wallet, ensDataList) => {
-    setWalletsMap(prevMap => {
-      const newMap = new Map(prevMap);
-
-      // Check if a wallet with the same ID exists in the Map
-      for (const [existingWallet, existingEnsList] of newMap.entries()) {
-        if (existingWallet.id === wallet.id) {
-          // Remove the existing entry
-          newMap.delete(existingWallet);
-          break; // Exit the loop after removing the entry
-        }
-      }
-
-
-      newMap.set(wallet, ensDataList);
-      console.log("Updated Map:", newMap); // Debugging line
-      return newMap;
-    });
-  };
 
   const getEnsListForWallet = (wallet) => {
     return walletsMap.get(wallet);
@@ -122,7 +125,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     console.log("Trigger fetchEnsListOfWallets currently verified wallets list: ", verifiedWalletsList)
     fetchEnsListOfWallets();
     setEnsVisibiltyUpdated(false);
-  }, [ensVisibiltyUpdated, verifiedWalletsList])
+  }, [verifiedWalletsList])
 
   const fetchEnsListOfWallets = async () => {
     if (verifiedWalletsList && verifiedWalletsList.length > 0) {
@@ -155,7 +158,16 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
             ]);
           }
 
-          addWalletWithEnsData(wallet, publicList);
+          //get only ens names from public list
+          let ensListToDisplay = []
+          publicList.map((element, index) => {
+            console.log("ensEelement: ", element)
+            if (!ensListToDisplay.includes(element.ens)) {
+              ensListToDisplay.push(element.ens)
+            }
+          })
+
+          addWalletWithEnsData(wallet, ensListToDisplay, setWalletsMap);
         }
 
         // All fetch operations are completed here
@@ -390,14 +402,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           <Flex wrap="wrap" className={styles.walletBox} padding="2">
 
             {Array.from(walletsMap.entries()).map(([wallet, ensList], index) => (
-              <Box key={wallet.address} width={walletsMap.size > 1 ? "50%" : "100%"}>
+              <Box key={`${wallet.address}-${index}`} width={walletsMap.size > 1 ? "50%" : "100%"}>
                 <Flex alignItems="center" justifyContent="space-between">
                   <CheckIcon className={styles.icon} />
                   <Flex direction="column" flex="1">
                     {
-                      ensList != null && ensList.length > 0 && ensList.map(ens => (
-                        <Text key={`${wallet.address}-${ens.ens}`} className={styles.walletText}>
-                          {ens.ens}
+                      ensList != null && ensList.length > 0 && ensList.map((ens, ensIndex) => (
+                        <Text key={`${wallet.address}-${ensIndex}`} className={styles.walletText}>
+                          {ens}
                         </Text>
                       ))
                     }
@@ -616,6 +628,8 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
   const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
   const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
   const { walletVerified, setWalletVerified } = useWallet();
+  const { currentlyConnectedWallet } = useWallet();
+  const { walletsMap, setWalletsMap } = useWallet();
 
   if (forceSign) {
     setWalletVerified(false);
@@ -623,7 +637,27 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
 
   const handleDisplayEnsToggle = (event) => {
     setIsDisplayEnsNames(event.target.checked)
+    //empty the public ens list
+
+    if (!event.target.checked) {
+      publicEnsList.map((selectedEns) => {
+        // Add to private list if it's not already there
+        if (!privateEnsList.includes(selectedEns)) {
+          setPrivateEnsList([...privateEnsList, selectedEns]);
+        }
+      })
+
+      setPublicEnsList([])
+    }
+
   }
+
+
+  useEffect(() => {
+    if (currentlyConnectedWallet && publicEnsList) {
+      addWalletWithEnsData(currentlyConnectedWallet, publicEnsList, setWalletsMap);
+    }
+  }, [publicEnsList])
 
   const handleCheckboxChange = (event, selectedEns) => {
     if (event.target.checked) {
@@ -664,6 +698,7 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
     //check if public ens list is not empty... The update their public visibility in DB
     console.log("PublicENSLIST: ", publicEnsList)
     if (publicEnsList.length > 0) {
+      setIsDisplayEnsNames(true)
       for (const ens of publicEnsList) {
         console.log(ens);
         const visibilityUpdated = await pbManager.updateEnsVisibility(ens, true);
@@ -722,7 +757,7 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
                 {
                   ensList.map((element, index) => (
                     <Box display="flex" className={styles.boxEnsList} alignItems="center" justifyContent="space-between">
-                      <Text className={styles.walletVerifyBoxText}>{element}</Text>
+                      <Text key={element} className={styles.walletVerifyBoxText}>{element}</Text>
                       <label>
                         <input
                           type="checkbox"
