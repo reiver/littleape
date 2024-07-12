@@ -1,4 +1,5 @@
 import { Box } from "@chakra-ui/react";
+import { useAddress } from "@thirdweb-dev/react";
 import { Feed } from "components/Feed";
 import { Footer } from "components/Footer";
 import { MainMenu } from "components/MainMenu";
@@ -7,11 +8,15 @@ import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
+import { PocketBaseManager } from "lib/pocketBaseManager";
 import Head from "next/head";
 import { useAuthStore } from "store";
 
+const pbManager = PocketBaseManager.getInstance()
+
 export default function Home() {
-  const user = useAuthStore((state) => state.user);
+  let user = useAuthStore((state) => state.user);
+  const address = useAddress()
   console.log("user: ", user);
   return (
     <>

@@ -8,15 +8,19 @@ interface AuthState {
   authorized: boolean;
   token?: string;
   user?: Partial<User>;
+  loginViaWallet: Boolean;
   setAuth: (token: string, user: User) => void;
+  setUser: (user: User) => void;
+  setLoginMode: (viaWallet: Boolean) => void;
   logout: () => void;
 }
 
 const pbManager = PocketBaseManager.getInstance();
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: pbManager.fetchUser(),  
+  user: null,
   authorized: true,
+  loginViaWallet: false,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
     set(() => ({
@@ -24,7 +28,25 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
     }));
   },
+  setUser: (user) => {
+    set(() => ({
+      user,
+    }));
+  },
+  setLoginMode: (loginViaWallet) => {
+    set(() => ({
+      loginViaWallet,
+    }));
+  },
   logout: () => {
     Cookies.remove(AUTH_KEY);
+    pbManager.logout(); // Clear the PocketBase auth store
+    set(() => ({
+      token: undefined,
+      user: undefined,
+      address: undefined,
+      authorized: false,
+      loginViaWallet: false,
+    }));
   },
 }));

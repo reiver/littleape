@@ -54,6 +54,8 @@ const RegistrationForm: FC<{
   const router = useRouter();
   const loggedInUser = useAuthStore((state) => state.user);
   const setAuth = useAuthStore((state) => state.setAuth);
+  const setUser = useAuthStore((state) => state.setUser);
+  const setLoginMode = useAuthStore((state) => state.setLoginMode);
 
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
   const { onSignMessage, setOnSignMessage } = useWallet();
@@ -146,7 +148,7 @@ const RegistrationForm: FC<{
       });
 
       //create new user without email
-      var signUpData = new SignUpData(String("Dummy User"), String(""), String("12345678"), null);
+      var signUpData = new SignUpData(String("Dummy User"), String("dummy@dummy.com"), String("12345678"), null);
       const newUser = await pbManager.signUp(signUpData)
 
       console.log("Newuser:", newUser)
@@ -159,7 +161,13 @@ const RegistrationForm: FC<{
         const newWalletSaved = await pbManager.saveWallet(walletData)
         console.log("newWalletSaved: ", newWalletSaved)
 
+        const user = await pbManager.fetchUserByWalletId(address)
+
+        console.log("User connected to wallet is: ", user)
+        setUser(user)
+
         if (newWalletSaved.code == undefined) {
+          setLoginMode(true);
           router.push("/")
         }
 
@@ -254,8 +262,41 @@ const RegistrationForm: FC<{
       } else {
         console.log("Registered: Response: ", response);
 
-        // const verify = await pbManager.verifyEmail(String(email));
-        // console.log("Verify: ", verify);
+        const signInData = new SignInData(String(email), String("12345678"));
+
+        try {
+          const authData = await pbManager.signIn(signInData);
+          console.log("Sign in successful:", authData);
+
+          var record = authData.record;
+
+          const user: User = {
+            api_key: "",
+            avatar: record.avatar,
+            banner: "",
+            bio: "",
+            display_name: record.name,
+            email: record.email,
+            github: "",
+            id: record.id,
+            publicKey: "",
+            username: record.username,
+          };
+
+          setLoginMode(false)
+          setAuth(record.email, user);
+        } catch (error) {
+          toast({
+            title: "The email is invalid.",
+            description: ``,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          console.error("Sign in error:", error);
+          const err: Error = error.response?._data;
+          if (err?.type === "server_error") setError(err.payload);
+        }
 
         onRegister("200", email.toString());
       }
@@ -395,7 +436,7 @@ const VerifyRegistration: FC<{
 }> = ({ backToRegistration, email }) => {
   const router = useRouter();
   const toast = useToast();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setLoginMode = useAuthStore((state) => state.setLoginMode);
   const [error, setError] = useState(null);
   const { setValue, errors, post, loading, getValues } = useForm<{
     auth: Auth;
@@ -404,16 +445,6 @@ const VerifyRegistration: FC<{
   const verify = async (e) => {
     e.preventDefault();
     const { code } = getValues();
-
-    // post(e)
-    //   .then(({ auth, user }) => {
-    //     setAuth(auth.token, user);
-    //     router.push("/");
-    //   })
-    //   .catch((e) => {
-    //     const err: Error = e.response?._data;
-    //     if (err?.type === "server_error") setError(err.payload);
-    //   });
 
     var otpRequest = new OtpRequestBody(code, email);
     console.log("Sending OTP: ", code);
@@ -427,6 +458,7 @@ const VerifyRegistration: FC<{
         duration: 3000,
         isClosable: true,
       });
+      setLoginMode(false);
       router.push("/");
     } else if (response.code == "201") {
       toast({

@@ -62,7 +62,6 @@ import styles from "./MyComponent.module.css";
 
 
 const pbManager = PocketBaseManager.getInstance()
-let userModel = pbManager.fetchUser()
 
 const EditIcon = chakra(PencilIcon);
 const CameraIcon = chakra(HeroCameraIcon);
@@ -100,7 +99,7 @@ const addWalletWithEnsData = (wallet, ensDataList, setWalletsMap) => {
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
   const { walletsMap, setWalletsMap } = useWallet();
-
+  const address = useAddress()
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { walletConnected, setWalletConnected } = useWallet();
   const { setOnSignMessage } = useWallet();
@@ -111,7 +110,32 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   const { verifiedWalletsList, setVerifiedWalletsList } = useWallet();
   const { publicEnsList, setPublicEnsList } = useWallet();
   const { privateEnsList, setPrivateEnsList } = useWallet();
+  const setUser = useAuthStore((state) => state.setUser);
+  const loginViaWallet = useAuthStore((state) => state.loginViaWallet)
 
+  const [userModel, setUserModel] = useState(null);
+
+  const fetchUserModel = async () => {
+    console.log("Address is : ", address)
+    if (address) {
+      const model = await pbManager.fetchUserByWalletId(address)
+      console.log("user with addresis;", model)
+      setUserModel(model)
+      setUser(model)
+    }
+
+    if (loginViaWallet == false) {
+      const model = await pbManager.fetchUser()
+      console.log("user with email; ", model)
+
+      setUserModel(model);
+      setUser(model)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserModel();
+  }, [address])
 
   const getEnsListForWallet = (wallet) => {
     return walletsMap.get(wallet);
@@ -228,7 +252,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     } else {
       console.log("User model is Null fetching again")
       //reload page to get user
-      userModel = pbManager.fetchUser()
+      fetchUserModel()
     }
     console.log("User model is: ", userModel)
   }, [walletDataSaved, userModel]);
@@ -354,6 +378,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
                     setShowConnectedWallets(false)
                   })}
                   onSignMessage={(value) => {
+                    console.log("on sign triggered: ", value)
                     return setOnSignMessage(value);
                   }}
                   forceSign={false}
@@ -847,6 +872,7 @@ export const createMessage = async (address) => {
 
 }
 
+
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   let address = useAddress();
   const sdk = useSDK();
@@ -870,6 +896,32 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const { signature, setSignature } = useWallet()
   const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
 
+  const setUser = useAuthStore((state) => state.setUser);
+  const loginViaWallet = useAuthStore((state) => state.loginViaWallet)
+
+  const [userModel, setUserModel] = useState(null);
+
+  const fetchUserModel = async () => {
+    console.log("Address is : ", address)
+    if (address) {
+      const model = await pbManager.fetchUserByWalletId(address)
+      console.log("user with addresis;", model)
+      setUserModel(model)
+      setUser(model)
+    }
+
+    if (loginViaWallet == false) {
+      const model = await pbManager.fetchUser()
+      console.log("user with email; ", model)
+
+      setUserModel(model);
+      setUser(model)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserModel();
+  }, [address])
 
   useEffect(() => {
     const run = async () => {

@@ -98,6 +98,8 @@ export class PocketBaseManager {
     this.pocketBase.authStore.onChange((token, model) => {
       console.log("New store data:", token, model);
     });
+
+    this.pocketBase.autoCancellation(false);
   }
 
   public static getInstance(): PocketBaseManager {

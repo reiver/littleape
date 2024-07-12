@@ -64,6 +64,8 @@ const Login: FC = () => {
   }>(null, { email: "" }, schema);
 
   const setAuth = useAuthStore((state) => state.setAuth);
+  const setLoginMode = useAuthStore((state) => state.setLoginMode);
+
   const toast = useToast();
   const disconnect = useDisconnect();
   const backToRegistration = setEmail.bind(null, undefined);
@@ -181,7 +183,7 @@ const Login: FC = () => {
           };
 
           setAuth(record.email, user);
-
+          setLoginMode(true)
           router.push("/")
         } catch (error) {
           toast({
@@ -265,6 +267,7 @@ const Login: FC = () => {
         username: record.username,
       };
 
+      setLoginMode(false)
       setAuth(record.email, user);
     } catch (error) {
       toast({
@@ -430,7 +433,6 @@ const VerifyRegistration: FC<{
 }> = ({ backToRegistration, email }) => {
   const router = useRouter();
   const toast = useToast();
-  const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState(null);
   const { setValue, errors, post, loading, getValues } = useForm<{
     auth: Auth;
