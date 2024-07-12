@@ -94,6 +94,10 @@ export class PocketBaseManager {
   private constructor() {
     // Initialize PocketBase with your base URL
     this.pocketBase = new PocketBase("https://pb.greatape.stream"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
+
+    this.pocketBase.authStore.onChange((token, model) => {
+      console.log("New store data:", token, model);
+    });
   }
 
   public static getInstance(): PocketBaseManager {
@@ -111,10 +115,6 @@ export class PocketBaseManager {
     return this.pocketBase.authStore.isValid;
   }
 
-  public logout(): void {
-    this.pocketBase.authStore.clear();
-  }
-
   public async verifyEmail(email: string): Promise<any> {
     return await this.pocketBase.collection("users").requestVerification(email);
   }
@@ -129,9 +129,13 @@ export class PocketBaseManager {
       avatar: signUpData.avatar,
     };
 
-    const record = await this.pocketBase.collection("users").create(formattedSignUpData);
+    try {
+      const record = await this.pocketBase.collection("users").create(formattedSignUpData);
 
-    return record;
+      return record;
+    } catch (e) {
+      return e.data;
+    }
   }
 
   public async getWallet(address): Promise<any> {
@@ -203,6 +207,23 @@ export class PocketBaseManager {
     var usermodel = this.pocketBase.authStore.model;
     console.log("userModel: ", usermodel);
     return usermodel;
+  }
+
+  public logout() {
+    this.pocketBase.authStore.clear();
+  }
+
+  public async fetchUserByWalletId(walletAddress) {
+    const record = await this.pocketBase
+      .collection("wallets")
+      .getFirstListItem(`address="${walletAddress}"`);
+
+    if (record && record.code == undefined) {
+      const userId = record.userId;
+      return this.fetchUserById(userId);
+    } else {
+      return null;
+    }
   }
 
   public async fetchUserById(id) {

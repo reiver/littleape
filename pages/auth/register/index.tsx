@@ -7,28 +7,33 @@ import {
   PinInput,
   PinInputField,
   Text,
+  useDisclosure,
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK } from "@thirdweb-dev/react";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
+import { createMessage, SignWalletModal } from "components/ProfileHeader";
+import { useWallet } from "components/Wallet/walletContext";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
-import { OtpRequestBody, PocketBaseManager, SignUpData } from "lib/pocketBaseManager";
+import { OtpRequestBody, PocketBaseManager, SignInData, SignUpData, WalletData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, FormEvent, useState } from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
 import { useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
+import styles from "../MyComponent.module.css";
+
 const pbManager = PocketBaseManager.getInstance();
 
 const registrationSchema = z.object({
@@ -46,6 +51,170 @@ const RegistrationForm: FC<{
 }> = ({ onRegister }) => {
   const [error, setError] = useState(null);
   const toast = useToast();
+  const router = useRouter();
+  const loggedInUser = useAuthStore((state) => state.user);
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
+  const { onSignMessage, setOnSignMessage } = useWallet();
+
+  const disconnect = useDisconnect();
+  const connectionStatus = useConnectionStatus();
+  const { walletConnected, setWalletConnected } = useWallet()
+  const { messageSigned, setMessageSigned } = useWallet();
+  const { message, setMessage } = useWallet()
+  const { signature, setSignature } = useWallet()
+  const { resetAll } = useWallet()
+  let address = useAddress();
+  const sdk = useSDK();
+  const { walletIsSigned, setWalletIsSigned } = useWallet();
+
+  const {
+    isOpen: isSignWalletOpen,
+    onOpen: onSignWalletOpen,
+    onClose: onSignWalletClose,
+  } = useDisclosure();
+
+  useEffect(() => {
+    //sign message only if onSignMessage is true
+    if (onSignMessage) {
+      console.log("onSignMessage: ", onSignMessage)
+      createMessageAndSign()
+    }
+  }, [onSignMessage])
+
+  const createMessageAndSign = async () => {
+    console.log("Addess: ", address)
+    console.log("walletConnected: ", walletConnected)
+    console.log("messageSigned: ", messageSigned)
+    if (address != undefined && walletConnected && !messageSigned) {
+      console.log("Address is : ", address)
+      console.log("SDK is: ", sdk.wallet)
+
+      const message = await createMessage(address)
+
+      //sign message
+      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
+    }
+  };
+
+  const signMessage = async (message) => {
+    console.log("MESAAGE:", message)
+
+    try {
+      const sig = await sdk?.wallet?.sign(message);
+
+      if (!sig) {
+        throw new Error('Failed to sign message');
+      }
+
+      setMessageSigned(true)
+      setMessage(message)
+      setSignature(sig);
+      setWalletIsSigned(true)
+    } catch (error) {
+      console.log("Error while signing: ", error)
+      setMessageSigned(false)
+      setOnSignMessage(false)
+    }
+  }
+
+  useEffect(() => {
+    if (address != undefined) {
+      setWalletConnected(true)
+
+      if (walletIsSigned) {
+        loginOrCreateAccount(address)
+      }
+    } else {
+      setWalletConnected(false)
+    }
+
+  }, [address, walletIsSigned])
+
+  const loginOrCreateAccount = async (address) => {
+    console.log("Connected wallet address is: ", address)
+    const wallet = await pbManager.getWallet(address)
+
+    if (wallet.code != undefined && wallet.code == 404) {
+      toast({
+        title: "This wallet is not connected to any account, Creating new Account for that",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+
+      //create new user without email
+      var signUpData = new SignUpData(String("Dummy User"), String(""), String("12345678"), null);
+      const newUser = await pbManager.signUp(signUpData)
+
+      console.log("Newuser:", newUser)
+      //save wallet against that user
+
+      if (newUser.code == undefined) {
+        //user is created, now save wallet
+
+        const walletData = new WalletData(null, address, newUser.id, message, signature, true)
+        const newWalletSaved = await pbManager.saveWallet(walletData)
+        console.log("newWalletSaved: ", newWalletSaved)
+
+        if (newWalletSaved.code == undefined) {
+          router.push("/")
+        }
+
+      }
+
+
+    }
+    else {
+      //get associated user from wallet
+      const userId = wallet.userId;
+
+      const user = await pbManager.fetchUserById(userId)
+      console.log("user by id: ", user)
+
+      if (user.code == undefined) {
+        const signInData = new SignInData(String(user.email), String("12345678"));
+
+        try {
+          const authData = await pbManager.signIn(signInData);
+          console.log("Sign in successful:", authData);
+
+          var record = authData.record;
+
+          const user: User = {
+            api_key: "",
+            avatar: record.avatar,
+            banner: "",
+            bio: "",
+            display_name: record.name,
+            email: record.email,
+            github: "",
+            id: record.id,
+            publicKey: "",
+            username: record.username,
+          };
+
+          setAuth(record.email, user);
+
+          router.push("/")
+        } catch (error) {
+          toast({
+            title: "The email is invalid.",
+            description: ``,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          console.error("Sign in error:", error);
+          const err: Error = error.response?._data;
+          if (err?.type === "server_error") setError(err.payload);
+        }
+
+      }
+    }
+  }
 
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
@@ -127,6 +296,34 @@ const RegistrationForm: FC<{
         </Box>
       </Form>
 
+      {
+        !walletConnected && <Box>
+          <ConnectWallet
+            theme={walletConnected ? "light" : "dark"}
+            className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+            auth={{ loginOptional: false }}
+            btnTitle="Continue With Your Wallet"
+            showThirdwebBranding={false}
+            onConnect={async (wallet) => {
+              console.log("connected to", wallet);
+              setWalletConnected(true);
+              onSignWalletOpen()
+            }}
+          />
+        </Box>
+      }
+
+      {
+        walletConnected && <Box>
+          <Button w="full" mt={error ? 0 : 3} onClick={() => {
+            resetAll()
+            disconnect()
+          }}>
+            Disconnect Wallet
+          </Button>
+        </Box>
+      }
+
       <Box
         mt="6"
         display="flex"
@@ -137,12 +334,40 @@ const RegistrationForm: FC<{
         _dark={{ color: "slate.400" }}
       >
         <span>Already have an account?</span>
-        <Link href="/auth/login">
-          <Button className="block w-full">Login</Button>
-        </Link>
+        <Button className="block w-full" onClick={(() => {
+          if (walletConnected) {
+            toast({
+              title: "Please disconnect the wallet first!",
+              description: ``,
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+            });
+            return
+          } else {
+            resetAll()
+            router.push("/auth/login")
+          }
+        })}>Login</Button>
       </Box>
+
+      <SignWalletModal
+        user={loggedInUser}
+        isOpen={isSignWalletOpen}
+        onClose={(() => {
+          onSignWalletClose()
+          setShowConnectedWallets(false)
+        })}
+        onSignMessage={(value) => {
+          console.log("On Sign message Triggered: ", value)
+          return setOnSignMessage(value);
+        }}
+        forceSign={true}
+      />
     </>
   );
+
+
 };
 
 const pinInputProps = {

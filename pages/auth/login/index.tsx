@@ -38,7 +38,7 @@ import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
-import styles from "./MyComponent.module.css";
+import styles from "../MyComponent.module.css";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -144,13 +144,14 @@ const Login: FC = () => {
 
     if (wallet.code != undefined && wallet.code == 404) {
       toast({
-        title: "This wallet is not connected to any account, please Login using Email & connect wallet",
+        title: "This wallet is not connected to any account, please Login using Email Or Regsiter via Wallet",
         description: ``,
         status: "error",
         duration: 6000,
         isClosable: true,
       });
-    } else {
+    }
+    else {
       //get associated user from wallet
       const userId = wallet.userId;
 
@@ -205,19 +206,8 @@ const Login: FC = () => {
   useEffect(() => {
     const checkWalletStatus = async () => {
       if (connectionStatus === "disconnected") {
-
         resetAll()
         address = undefined
-
-        // setWalletConnected(false)
-        // setWalletIsSigned(false)
-        // setSignature(null)
-        // setMessageSigned(false)
-        // setMessage(null)
-        // setOnSignMessage(false);
-        // setShowConnectedWallets(false)
-        // setEnsList([])
-
       }
     }
     checkWalletStatus()
@@ -334,20 +324,33 @@ const Login: FC = () => {
               </Box>
             </Form>
 
-            <Box>
-              <ConnectWallet
-                theme={walletConnected ? "light" : "dark"}
-                className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-                auth={{ loginOptional: false }}
-                btnTitle="Continue With Your Wallet"
-                showThirdwebBranding={false}
-                onConnect={async (wallet) => {
-                  console.log("connected to", wallet);
-                  setWalletConnected(true);
-                  onSignWalletOpen()
-                }}
-              />
-            </Box>
+            {
+              !walletConnected && <Box>
+                <ConnectWallet
+                  theme={walletConnected ? "light" : "dark"}
+                  className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                  auth={{ loginOptional: false }}
+                  btnTitle="Continue With Your Wallet"
+                  showThirdwebBranding={false}
+                  onConnect={async (wallet) => {
+                    console.log("connected to", wallet);
+                    setWalletConnected(true);
+                    onSignWalletOpen()
+                  }}
+                />
+              </Box>
+            }
+
+            {
+              walletConnected && <Box>
+                <Button w="full" mt={error ? 0 : 3} onClick={() => {
+                  resetAll()
+                  disconnect()
+                }}>
+                  Disconnect Wallet
+                </Button>
+              </Box>
+            }
 
             <Box
               mt="6"
@@ -370,6 +373,7 @@ const Login: FC = () => {
                   });
                   return
                 } else {
+                  resetAll()
                   router.push("/auth/register")
                 }
               })}>Register now</Button>

@@ -218,6 +218,8 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
           }
         });
+      } else {
+        console.log("fetchMyWallets: ", list)
       }
     };
 
@@ -706,9 +708,6 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
       }
     }
 
-    console.log("//////////////////////////////////")
-
-    //
     console.log("PrivteENSLIST: ", privateEnsList)
 
     if (privateEnsList.length > 0) {
