@@ -148,7 +148,7 @@ const RegistrationForm: FC<{
       });
 
       //create new user without email
-      var signUpData = new SignUpData(String("Dummy User"), String("dummy@dummy.com"), String("12345678"), null);
+      var signUpData = new SignUpData(String("Dummy User"), String(`dummy${address}@dummy.com`), String("12345678"), null);
       const newUser = await pbManager.signUp(signUpData)
 
       console.log("Newuser:", newUser)
