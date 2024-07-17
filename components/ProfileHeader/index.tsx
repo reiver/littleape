@@ -60,6 +60,7 @@ import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
+import useWalletActions from "components/Wallet/walletActions";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -638,35 +639,11 @@ type EditProfileModalProps = {
   user: User;
 } & Omit<ModalProps, "children">;
 
-export const createMessage = async (address) => {
-  const currentDate = new Date();
-  const expirationDate = new Date(currentDate.getTime() + 30 * 60000);
-  const notBefore = new Date(currentDate.getTime() + 10 * 60000);
-  const randomUUID = uuidv4();
-
-  const loginOptions = {
-    "Version": "1",
-    "ChainId": "1",
-    "Nonce": randomUUID,
-    "Issued At": currentDate.toISOString(),
-    "Expiration Time": expirationDate.toISOString(),
-    "Not Before": notBefore.toISOString(),
-  };
-
-  const objectToString = (obj) => {
-    return Object.entries(obj)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join('\n');
-  }
-
-  const messageText = `${window.location.host} wants you to sign in with your Ethereum account:\n${address}\n\nPlease ensure that the domain above matches the URL of the current website.\n\n${objectToString(loginOptions)}`;
-
-  return messageText
-
-}
-
 
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
+
+  const { createMessageAndSign } = useWalletActions();
+
   let address = useAddress();
   const sdk = useSDK();
   const connectionStatus = useConnectionStatus();
@@ -676,7 +653,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const { onSignMessage, setOnSignMessage } = useWallet();
   const { walletVerified, setWalletVerified } = useWallet();
   const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { walletIsSigned, setWalletIsSigned } = useWallet()
   const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
   const { ensList, setEnsList } = useWallet();
   const { privateEnsList, setPrivateEnsList } = useWallet();
@@ -731,25 +707,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     //sign message only if onSignMessage is true
     if (onSignMessage) {
       console.log("onSignMessage: ", onSignMessage)
-      createMessageAndSign()
+      createMessageAndSign();
     }
   }, [address, walletConnected, onSignMessage])
-
-  const createMessageAndSign = async () => {
-    console.log("Addess: ", address)
-    console.log("walletConnected: ", walletConnected)
-    console.log("messageSigned: ", messageSigned)
-    if (address != undefined && walletConnected && !messageSigned) {
-      console.log("Address is : ", address)
-      console.log("SDK is: ", sdk.wallet)
-
-      const message = await createMessage(address)
-
-      //sign message
-      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
-    }
-  };
-
 
 
   const signMessage = async (message) => {

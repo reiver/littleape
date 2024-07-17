@@ -17,7 +17,7 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
-import { createMessage } from "components/ProfileHeader";
+import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { useWallet } from "components/Wallet/walletContext";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -33,7 +33,7 @@ import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
-import { SignWalletModal } from "components/Modals/SignWalletModal";
+import useWalletActions from "components/Wallet/walletActions";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -50,6 +50,10 @@ const verifySchema = z.object({
 const RegistrationForm: FC<{
   onRegister: (code: string, email: string) => void;
 }> = ({ onRegister }) => {
+
+  const { createMessageAndSign } = useWalletActions();
+
+
   const [error, setError] = useState(null);
   const toast = useToast();
   const router = useRouter();
@@ -85,42 +89,6 @@ const RegistrationForm: FC<{
       createMessageAndSign()
     }
   }, [onSignMessage])
-
-  const createMessageAndSign = async () => {
-    console.log("Addess: ", address)
-    console.log("walletConnected: ", walletConnected)
-    console.log("messageSigned: ", messageSigned)
-    if (address != undefined && walletConnected && !messageSigned) {
-      console.log("Address is : ", address)
-      console.log("SDK is: ", sdk.wallet)
-
-      const message = await createMessage(address)
-
-      //sign message
-      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
-    }
-  };
-
-  const signMessage = async (message) => {
-    console.log("MESAAGE:", message)
-
-    try {
-      const sig = await sdk?.wallet?.sign(message);
-
-      if (!sig) {
-        throw new Error('Failed to sign message');
-      }
-
-      setMessageSigned(true)
-      setMessage(message)
-      setSignature(sig);
-      setWalletIsSigned(true)
-    } catch (error) {
-      console.log("Error while signing: ", error)
-      setMessageSigned(false)
-      setOnSignMessage(false)
-    }
-  }
 
   useEffect(() => {
     if (address != undefined) {
