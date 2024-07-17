@@ -34,9 +34,9 @@ import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
-import { v4 as uuidv4 } from 'uuid';
 
 import { SignWalletModal } from "components/Modals/SignWalletModal";
+import useWalletActions from "components/Wallet/walletActions";
 import {
   API_PROFILE,
   API_USER_FOLLOWERS,
@@ -60,7 +60,6 @@ import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
-import useWalletActions from "components/Wallet/walletActions";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -100,22 +99,36 @@ export const addWalletWithEnsData = (wallet, ensDataList, setWalletsMap) => {
 
 export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) => {
   const [wallets, setWallets] = useState([]);
-  const { walletsMap, setWalletsMap } = useWallet();
-  const address = useAddress()
-  const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
-  const { walletConnected, setWalletConnected } = useWallet();
-  const { setOnSignMessage } = useWallet();
-  const { walletVerified, setWalletVerified } = useWallet();
-  const { walletDataSaved, setWalletDataSaved } = useWallet();
-  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
-  const { verifiedWalletsList, setVerifiedWalletsList } = useWallet();
-  const { publicEnsList, setPublicEnsList } = useWallet();
-  const { privateEnsList, setPrivateEnsList } = useWallet();
+  const address = useAddress();
   const setUser = useAuthStore((state) => state.setUser);
   const loginViaWallet = useAuthStore((state) => state.loginViaWallet)
 
   const [userModel, setUserModel] = useState(null);
+
+  const {
+    walletsMap,
+    setWalletsMap,
+    currentlyConnectedWallet,
+    setCurrentlyConnectedWallet,
+    walletConnected,
+    setWalletConnected,
+    setOnSignMessage,
+    walletVerified,
+    setWalletVerified,
+    walletDataSaved,
+    setWalletDataSaved,
+    showConnectedWallets,
+    setShowConnectedWallets,
+    ensVisibiltyUpdated,
+    setEnsVisibiltyUpdated,
+    verifiedWalletsList,
+    setVerifiedWalletsList,
+    publicEnsList,
+    setPublicEnsList,
+    privateEnsList,
+    setPrivateEnsList
+  } = useWallet();
+
 
   const fetchUserModel = async () => {
     console.log("Address is : ", address)
@@ -647,23 +660,35 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   let address = useAddress();
   const sdk = useSDK();
   const connectionStatus = useConnectionStatus();
-
-  const { resetAll } = useWallet()
-  const { walletConnected, setWalletConnected } = useWallet();
-  const { onSignMessage, setOnSignMessage } = useWallet();
-  const { walletVerified, setWalletVerified } = useWallet();
-  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { currentlyConnectedWallet, setCurrentlyConnectedWallet } = useWallet();
-  const { ensList, setEnsList } = useWallet();
-  const { privateEnsList, setPrivateEnsList } = useWallet();
-
-
-  const { messageSigned, setMessageSigned } = useWallet();
-  const { walletDataSaved, setWalletDataSaved } = useWallet();
   const [ens, setEns] = useState('');
-  const { message, setMessage } = useWallet()
-  const { signature, setSignature } = useWallet()
-  const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
+
+  const {
+    resetAll,
+    walletConnected,
+    setWalletConnected,
+    onSignMessage,
+    setOnSignMessage,
+    walletVerified,
+    setWalletVerified,
+    showConnectedWallets,
+    setShowConnectedWallets,
+    currentlyConnectedWallet,
+    setCurrentlyConnectedWallet,
+    ensList,
+    setEnsList,
+    privateEnsList,
+    setPrivateEnsList,
+    messageSigned,
+    setMessageSigned,
+    walletDataSaved,
+    setWalletDataSaved,
+    message,
+    setMessage,
+    signature,
+    setSignature,
+    isDisplayEnsNames,
+    setIsDisplayEnsNames
+  } = useWallet();
 
   const setUser = useAuthStore((state) => state.setUser);
   const loginViaWallet = useAuthStore((state) => state.loginViaWallet)

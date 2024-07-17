@@ -68,24 +68,32 @@ const Login: FC = () => {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
+  const loggedInUser = useAuthStore((state) => state.user);
 
   const toast = useToast();
   const disconnect = useDisconnect();
   const backToRegistration = setEmail.bind(null, undefined);
   const connectionStatus = useConnectionStatus();
-  const { walletConnected, setWalletConnected } = useWallet()
-  const { messageSigned, setMessageSigned } = useWallet();
-  const { message, setMessage } = useWallet()
-  const { signature, setSignature } = useWallet()
-  const { resetAll } = useWallet()
   let address = useAddress();
   const sdk = useSDK();
 
-  const loggedInUser = useAuthStore((state) => state.user);
-  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { onSignMessage, setOnSignMessage } = useWallet();
-  const { walletIsSigned, setWalletIsSigned } = useWallet();
-  const { setEnsList } = useWallet()
+  const {
+    walletConnected,
+    setWalletConnected,
+    messageSigned,
+    setMessageSigned,
+    message,
+    setMessage,
+    signature,
+    setSignature,
+    resetAll,
+    showConnectedWallets,
+    setShowConnectedWallets,
+    onSignMessage,
+    setOnSignMessage,
+    walletIsSigned,
+    setWalletIsSigned,
+  } = useWallet();
 
 
   const {

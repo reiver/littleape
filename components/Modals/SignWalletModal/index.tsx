@@ -1,10 +1,10 @@
+import { Box, Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from "@chakra-ui/react";
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import { addWalletWithEnsData } from "components/ProfileHeader";
+import { PocketBaseManager } from "lib/pocketBaseManager";
 import { FC, useEffect } from "react";
 import { User } from "types/User";
 import { useWallet } from "../../Wallet/walletContext";
-import { Text, Box, Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from "@chakra-ui/react";
-import { PocketBaseManager } from "lib/pocketBaseManager";
 import styles from "./MyComponent.module.css";
 
 const pbManager = PocketBaseManager.getInstance()
@@ -22,14 +22,23 @@ interface SignWalletModalProps {
 export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, forceSign, ...props }) => {
     console.log("Sign wallet modal triggered: ", isOpen);
     const address = useAddress();
-    const { ensList } = useWallet();
-    const { publicEnsList, setPublicEnsList } = useWallet();
-    const { privateEnsList, setPrivateEnsList } = useWallet();
-    const { isDisplayEnsNames, setIsDisplayEnsNames } = useWallet();
-    const { ensVisibiltyUpdated, setEnsVisibiltyUpdated } = useWallet();
-    const { walletVerified, setWalletVerified } = useWallet();
-    const { currentlyConnectedWallet } = useWallet();
-    const { walletsMap, setWalletsMap } = useWallet();
+
+    const {
+        ensList,
+        publicEnsList,
+        setPublicEnsList,
+        privateEnsList,
+        setPrivateEnsList,
+        isDisplayEnsNames,
+        setIsDisplayEnsNames,
+        ensVisibiltyUpdated,
+        setEnsVisibiltyUpdated,
+        walletVerified,
+        setWalletVerified,
+        currentlyConnectedWallet,
+        walletsMap,
+        setWalletsMap
+    } = useWallet();
 
     if (forceSign) {
         setWalletVerified(false);

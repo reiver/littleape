@@ -62,19 +62,29 @@ const RegistrationForm: FC<{
   const setUser = useAuthStore((state) => state.setUser);
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
 
-  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { onSignMessage, setOnSignMessage } = useWallet();
-
   const disconnect = useDisconnect();
   const connectionStatus = useConnectionStatus();
-  const { walletConnected, setWalletConnected } = useWallet()
-  const { messageSigned, setMessageSigned } = useWallet();
-  const { message, setMessage } = useWallet()
-  const { signature, setSignature } = useWallet()
-  const { resetAll } = useWallet()
   let address = useAddress();
   const sdk = useSDK();
-  const { walletIsSigned, setWalletIsSigned } = useWallet();
+
+
+  const {
+    showConnectedWallets,
+    setShowConnectedWallets,
+    onSignMessage,
+    setOnSignMessage,
+    walletConnected,
+    setWalletConnected,
+    messageSigned,
+    setMessageSigned,
+    message,
+    setMessage,
+    signature,
+    setSignature,
+    resetAll,
+    walletIsSigned,
+    setWalletIsSigned,
+  } = useWallet();
 
   const {
     isOpen: isSignWalletOpen,
