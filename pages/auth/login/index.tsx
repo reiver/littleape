@@ -23,7 +23,7 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
-import { SignWalletModal, createMessage } from "components/ProfileHeader";
+import { createMessage } from "components/ProfileHeader";
 import { useWallet } from "components/Wallet/walletContext";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -39,6 +39,7 @@ import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { SignWalletModal } from "components/Modals/SignWalletModal";
 
 
 const pbManager = PocketBaseManager.getInstance();
