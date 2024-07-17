@@ -20,7 +20,6 @@ interface SignWalletModalProps {
 
 
 export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClose, onSignMessage, forceSign, ...props }) => {
-    console.log("Sign wallet modal triggered: ", isOpen);
     const address = useAddress();
 
     const {
@@ -40,9 +39,11 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
         setWalletsMap
     } = useWallet();
 
-    if (forceSign) {
-        setWalletVerified(false);
-    }
+    useEffect(() => {
+        if (forceSign) {
+            setWalletVerified(false);
+        }
+    }, [forceSign, setWalletVerified]);
 
     const handleDisplayEnsToggle = (event) => {
         setIsDisplayEnsNames(event.target.checked)
@@ -87,9 +88,6 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
                 setPrivateEnsList([...privateEnsList, selectedEns]);
             }
         }
-
-        console.log("Public ens list: ", publicEnsList);
-        console.log("Private ens list: ", privateEnsList);
     };
 
     useEffect(() => {
@@ -105,23 +103,16 @@ export const SignWalletModal: FC<SignWalletModalProps> = ({ user, isOpen, onClos
         setIsDisplayEnsNames(false);
 
         //check if public ens list is not empty... The update their public visibility in DB
-        console.log("PublicENSLIST: ", publicEnsList)
         if (publicEnsList.length > 0) {
             setIsDisplayEnsNames(true)
             for (const ens of publicEnsList) {
-                console.log(ens);
                 const visibilityUpdated = await pbManager.updateEnsVisibility(ens, true);
-                console.log("Ens Visibility public:", visibilityUpdated);
             }
         }
 
-        console.log("PrivteENSLIST: ", privateEnsList)
-
         if (privateEnsList.length > 0) {
             for (const ens of privateEnsList) {
-                console.log(ens);
                 const visibilityUpdated = await pbManager.updateEnsVisibility(ens, false);
-                console.log("Ens Visibility private:", visibilityUpdated);
             }
         }
 

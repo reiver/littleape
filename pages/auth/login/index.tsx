@@ -105,16 +105,13 @@ const Login: FC = () => {
   useEffect(() => {
     //sign message only if onSignMessage is true
     if (onSignMessage) {
-      console.log("onSignMessage: ", onSignMessage)
       createMessageAndSign()
     }
   }, [onSignMessage])
 
 
   const checkWalletConnectionWithAccount = async (address) => {
-    console.log("Connected wallet address is: ", address)
     const wallet = await pbManager.getWallet(address)
-    console.log("Wallet in DB: ", wallet)
 
     if (wallet.code != undefined && wallet.code == 404) {
       toast({
@@ -130,14 +127,12 @@ const Login: FC = () => {
       const userId = wallet.userId;
 
       const user = await pbManager.fetchUserById(userId)
-      console.log("user by id: ", user)
 
       if (user.code == undefined) {
         const signInData = new SignInData(String(user.email), String("12345678"));
 
         try {
           const authData = await pbManager.signIn(signInData);
-          console.log("Sign in successful:", authData);
 
           var record = authData.record;
 
@@ -220,8 +215,6 @@ const Login: FC = () => {
 
     try {
       const authData = await pbManager.signIn(signInData);
-      console.log("Sign in successful:", authData);
-
       setEmail(String(email));
 
       var record = authData.record;
@@ -308,7 +301,6 @@ const Login: FC = () => {
                   btnTitle="Continue With Your Wallet"
                   showThirdwebBranding={false}
                   onConnect={async (wallet) => {
-                    console.log("connected to", wallet);
                     setWalletConnected(true);
                     onSignWalletOpen()
                   }}
@@ -366,7 +358,6 @@ const Login: FC = () => {
             setShowConnectedWallets(false)
           })}
           onSignMessage={(value) => {
-            console.log("On Sign message Triggered: ", value)
             return setOnSignMessage(value);
           }}
           forceSign={true}
@@ -415,9 +406,7 @@ const VerifyRegistration: FC<{
     const { code } = getValues();
 
     var otpRequest = new OtpRequestBody(code, email);
-    console.log("Sending OTP: ", code);
     const response = await pbManager.verifyOtp(otpRequest);
-    console.log("Otp response: ", response);
     if (response.code == "200") {
       toast({
         title: "OTP verified",

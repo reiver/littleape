@@ -46,7 +46,6 @@ const useWalletActions = () => {
     };
 
     const signMessage = async (message) => {
-        console.log("MESSAGE:", message);
 
         try {
             const sig = await sdk?.wallet?.sign(message); // Assume sdk is globally available or imported
@@ -68,14 +67,8 @@ const useWalletActions = () => {
 
     const createMessageAndSign = useCallback(
         async () => {
-            console.log("Address: ", address);
-            console.log("walletConnected: ", walletConnected);
-            console.log("messageSigned: ", messageSigned);
-
             if (address !== undefined && walletConnected && !messageSigned) {
-                console.log("Address is: ", address);
-                console.log("SDK is: ", sdk.wallet);
-
+              
                 const message = await createMessage();
 
                 //sign message

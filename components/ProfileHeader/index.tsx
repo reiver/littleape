@@ -91,7 +91,6 @@ export const addWalletWithEnsData = (wallet, ensDataList, setWalletsMap) => {
 
 
     newMap.set(wallet, ensDataList);
-    console.log("Updated Map:", newMap); // Debugging line
     return newMap;
   });
 };
@@ -131,20 +130,20 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
 
   const fetchUserModel = async () => {
-    console.log("Address is : ", address)
     if (address) {
       const model = await pbManager.fetchUserByWalletId(address)
-      console.log("user with addresis;", model)
-      setUserModel(model)
-      setUser(model)
+      if (model.code == undefined) {
+        setUserModel(model)
+        setUser(model)
+      }
+      return
     }
 
     if (loginViaWallet == false) {
       const model = await pbManager.fetchUser()
-      console.log("user with email; ", model)
-
       setUserModel(model);
       setUser(model)
+      return
     }
   }
 
@@ -157,11 +156,10 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   };
 
   useEffect(() => {
-    console.log("Updated walletsMap:", walletsMap);
+    // console.log("Updated walletsMap:", walletsMap);
   }, [walletsMap]);
 
   useEffect(() => {
-    console.log("Trigger fetchEnsListOfWallets currently verified wallets list: ", verifiedWalletsList)
     fetchEnsListOfWallets();
     setEnsVisibiltyUpdated(false);
   }, [verifiedWalletsList])
@@ -175,7 +173,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
           // Fetch public list
           const publicList = await pbManager.fetchEnsList(wallet.id, true);
-          console.log("publicList: ", publicList);
 
           // Update publicEnsList state
           if (publicList && publicList.length > 0) {
@@ -187,7 +184,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
           // Fetch private list
           const privateList = await pbManager.fetchEnsList(wallet.id, false);
-          console.log("privateList: ", privateList);
 
           // Update privateEnsList state
           if (privateList && privateList.length > 0) {
@@ -200,7 +196,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           //get only ens names from public list
           let ensListToDisplay = []
           publicList.map((element, index) => {
-            console.log("ensEelement: ", element)
             if (!ensListToDisplay.includes(element.ens)) {
               ensListToDisplay.push(element.ens)
             }
@@ -210,7 +205,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
         }
 
         // All fetch operations are completed here
-        console.log("All fetch operations completed.");
       } catch (error) {
         console.error("Error fetching ENS lists:", error);
       }
@@ -224,12 +218,9 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       const list = await pbManager.fetchMyWallets(userModel.id);
 
       if (list.code == undefined && list.length > 0) {
-        console.log("List is: ", list)
-
         //show only verified wallets
         list.map((element) => {
           if (element.signature && element.signature !== "" && element.signature !== "N/A") {
-            console.log("Verified wallet:", element);
             setVerifiedWalletsList((prevList) => {
               if (prevList.some((el) => el.signature === element.signature)) {
                 return prevList; // Return the previous list if the element already exists
@@ -240,8 +231,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           }
         });
 
-        console.log("Wallets List: ", list)
-        console.log("Verified Wallets List: ", verifiedWalletsList)
 
         //get connected wallet
         list.map((element) => {
@@ -257,8 +246,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
           }
         });
-      } else {
-        console.log("fetchMyWallets: ", list)
       }
     };
 
@@ -290,8 +277,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
 
   useEffect(() => {
-    console.log("Opening connected wallet: ", showConnectedWallets)
-
     if (showConnectedWallets) {
       onSignWalletOpen();
     } else {
@@ -393,7 +378,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
                     setShowConnectedWallets(false)
                   })}
                   onSignMessage={(value) => {
-                    console.log("on sign triggered: ", value)
                     return setOnSignMessage(value);
                   }}
                   forceSign={false}
@@ -696,20 +680,20 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const [userModel, setUserModel] = useState(null);
 
   const fetchUserModel = async () => {
-    console.log("Address is : ", address)
     if (address) {
       const model = await pbManager.fetchUserByWalletId(address)
-      console.log("user with addresis;", model)
-      setUserModel(model)
-      setUser(model)
+      if (model.code == undefined) {
+        setUserModel(model)
+        setUser(model)
+      }
+      return
     }
 
     if (loginViaWallet == false) {
       const model = await pbManager.fetchUser()
-      console.log("user with email; ", model)
-
       setUserModel(model);
       setUser(model)
+      return
     }
   }
 
@@ -720,7 +704,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   useEffect(() => {
     const run = async () => {
       if (address && walletConnected) {
-        console.log("Looking up ens address now")
         await lookUpEnsAddress(address)
       }
     };
@@ -731,14 +714,12 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   useEffect(() => {
     //sign message only if onSignMessage is true
     if (onSignMessage) {
-      console.log("onSignMessage: ", onSignMessage)
       createMessageAndSign();
     }
   }, [address, walletConnected, onSignMessage])
 
 
   const signMessage = async (message) => {
-    console.log("MESAAGE:", message)
 
     try {
       const sig = await sdk?.wallet?.sign(message);
@@ -796,7 +777,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     } else {
       console.log("No ENS FOUND")
       setEns('Wallet Address could not be resolved');
-      setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
+      // setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
     }
 
     return resolvedName
@@ -830,18 +811,13 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
         //update wallet connection status in DB
         if (currentlyConnectedWallet) {
-          console.log("Disconnected wallet address: ", currentlyConnectedWallet)
-
           const res = await pbManager.updateWalletConnectionStatus(currentlyConnectedWallet.id, false)
-          console.log("Wallet status updated: ", res)
-
           setCurrentlyConnectedWallet(null)
         }
       }
     }
 
     const fetchData = async () => {
-      console.log("Fetching Data...");
       if (walletConnected && messageSigned && address && signature && message && !walletDataSaved && userModel) {
         try {
           // Lookup ENS
@@ -857,12 +833,10 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           for (const ens of ensList) {
             const ensData = new EnsData(null, ens, savedWallet.id, false);
             const ensSaved = await pbManager.saveEns(ensData);
-            console.log("Saved ens: ", ensSaved);
           }
 
 
           setCurrentlyConnectedWallet(res);
-          console.log('Wallet data saved: ', res);
           if (res !== undefined) {
             setWalletDataSaved(true);
             setOnSignMessage(false);
@@ -888,10 +862,8 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
           //save wallet to db, without verification
           const walletData = new WalletData(null, address, userModel.id, null, null, true)
           const newWalletSaved = await pbManager.saveWallet(walletData)
-          console.log("newWalletSaved: ", newWalletSaved)
         } else {
           const walletStatusUpdated = await pbManager.updateWalletConnectionStatus(wallFound.id, true)
-          console.log("Wallet connection status Updated on Connection:", walletStatusUpdated)
           setCurrentlyConnectedWallet(walletStatusUpdated)
         }
 
@@ -1068,7 +1040,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         btnTitle="Verify Your Wallet Address"
                         showThirdwebBranding={false}
                         onConnect={async (wallet) => {
-                          console.log("connected to", wallet);
                           setWalletConnected(true);
                           setShowConnectedWallets(true);
                         }}

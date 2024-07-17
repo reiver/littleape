@@ -96,7 +96,7 @@ export class PocketBaseManager {
     this.pocketBase = new PocketBase("https://pb.greatape.stream"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
 
     this.pocketBase.authStore.onChange((token, model) => {
-      console.log("New store data:", token, model);
+      // console.log("New store data:", token, model);
     });
 
     this.pocketBase.autoCancellation(false);
@@ -146,10 +146,8 @@ export class PocketBaseManager {
         .collection("wallets")
         .getFirstListItem(`address="${address}"`);
 
-      console.log("Wallet found: ", wallet);
       return wallet;
     } catch (error) {
-      console.log("Wallet not found: ", error.data);
       return error.data;
     }
   }
@@ -176,10 +174,7 @@ export class PocketBaseManager {
 
   public async updateEnsVisibility(ensName, publicStatus): Promise<any> {
     //fetch ens first
-    console.log("Ens name to search: ", ensName);
     const record = await this.pocketBase.collection("ens").getFirstListItem(`ens="${ensName}"`);
-    console.log("Ens record found: ", record);
-
     if (record != null) {
       const updatedEnsData = new EnsData(record.id, record.ens, record.walletId, publicStatus);
       const ens = await this.pocketBase.collection("ens").update(record.id, updatedEnsData);
@@ -207,7 +202,6 @@ export class PocketBaseManager {
 
   public fetchUser() {
     var usermodel = this.pocketBase.authStore.model;
-    console.log("userModel: ", usermodel);
     return usermodel;
   }
 
@@ -216,15 +210,18 @@ export class PocketBaseManager {
   }
 
   public async fetchUserByWalletId(walletAddress) {
-    const record = await this.pocketBase
-      .collection("wallets")
-      .getFirstListItem(`address="${walletAddress}"`);
-
-    if (record && record.code == undefined) {
-      const userId = record.userId;
-      return this.fetchUserById(userId);
-    } else {
-      return null;
+    try {
+      const record = await this.pocketBase
+        .collection("wallets")
+        .getFirstListItem(`address="${walletAddress}"`);
+      if (record && record.code == undefined) {
+        const userId = record.userId;
+        return this.fetchUserById(userId);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return e.data;
     }
   }
 
@@ -263,7 +260,6 @@ export class PocketBaseManager {
 
   //custom api
   verifyOtp = async (data: OtpRequestBody): Promise<ApiResponse> => {
-    console.log("JSON.stringify(data): ", JSON.stringify(data));
     const response = await fetch(this.url + "/verify-otp", {
       method: "POST",
       headers: {
