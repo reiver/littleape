@@ -23,7 +23,6 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
-import { SignWalletModal, createMessage } from "components/ProfileHeader";
 import { useWallet } from "components/Wallet/walletContext";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -39,6 +38,8 @@ import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { SignWalletModal } from "components/Modals/SignWalletModal";
+import useWalletActions from "components/Wallet/walletActions";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -63,26 +64,36 @@ const Login: FC = () => {
     user: User;
   }>(null, { email: "" }, schema);
 
+  const { createMessageAndSign } = useWalletActions();
+
   const setAuth = useAuthStore((state) => state.setAuth);
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
+  const loggedInUser = useAuthStore((state) => state.user);
 
   const toast = useToast();
   const disconnect = useDisconnect();
   const backToRegistration = setEmail.bind(null, undefined);
   const connectionStatus = useConnectionStatus();
-  const { walletConnected, setWalletConnected } = useWallet()
-  const { messageSigned, setMessageSigned } = useWallet();
-  const { message, setMessage } = useWallet()
-  const { signature, setSignature } = useWallet()
-  const { resetAll } = useWallet()
   let address = useAddress();
   const sdk = useSDK();
 
-  const loggedInUser = useAuthStore((state) => state.user);
-  const { showConnectedWallets, setShowConnectedWallets } = useWallet();
-  const { onSignMessage, setOnSignMessage } = useWallet();
-  const { walletIsSigned, setWalletIsSigned } = useWallet();
-  const { setEnsList } = useWallet()
+  const {
+    walletConnected,
+    setWalletConnected,
+    messageSigned,
+    setMessageSigned,
+    message,
+    setMessage,
+    signature,
+    setSignature,
+    resetAll,
+    showConnectedWallets,
+    setShowConnectedWallets,
+    onSignMessage,
+    setOnSignMessage,
+    walletIsSigned,
+    setWalletIsSigned,
+  } = useWallet();
 
 
   const {
@@ -94,55 +105,13 @@ const Login: FC = () => {
   useEffect(() => {
     //sign message only if onSignMessage is true
     if (onSignMessage) {
-      console.log("onSignMessage: ", onSignMessage)
       createMessageAndSign()
     }
   }, [onSignMessage])
 
-  const createMessageAndSign = async () => {
-    console.log("Addess: ", address)
-    console.log("walletConnected: ", walletConnected)
-    console.log("messageSigned: ", messageSigned)
-    if (address != undefined && walletConnected && !messageSigned) {
-      console.log("Address is : ", address)
-      console.log("SDK is: ", sdk.wallet)
-
-      const message = await createMessage(address)
-
-      //sign message
-      await signMessage(`\x19Ethereum Signed Message:\n${message.length}${message}`)
-    }
-  };
-
-
-  const signMessage = async (message) => {
-    console.log("MESAAGE:", message)
-
-    try {
-      const sig = await sdk?.wallet?.sign(message);
-
-      if (!sig) {
-        throw new Error('Failed to sign message');
-      }
-
-      setMessageSigned(true)
-      setMessage(message)
-      setSignature(sig);
-      setWalletIsSigned(true)
-    } catch (error) {
-      console.log("Error while signing: ", error)
-      setMessageSigned(false)
-      setOnSignMessage(false)
-    }
-
-
-  }
-
 
   const checkWalletConnectionWithAccount = async (address) => {
-    console.log("Connected wallet address is: ", address)
     const wallet = await pbManager.getWallet(address)
-    console.log("Wallet in DB: ", wallet)
 
     if (wallet.code != undefined && wallet.code == 404) {
       toast({
@@ -158,14 +127,12 @@ const Login: FC = () => {
       const userId = wallet.userId;
 
       const user = await pbManager.fetchUserById(userId)
-      console.log("user by id: ", user)
 
       if (user.code == undefined) {
         const signInData = new SignInData(String(user.email), String("12345678"));
 
         try {
           const authData = await pbManager.signIn(signInData);
-          console.log("Sign in successful:", authData);
 
           var record = authData.record;
 
@@ -248,8 +215,6 @@ const Login: FC = () => {
 
     try {
       const authData = await pbManager.signIn(signInData);
-      console.log("Sign in successful:", authData);
-
       setEmail(String(email));
 
       var record = authData.record;
@@ -336,7 +301,6 @@ const Login: FC = () => {
                   btnTitle="Continue With Your Wallet"
                   showThirdwebBranding={false}
                   onConnect={async (wallet) => {
-                    console.log("connected to", wallet);
                     setWalletConnected(true);
                     onSignWalletOpen()
                   }}
@@ -394,7 +358,6 @@ const Login: FC = () => {
             setShowConnectedWallets(false)
           })}
           onSignMessage={(value) => {
-            console.log("On Sign message Triggered: ", value)
             return setOnSignMessage(value);
           }}
           forceSign={true}
@@ -443,9 +406,7 @@ const VerifyRegistration: FC<{
     const { code } = getValues();
 
     var otpRequest = new OtpRequestBody(code, email);
-    console.log("Sending OTP: ", code);
     const response = await pbManager.verifyOtp(otpRequest);
-    console.log("Otp response: ", response);
     if (response.code == "200") {
       toast({
         title: "OTP verified",

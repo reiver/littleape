@@ -17,7 +17,6 @@ const pbManager = PocketBaseManager.getInstance()
 export default function Home() {
   let user = useAuthStore((state) => state.user);
   const address = useAddress()
-  console.log("user: ", user);
   return (
     <>
       <Head>
