@@ -624,7 +624,7 @@ const RemoteFollow: FC<RemoteFollowProps> = ({ user, username }) => {
 
 const profileSchema = z
   .object({
-    display_name: z.string(),
+    name: z.string(),
     bio: z.string(),
     github: z.string(),
     avatar: z.any(),
@@ -952,7 +952,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         (watch("avatar") as File)
                       }
                       src={user?.avatar || ''}
-                      name={user?.display_name || ''}
+                      name={user?.name || ''}
                       username={user?.username || ''}
                       link={false}
                       w="110px"
@@ -991,8 +991,8 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                 </Box>
               </Box>
               <Input
-                error={errors.display_name}
-                {...register("display_name")}
+                error={errors.name}
+                {...register("name")}
                 label="Display name"
               />
               <Input

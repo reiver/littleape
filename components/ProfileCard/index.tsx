@@ -3,7 +3,6 @@ import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
 import Link from "next/link";
 import { FC } from "react";
-import { FETCH_USER_FOLLOWERS, FETCH_USER_FOLLOWING } from "services/api";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
@@ -19,7 +18,7 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         <UserAvatar
           src={user?.avatar || ''}
           username={user?.username || ''}
-          name={user?.display_name || ''}
+          name={user?.name || ''}
           borderStyle="solid"
           borderWidth="3px"
           borderColor="light.50"
@@ -58,7 +57,7 @@ export const ProfileCard: FC<BoxProps> = (props) => {
         </Box>
       </Box>
       <Box textAlign="center" fontSize="sm" mt={4} px={1}>
-        <Text fontWeight="semibold">{user?.display_name || ''}</Text>
+        <Text fontWeight="semibold">{user?.name || ''}</Text>
         <Text fontSize="xs">@{user?.username || ''}</Text>
         <Text
           fontSize="xs"

@@ -23,6 +23,8 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
+import { SignWalletModal } from "components/Modals/SignWalletModal";
+import useWalletActions from "components/Wallet/walletActions";
 import { useWallet } from "components/Wallet/walletContext";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -38,8 +40,6 @@ import { Error } from "types/Error";
 import { User } from "types/User";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
-import { SignWalletModal } from "components/Modals/SignWalletModal";
-import useWalletActions from "components/Wallet/walletActions";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -124,51 +124,12 @@ const Login: FC = () => {
     }
     else {
       //get associated user from wallet
-      const userId = wallet.userId;
-
-      const user = await pbManager.fetchUserById(userId)
-
+      const user = await pbManager.fetchUserByWalletId(address)
       if (user.code == undefined) {
-        const signInData = new SignInData(String(user.email), String("12345678"));
-
-        try {
-          const authData = await pbManager.signIn(signInData);
-
-          var record = authData.record;
-
-          const user: User = {
-            api_key: "",
-            avatar: record.avatar,
-            banner: "",
-            bio: "",
-            display_name: record.name,
-            email: record.email,
-            github: "",
-            id: record.id,
-            publicKey: "",
-            username: record.username,
-          };
-
-          setAuth(record.email, user);
-          setLoginMode(true)
-          router.push("/")
-        } catch (error) {
-          toast({
-            title: "The email is invalid.",
-            description: ``,
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-          console.error("Sign in error:", error);
-          const err: Error = error.response?._data;
-          if (err?.type === "server_error") setError(err.payload);
-        }
-
+        setAuth(user.email, user);
+        setLoginMode(true)
+        router.push("/")
       }
-
-
-
     }
   }
 
@@ -224,7 +185,7 @@ const Login: FC = () => {
         avatar: record.avatar,
         banner: "",
         bio: "",
-        display_name: record.name,
+        name: record.name,
         email: record.email,
         github: "",
         id: record.id,

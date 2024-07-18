@@ -76,7 +76,7 @@ export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
     avatar: "",
     banner: "",
     bio: "",
-    display_name: "",
+    name: "",
     email: "",
     github: "",
     id: 0,

@@ -129,7 +129,7 @@ export const Navbar: FC<BoxProps> = (props) => {
                   h={7}
                   size="sm"
                   link={false}
-                  name={user?.display_name || ''}
+                  name={user?.name || ''}
                   src={user?.avatar || ''}
                   username={user?.username || ''}
                 />

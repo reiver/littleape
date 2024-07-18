@@ -1,12 +1,12 @@
 import {
-  Box,
-  BoxProps,
-  ButtonProps,
-  Button as ChakraButton,
-  FormControl,
-  FormErrorMessage,
-  Text,
-  chakra,
+    Box,
+    BoxProps,
+    ButtonProps,
+    Button as ChakraButton,
+    FormControl,
+    FormErrorMessage,
+    Text,
+    chakra,
 } from "@chakra-ui/react";
 import { PhotoIcon as HeroIconPhotoIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/Button";
@@ -86,7 +86,7 @@ export const NewPostCard: FC<BoxProps> = () => {
             mt="1"
             size="sm"
             username={user?.username || ''}
-            name={user?.display_name || ''}
+            name={user?.name || ''}
             src={user?.avatar || ''}
           />
           <FormControl isInvalid={!!errors.content}>
