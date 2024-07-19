@@ -718,30 +718,6 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     }
   }, [address, walletConnected, onSignMessage])
 
-
-  const signMessage = async (message) => {
-
-    try {
-      const sig = await sdk?.wallet?.sign(message);
-
-      if (!sig) {
-        throw new Error('Failed to sign message');
-      }
-
-      setMessageSigned(true)
-      setMessage(message)
-      setSignature(sig);
-
-    } catch (error) {
-      console.log("Error while signing: ", error)
-      setMessageSigned(false)
-      setOnSignMessage(false)
-    }
-
-
-  }
-
-
   const { post, errors, register, reset, watch, setValue, loading } = useForm(
     API_PROFILE,
     user,
