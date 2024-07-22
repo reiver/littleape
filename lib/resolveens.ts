@@ -1,8 +1,8 @@
 import { Alchemy, Network } from "alchemy-sdk";
-
+const alchemyApiKey = process.env.ALCHEMY_API_KEY;
 export function resolveENS(ens): Promise<string | null> {
   const config = {
-    apiKey: "kTF2A9Po4AmIwjZ3jnWvhppvYn5pjnL9",
+    apiKey: alchemyApiKey,
     network: Network.ETH_MAINNET,
   }
   const alchemy = new Alchemy(config);
@@ -13,7 +13,7 @@ export function resolveENS(ens): Promise<string | null> {
 export function lookUpENS(walletAddress):Promise<string | null>{
 
   const config = {
-    apiKey: "kTF2A9Po4AmIwjZ3jnWvhppvYn5pjnL9",
+    apiKey: alchemyApiKey,
     network: Network.ETH_MAINNET,
   }
 
