@@ -59,6 +59,7 @@
     "tippy.js": "^6.3.7",
     "ufo": "^0.8.5",
     "uuid": "^10.0.0",
+    "web3-wallet-connection": "^1.0.1",
     "zod": "^3.18.0",
     "zustand": "^4.1.1"
   },
