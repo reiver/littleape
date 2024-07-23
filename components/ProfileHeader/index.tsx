@@ -28,15 +28,14 @@ import {
   useMediaQuery
 } from "@chakra-ui/react";
 import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
-import { ConnectWallet, useAddress, useConnectionStatus, useSDK } from "@thirdweb-dev/react";
 import { FileUpload } from "components/FileUpload";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
+import { ConnectWallet, useAddress, useConnectionStatus, useSDK } from "web3-wallet-connection";
 
 import { SignWalletModal } from "components/Modals/SignWalletModal";
-import useWalletActions from "components/Wallet/walletActions";
 import {
   API_PROFILE,
   API_USER_FOLLOWERS,
@@ -54,11 +53,11 @@ import { useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
+import { useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
-import { useWallet } from "../Wallet/walletContext";
 import styles from "./MyComponent.module.css";
 
 

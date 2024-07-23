@@ -15,18 +15,17 @@ import {
   chakra,
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
-import { useDisconnect } from "@thirdweb-dev/react";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
-import { useWallet } from "components/Wallet/walletContext";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
+import { useDisconnect, useWallet } from "web3-wallet-connection";
 
 const VideoIcon = chakra(VideoCameraIcon, { baseStyle: { w: "4" } });
 const NotificationIcon = chakra(BellIcon, { baseStyle: { w: "4" } });

@@ -17,15 +17,15 @@ import {
   useConnectionStatus,
   useDisconnect,
   useSDK,
-} from "@thirdweb-dev/react";
+} from "web3-wallet-connection";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
 import { SignWalletModal } from "components/Modals/SignWalletModal";
-import useWalletActions from "components/Wallet/walletActions";
-import { useWallet } from "components/Wallet/walletContext";
+import { useWalletActions } from "web3-wallet-connection";
+import { useWallet } from "web3-wallet-connection";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";

@@ -1,5 +1,4 @@
 import { Box } from "@chakra-ui/react";
-import { useAddress } from "@thirdweb-dev/react";
 import { Feed } from "components/Feed";
 import { Footer } from "components/Footer";
 import { MainMenu } from "components/MainMenu";
@@ -11,6 +10,7 @@ import { DashboardLayout } from "layouts/Dashboard";
 import { PocketBaseManager } from "lib/pocketBaseManager";
 import Head from "next/head";
 import { useAuthStore } from "store";
+import { useAddress } from "web3-wallet-connection";
 
 const pbManager = PocketBaseManager.getInstance()
 
