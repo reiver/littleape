@@ -12,7 +12,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  swcMinify: true,
+  swcMinify: false,
   webpack: (config, { isServer }) => {
     // Add SVGR loader for SVG files
     config.module.rules.push({

@@ -34,6 +34,7 @@
     "@tanstack/react-query": "^4.0",
     "@tiptap/extension-mention": "^2.0.0-beta.196",
     "@tiptap/extension-placeholder": "^2.0.0-beta.196",
+    "@tiptap/pm": "^2.5.5",
     "@tiptap/react": "^2.0.0-beta.196",
     "@tiptap/starter-kit": "^2.0.0-beta.196",
     "@tiptap/suggestion": "^2.0.0-beta.196",
