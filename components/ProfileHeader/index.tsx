@@ -33,7 +33,7 @@ import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
-import { ConnectWallet, useAddress, useConnectionStatus, useSDK } from "web3-wallet-connection";
+import { ConnectWallet, lookUpENS, useAddress, useConnectionStatus, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 
 import { SignWalletModal } from "components/Modals/SignWalletModal";
 import {
@@ -45,7 +45,6 @@ import {
 import { useForm } from "hooks/useForm";
 import { isOtherServer } from "lib/isOtherServer";
 import { EnsData, PocketBaseManager, WalletData } from "lib/pocketBaseManager";
-import { lookUpENS } from "lib/resolveens";
 import { FC, useEffect, useState } from "react";
 import { FETCH_USER_PROFILE } from "services/api";
 import { uploadFile } from "services/http";
@@ -53,7 +52,6 @@ import { useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
-import { useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
@@ -733,7 +731,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   };
 
   const lookUpEnsAddress = async (address) => {
-    const resolvedName = await lookUpENS(address);
+    const resolvedName = await lookUpENS(address, process.env.ALCHAMEY_API_KEY);
     console.log("resolvedName: ", resolvedName)
     if (resolvedName != null) {
       setEns(resolvedName);

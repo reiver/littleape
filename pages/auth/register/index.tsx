@@ -11,7 +11,6 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK } from "web3-wallet-connection";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -30,7 +29,7 @@ import { useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
-import { useWalletActions, useWallet } from "web3-wallet-connection";
+import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
 

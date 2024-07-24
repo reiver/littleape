@@ -1,10 +1,9 @@
 import { Box, Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from "@chakra-ui/react";
-import { ConnectWallet, useAddress } from "web3-wallet-connection";
 import { addWalletWithEnsData } from "components/ProfileHeader";
 import { PocketBaseManager } from "lib/pocketBaseManager";
 import { FC, useEffect } from "react";
 import { User } from "types/User";
-import { useWallet } from "web3-wallet-connection";
+import { ConnectWallet, useAddress, useWallet } from "web3-wallet-connection";
 import styles from "./MyComponent.module.css";
 
 const pbManager = PocketBaseManager.getInstance()

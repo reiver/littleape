@@ -1,5 +1,5 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import { ThirdwebProvider } from "web3-wallet-connection";
+import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
 import {
   QueryClient
@@ -13,7 +13,6 @@ import { fetcher } from "services/http";
 import { useAuthStore } from "store";
 import "styles/global.css";
 import { SWRConfig } from "swr";
-import { WalletProvider } from "web3-wallet-connection";
 import "../styles/styles.css";
 
 
