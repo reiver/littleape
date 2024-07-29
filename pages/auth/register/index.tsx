@@ -20,7 +20,7 @@ import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
-import { OtpRequestBody, PocketBaseManager, SignInData, SignUpData, WalletData } from "lib/pocketBaseManager";
+import { OtpRequestBody, PocketBaseManager, SignUpData, WalletData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -193,12 +193,11 @@ const RegistrationForm: FC<{
         }
       } else {
 
-        const signInData = new SignInData(String(email), String("12345678"));
+        console.log("User SignedUP: ", response)
+
+        const record = response
 
         try {
-          const authData = await pbManager.signIn(signInData);
-
-          var record = authData.record;
 
           const user: User = {
             api_key: "",
