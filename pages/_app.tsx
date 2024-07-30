@@ -1,15 +1,13 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
+import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
 import {
   QueryClient
 } from '@tanstack/react-query';
 import theme from "chakra.config";
-import { WalletProvider } from "components/Wallet/walletContext";
 import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { BrowserRouter } from "react-router-dom";
 import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";

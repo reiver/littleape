@@ -4,7 +4,6 @@ import { MightLikeCard } from "components/MightLikeCard";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
 import { TrendingTags } from "components/TrendingTags";
-import { WalletProvider } from "components/Wallet/walletContext";
 import { DashboardLayout } from "layouts/Dashboard";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
@@ -18,6 +17,7 @@ export default function UserProfile() {
   const {
     query: { username },
   } = useRouter();
+  
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const loggedInUser = useAuthStore((state) => state.user);
   const title = `Greatape | @${String(username) || ""}`;
@@ -66,6 +66,7 @@ export default function UserProfile() {
       </DashboardLayout>
     </>
   );
+
 }
 
 export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
@@ -75,7 +76,7 @@ export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
     avatar: "",
     banner: "",
     bio: "",
-    display_name: "",
+    name: "",
     email: "",
     github: "",
     id: 0,

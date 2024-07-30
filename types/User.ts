@@ -6,7 +6,7 @@ export type User = Partial<{
   avatar: string;
   banner: string;
   bio: string;
-  display_name: string;
+  name: string;
   email: string;
   github: string;
   publicKey: string;

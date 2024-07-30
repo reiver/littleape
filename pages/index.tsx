@@ -7,12 +7,16 @@ import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
+import { PocketBaseManager } from "lib/pocketBaseManager";
 import Head from "next/head";
 import { useAuthStore } from "store";
+import { useAddress } from "web3-wallet-connection";
+
+const pbManager = PocketBaseManager.getInstance()
 
 export default function Home() {
-  const user = useAuthStore((state) => state.user);
-  console.log("user: ", user);
+  let user = useAuthStore((state) => state.user);
+  const address = useAddress()
   return (
     <>
       <Head>

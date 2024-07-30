@@ -94,6 +94,12 @@ export class PocketBaseManager {
   private constructor() {
     // Initialize PocketBase with your base URL
     this.pocketBase = new PocketBase("https://pb.greatape.stream"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
+
+    this.pocketBase.authStore.onChange((token, model) => {
+      // console.log("New store data:", token, model);
+    });
+
+    this.pocketBase.autoCancellation(false);
   }
 
   public static getInstance(): PocketBaseManager {
@@ -111,10 +117,6 @@ export class PocketBaseManager {
     return this.pocketBase.authStore.isValid;
   }
 
-  public logout(): void {
-    this.pocketBase.authStore.clear();
-  }
-
   public async verifyEmail(email: string): Promise<any> {
     return await this.pocketBase.collection("users").requestVerification(email);
   }
@@ -129,9 +131,13 @@ export class PocketBaseManager {
       avatar: signUpData.avatar,
     };
 
-    const record = await this.pocketBase.collection("users").create(formattedSignUpData);
+    try {
+      const record = await this.pocketBase.collection("users").create(formattedSignUpData);
 
-    return record;
+      return record;
+    } catch (e) {
+      return e.data;
+    }
   }
 
   public async getWallet(address): Promise<any> {
@@ -140,10 +146,8 @@ export class PocketBaseManager {
         .collection("wallets")
         .getFirstListItem(`address="${address}"`);
 
-      console.log("Wallet found: ", wallet);
       return wallet;
     } catch (error) {
-      console.log("Wallet not found: ", error.data);
       return error.data;
     }
   }
@@ -170,10 +174,7 @@ export class PocketBaseManager {
 
   public async updateEnsVisibility(ensName, publicStatus): Promise<any> {
     //fetch ens first
-    console.log("Ens name to search: ", ensName);
     const record = await this.pocketBase.collection("ens").getFirstListItem(`ens="${ensName}"`);
-    console.log("Ens record found: ", record);
-
     if (record != null) {
       const updatedEnsData = new EnsData(record.id, record.ens, record.walletId, publicStatus);
       const ens = await this.pocketBase.collection("ens").update(record.id, updatedEnsData);
@@ -201,8 +202,27 @@ export class PocketBaseManager {
 
   public fetchUser() {
     var usermodel = this.pocketBase.authStore.model;
-    console.log("userModel: ", usermodel);
     return usermodel;
+  }
+
+  public logout() {
+    this.pocketBase.authStore.clear();
+  }
+
+  public async fetchUserByWalletId(walletAddress) {
+    try {
+      const record = await this.pocketBase
+        .collection("wallets")
+        .getFirstListItem(`address="${walletAddress}"`);
+      if (record && record.code == undefined) {
+        const userId = record.userId;
+        return this.fetchUserById(userId);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return e.data;
+    }
   }
 
   public async fetchUserById(id) {
@@ -240,7 +260,6 @@ export class PocketBaseManager {
 
   //custom api
   verifyOtp = async (data: OtpRequestBody): Promise<ApiResponse> => {
-    console.log("JSON.stringify(data): ", JSON.stringify(data));
     const response = await fetch(this.url + "/verify-otp", {
       method: "POST",
       headers: {
