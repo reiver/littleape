@@ -244,93 +244,106 @@ const RegistrationForm: FC<{
 
   return (
     <>
-      <Form
-        onSubmit={signUpViaPocketBase}
-        display="flex"
-        flexDirection="column"
-        experimental_spaceY={4}
-      >
-        <Input autoFocus {...register("displayname")} error={errors.displayname} label="Name" />
-        <Input {...register("email")} error={errors.email} />
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
-        <Box>
-          <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
-            Sign up
-          </Button>
-        </Box>
-      </Form>
+      {!walletIsSigned ? (
+        <>
+          <Form
+            onSubmit={signUpViaPocketBase}
+            display="flex"
+            flexDirection="column"
+            experimental_spaceY={4}
+          >
+            <Input autoFocus {...register("displayname")} error={errors.displayname} label="Name" />
+            <Input {...register("email")} error={errors.email} />
+            {error && (
+              <Alert status="error">
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
+            <Box>
+              <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
+                Sign up
+              </Button>
+            </Box>
+          </Form>
 
-      {
-        !walletConnected && <Box>
-          <ConnectWallet
-            theme={walletConnected ? "light" : "dark"}
-            className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-            auth={{ loginOptional: false }}
-            btnTitle="Continue With Your Wallet"
-            showThirdwebBranding={false}
-            onConnect={async (wallet) => {
-              setWalletConnected(true);
-              onSignWalletOpen()
+          {!walletConnected && (
+            <Box>
+              <ConnectWallet
+                theme={walletConnected ? "light" : "dark"}
+                className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                auth={{ loginOptional: false }}
+                btnTitle="Continue With Your Wallet"
+                showThirdwebBranding={false}
+                onConnect={async (wallet) => {
+                  setWalletConnected(true);
+                  onSignWalletOpen();
+                }}
+              />
+            </Box>
+          )}
+
+          {walletConnected && (
+            <Box>
+              <Button
+                w="full"
+                mt={error ? 0 : 3}
+                onClick={() => {
+                  resetAll();
+                  disconnect();
+                }}
+              >
+                Disconnect Wallet
+              </Button>
+            </Box>
+          )}
+
+          <Box
+            mt="6"
+            display="flex"
+            flexDirection="column"
+            experimental_spaceY="4"
+            textAlign="center"
+            color="slate.500"
+            _dark={{ color: "slate.400" }}
+          >
+            <span>Already have an account?</span>
+            <Button
+              className="block w-full"
+              onClick={() => {
+                if (walletConnected) {
+                  toast({
+                    title: "Please disconnect the wallet first!",
+                    description: ``,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  return;
+                } else {
+                  resetAll();
+                  router.push("/auth/login");
+                }
+              }}
+            >
+              Login
+            </Button>
+          </Box>
+
+          <SignWalletModal
+            user={loggedInUser}
+            isOpen={isSignWalletOpen}
+            onClose={() => {
+              onSignWalletClose();
+              setShowConnectedWallets(false);
             }}
+            onSignMessage={(value) => {
+              return setOnSignMessage(value);
+            }}
+            forceSign={true}
           />
-        </Box>
-      }
-
-      {
-        walletConnected && <Box>
-          <Button w="full" mt={error ? 0 : 3} onClick={() => {
-            resetAll()
-            disconnect()
-          }}>
-            Disconnect Wallet
-          </Button>
-        </Box>
-      }
-
-      <Box
-        mt="6"
-        display="flex"
-        flexDirection="column"
-        experimental_spaceY="4"
-        textAlign="center"
-        color="slate.500"
-        _dark={{ color: "slate.400" }}
-      >
-        <span>Already have an account?</span>
-        <Button className="block w-full" onClick={(() => {
-          if (walletConnected) {
-            toast({
-              title: "Please disconnect the wallet first!",
-              description: ``,
-              status: "error",
-              duration: 3000,
-              isClosable: true,
-            });
-            return
-          } else {
-            resetAll()
-            router.push("/auth/login")
-          }
-        })}>Login</Button>
-      </Box>
-
-      <SignWalletModal
-        user={loggedInUser}
-        isOpen={isSignWalletOpen}
-        onClose={(() => {
-          onSignWalletClose()
-          setShowConnectedWallets(false)
-        })}
-        onSignMessage={(value) => {
-          return setOnSignMessage(value);
-        }}
-        forceSign={true}
-      />
+        </>
+      ) : (<div><Text>Loading...</Text></div>)}
     </>
   );
 
@@ -455,6 +468,7 @@ const VerifyRegistration: FC<{
 const Register: FC = () => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const toast = useToast();
+  const { walletIsSigned } = useWallet()
   const onRegister = (code, email) => {
     setEmail(email);
     // toast({
