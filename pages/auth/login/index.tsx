@@ -11,6 +11,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -63,6 +64,8 @@ const Login: FC = () => {
     auth: Auth;
     user: User;
   }>(null, { email: "" }, schema);
+
+  const setUser = useAuthStore((state) => state.setUser);
 
   const { createMessageAndSign } = useWalletActions();
 
@@ -209,6 +212,38 @@ const Login: FC = () => {
     }
   };
 
+  const getFarcasterUserProfile = () => {
+    const {
+      isAuthenticated,
+      profile: { username, fid },
+    } = useProfile();
+
+    console.log(`Is Auth: ${isAuthenticated}, userName: ${username}, fid: ${fid}`)
+
+    loginUsingFarcaster(username, fid)
+  }
+
+  const loginUsingFarcaster = async (username, fid) => {
+
+    var signInData = new SignInData(String(`${username}-${fid}@dummy.com`), String("12345678"));
+    const user = await pbManager.signIn(signInData)
+
+    if (user.code == undefined) {
+      setUser(user)
+      setLoginMode(false);
+      router.push("/")
+    } else {
+      toast({
+        title: "This Farcaster Account is not linked with any GreatApe Account, Please Register using Farcaster",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+
+  }
+
   return (
     <MainLayout>
       <Head>
@@ -233,7 +268,7 @@ const Login: FC = () => {
         {!email ? (
           walletIsSigned ? (
             <div>
-                <Text>Loading...</Text>
+              <Text>Loading...</Text>
             </div>
           ) : (
             <div>
@@ -273,6 +308,19 @@ const Login: FC = () => {
                   />
                 </Box>
               }
+              <div className={styles.signInWithFarcasterButton}>
+                <SignInButton
+                  onSuccess={(res) => {
+                    console.log("Farcaster Login success: ", res)
+                    getFarcasterUserProfile()
+                  }}
+                  onError={(err) => {
+                    console.log("Error SIWF: ", err)
+                    getFarcasterUserProfile()
+                  }}
+                />
+              </div>
+
 
               {
                 walletConnected && <Box>

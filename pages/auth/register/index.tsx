@@ -11,6 +11,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { SignInButton, useProfile } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -242,6 +243,50 @@ const RegistrationForm: FC<{
     }
   };
 
+  const getFarcasterUserProfile = () => {
+    const {
+      isAuthenticated,
+      profile: { username, fid },
+    } = useProfile();
+
+    console.log(`Is Auth: ${isAuthenticated}, userName: ${username}, fid: ${fid}`)
+
+    loginOrCreateNewAccountUsingFarcaster(username, fid)
+  }
+
+  const loginOrCreateNewAccountUsingFarcaster = async (username, fid) => {
+
+    //fetch if user with fid exists or not
+    const userByFid = await pbManager.fetchUserByFID(fid);
+
+    if(userByFid.code==undefined){
+      //user aleready exists
+      setUser(userByFid)
+      setLoginMode(false);
+      router.push("/")
+      return;
+    }
+
+    toast({
+      title: "This Farcaster Account is not linked with any GreatApe Account, Creating new Account...",
+      description: ``,
+      status: "error",
+      duration: 6000,
+      isClosable: true,
+    });
+
+    //create new user without email
+    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@dummy.com`), String("12345678"), null, fid);
+    const newUser = await pbManager.signUp(signUpData)
+
+    if (newUser.code == undefined) {
+      setUser(newUser)
+      setLoginMode(false);
+      router.push("/")
+    }
+
+  }
+
   return (
     <>
       {!walletIsSigned ? (
@@ -297,6 +342,19 @@ const RegistrationForm: FC<{
               </Button>
             </Box>
           )}
+
+          <div className={styles.signInWithFarcasterButton}>
+            <SignInButton
+              onSuccess={(res) => {
+                console.log("Farcaster Login success: ", res)
+                getFarcasterUserProfile()
+              }}
+              onError={(err) => {
+                console.log("Error SIWF: ", err)
+                getFarcasterUserProfile()
+              }}
+            />
+          </div>
 
           <Box
             mt="6"

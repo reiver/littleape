@@ -1,6 +1,7 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
+import { AuthKitProvider } from '@farcaster/auth-kit';
 import {
   QueryClient
 } from '@tanstack/react-query';
@@ -14,7 +15,13 @@ import { useAuthStore } from "store";
 import "styles/global.css";
 import { SWRConfig } from "swr";
 import "../styles/styles.css";
+import '@farcaster/auth-kit/styles.css';
 
+const config = {
+  rpcUrl: 'https://mainnet.optimism.io',
+  domain: 'littleape-swart.vercel.app',
+  siweUri: 'https://littleape-swart.vercel.app/auth/login',
+};
 
 dayjs.extend(relativeTime);
 
@@ -24,26 +31,29 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <WalletProvider>
-      <ThirdwebProvider>
-        <SWRConfig
-          value={{
-            provider: () => new Map(),
-            fetcher,
-            revalidateOnFocus: false,
-            revalidateIfStale: false,
-            fallback: {
-              [API_PROFILE]: pageProps.user,
-              ...pageProps.swrFallback,
-            },
-          }}
-        >
-          <ChakraProvider theme={theme}>
-            <Component {...pageProps} />
-          </ChakraProvider>
-        </SWRConfig>
-      </ThirdwebProvider>
-    </WalletProvider>
+    <AuthKitProvider config={config}>
+      <WalletProvider>
+        <ThirdwebProvider>
+          <SWRConfig
+            value={{
+              provider: () => new Map(),
+              fetcher,
+              revalidateOnFocus: false,
+              revalidateIfStale: false,
+              fallback: {
+                [API_PROFILE]: pageProps.user,
+                ...pageProps.swrFallback,
+              },
+            }}
+          >
+            <ChakraProvider theme={theme}>
+              <Component {...pageProps} />
+            </ChakraProvider>
+          </SWRConfig>
+        </ThirdwebProvider>
+      </WalletProvider>
+    </AuthKitProvider>
+
   );
 }
 

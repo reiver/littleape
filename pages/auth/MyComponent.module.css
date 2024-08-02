@@ -18,3 +18,7 @@
 .connectedButton {
   background: transparent !important;
 }
+
+.signInWithFarcasterButton {
+  margin-top: 8px !important;
+}

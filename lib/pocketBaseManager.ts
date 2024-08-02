@@ -25,8 +25,15 @@ export class SignUpData {
   passwordConfirm: string;
   name: string;
   avatar: File;
+  fid: string;
 
-  constructor(username: string, email: string, password: string, avatar: File) {
+  constructor(
+    username: string,
+    email: string,
+    password: string,
+    avatar: File = null,
+    fid: string = null
+  ) {
     this.username = username;
     this.email = email;
     this.password = password;
@@ -34,6 +41,7 @@ export class SignUpData {
     this.passwordConfirm = password;
     this.name = username;
     this.avatar = avatar;
+    this.fid = fid;
   }
 }
 
@@ -231,6 +239,15 @@ export class PocketBaseManager {
       return user;
     } catch (e) {
       return e.data;
+    }
+  }
+
+  public async fetchUserByFID(fid) {
+    try {
+      const user = await this.pocketBase.collection("users").getFirstListItem(`fid="${fid}"`);
+      return user;
+    } catch (error) {
+      return error.data;
     }
   }
 
