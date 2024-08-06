@@ -336,10 +336,10 @@ const RegistrationForm: FC<{
           <div className={styles.signInWithFarcasterButton}>
             <SignInButton
               onSuccess={(res) => {
-                if (loginMode != LoginMode.FASRCASTER) {
+                if (loginMode != LoginMode.FARCASTER) {
                   console.log("Farcaster Login success: ", res)
                   loginOrCreateNewAccountUsingFarcaster(res.username, res.displayName, res.fid)
-                  setLoginMode(LoginMode.FASRCASTER);
+                  setLoginMode(LoginMode.FARCASTER);
                 }
               }}
               onError={(err) => {

@@ -35,6 +35,7 @@ import { UserAvatar } from "components/UserAvatar";
 import { UserCover } from "components/UserCover";
 import { ConnectWallet, lookUpENS, useAddress, useConnectionStatus, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 
+import { useProfile } from "@farcaster/auth-kit";
 import { SignWalletModal } from "components/Modals/SignWalletModal";
 import {
   API_PROFILE,
@@ -57,7 +58,6 @@ import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
-import { useProfile } from "@farcaster/auth-kit";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -146,7 +146,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       setUser(model)
       return
     }
-    else if (loginMode == LoginMode.FASRCASTER) {
+    else if (loginMode == LoginMode.FARCASTER) {
       console.log("fid is : ", fid)
       //fetch user by fid
       const model = await pbManager.fetchUserByFID(fid)
@@ -707,7 +707,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       setUserModel(model);
       setUser(model)
       return
-    } else if (loginMode == LoginMode.FASRCASTER) {
+    } else if (loginMode == LoginMode.FARCASTER) {
       //fetch user by fid
       const model = await pbManager.fetchUserByFID(fid)
       setUserModel(model)

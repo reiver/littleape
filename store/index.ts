@@ -7,7 +7,7 @@ import create from "zustand";
 export enum LoginMode {
   EMAIL,
   WALLET,
-  FASRCASTER,
+  FARCASTER,
 }
 
 interface AuthState {

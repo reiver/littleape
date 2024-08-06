@@ -300,10 +300,10 @@ const Login: FC = () => {
               <div className={styles.signInWithFarcasterButton}>
                 <SignInButton
                   onSuccess={(res) => {
-                    if (loginMode != LoginMode.FASRCASTER) {
+                    if (loginMode != LoginMode.FARCASTER) {
                       console.log("Farcaster Login success: ", res)
                       loginUsingFarcaster(res.username, res.fid)
-                      setLoginMode(LoginMode.FASRCASTER);
+                      setLoginMode(LoginMode.FARCASTER);
                     }
                   }}
                   onError={(err) => {
