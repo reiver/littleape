@@ -32,14 +32,15 @@ export class SignUpData {
     email: string,
     password: string,
     avatar: File = null,
-    fid: string = null
+    fid: string = null,
+    displayName: string = username
   ) {
     this.username = username;
     this.email = email;
     this.password = password;
     this.emailVisibility = true;
     this.passwordConfirm = password;
-    this.name = username;
+    this.name = displayName;
     this.avatar = avatar;
     this.fid = fid;
   }
@@ -137,6 +138,8 @@ export class PocketBaseManager {
       passwordConfirm: signUpData.passwordConfirm,
       name: signUpData.name,
       avatar: signUpData.avatar,
+      fid: signUpData.fid,
+      username: signUpData.username,
     };
 
     try {

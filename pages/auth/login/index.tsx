@@ -11,7 +11,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { SignInButton, useProfile } from "@farcaster/auth-kit";
+import { SignInButton } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -26,7 +26,7 @@ import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FC, FormEvent, useEffect, useState } from "react";
-import { useAuthStore } from "store";
+import { LoginMode, useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
@@ -71,6 +71,7 @@ const Login: FC = () => {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
+  const loginMode = useAuthStore((state) => state.mode)
   const loggedInUser = useAuthStore((state) => state.user);
 
   const toast = useToast();
@@ -130,7 +131,7 @@ const Login: FC = () => {
       const user = await pbManager.fetchUserByWalletId(address)
       if (user.code == undefined) {
         setAuth(user.email, user);
-        setLoginMode(true)
+        setLoginMode(LoginMode.WALLET)
         router.push("/")
       }
     }
@@ -196,7 +197,7 @@ const Login: FC = () => {
         username: record.username,
       };
 
-      setLoginMode(false)
+      setLoginMode(LoginMode.EMAIL)
       setAuth(record.email, user);
     } catch (error) {
       toast({
@@ -212,25 +213,12 @@ const Login: FC = () => {
     }
   };
 
-  const getFarcasterUserProfile = () => {
-    const {
-      isAuthenticated,
-      profile: { username, fid },
-    } = useProfile();
-
-    console.log(`Is Auth: ${isAuthenticated}, userName: ${username}, fid: ${fid}`)
-
-    loginUsingFarcaster(username, fid)
-  }
-
   const loginUsingFarcaster = async (username, fid) => {
 
-    var signInData = new SignInData(String(`${username}-${fid}@dummy.com`), String("12345678"));
-    const user = await pbManager.signIn(signInData)
+    const user = await pbManager.fetchUserByFID(fid)
 
     if (user.code == undefined) {
       setUser(user)
-      setLoginMode(false);
       router.push("/")
     } else {
       toast({
@@ -240,6 +228,7 @@ const Login: FC = () => {
         duration: 6000,
         isClosable: true,
       });
+      setLoginMode(LoginMode.EMAIL)
     }
 
   }
@@ -311,12 +300,14 @@ const Login: FC = () => {
               <div className={styles.signInWithFarcasterButton}>
                 <SignInButton
                   onSuccess={(res) => {
-                    console.log("Farcaster Login success: ", res)
-                    getFarcasterUserProfile()
+                    if (loginMode != LoginMode.FASRCASTER) {
+                      console.log("Farcaster Login success: ", res)
+                      loginUsingFarcaster(res.username, res.fid)
+                      setLoginMode(LoginMode.FASRCASTER);
+                    }
                   }}
                   onError={(err) => {
                     console.log("Error SIWF: ", err)
-                    getFarcasterUserProfile()
                   }}
                 />
               </div>

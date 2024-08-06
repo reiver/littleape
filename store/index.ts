@@ -4,14 +4,20 @@ import { PocketBaseManager } from "lib/pocketBaseManager";
 import { User } from "types/User";
 import create from "zustand";
 
+export enum LoginMode {
+  EMAIL,
+  WALLET,
+  FASRCASTER,
+}
+
 interface AuthState {
   authorized: boolean;
   token?: string;
   user?: Partial<User>;
-  loginViaWallet: Boolean;
+  mode: LoginMode;
   setAuth: (token: string, user: User) => void;
   setUser: (user: User) => void;
-  setLoginMode: (viaWallet: Boolean) => void;
+  setLoginMode: (mode: LoginMode) => void;
   logout: () => void;
 }
 
@@ -20,7 +26,7 @@ const pbManager = PocketBaseManager.getInstance();
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   authorized: true,
-  loginViaWallet: false,
+  mode: LoginMode.EMAIL,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
     set(() => ({
@@ -33,9 +39,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
     }));
   },
-  setLoginMode: (loginViaWallet) => {
+  setLoginMode: (mode) => {
     set(() => ({
-      loginViaWallet,
+      mode,
     }));
   },
   logout: () => {
@@ -46,7 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: undefined,
       address: undefined,
       authorized: false,
-      loginViaWallet: false,
+      mode: LoginMode.EMAIL,
     }));
   },
 }));

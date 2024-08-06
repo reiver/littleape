@@ -48,7 +48,7 @@ import { EnsData, PocketBaseManager, WalletData } from "lib/pocketBaseManager";
 import { FC, useEffect, useState } from "react";
 import { FETCH_USER_PROFILE } from "services/api";
 import { uploadFile } from "services/http";
-import { useAuthStore } from "store";
+import { LoginMode, useAuthStore } from "store";
 import useSWR, { useSWRConfig } from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { ActivityUser, User } from "types/User";
@@ -57,6 +57,7 @@ import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
+import { useProfile } from "@farcaster/auth-kit";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -97,7 +98,10 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   const [wallets, setWallets] = useState([]);
   const address = useAddress();
   const setUser = useAuthStore((state) => state.setUser);
-  const loginViaWallet = useAuthStore((state) => state.loginViaWallet)
+  const loginMode = useAuthStore((state) => state.mode)
+  const {
+    profile: { fid },
+  } = useProfile();
 
   const [userModel, setUserModel] = useState(null);
 
@@ -136,9 +140,17 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       return
     }
 
-    if (loginViaWallet == false) {
+    if (loginMode == LoginMode.EMAIL) {
       const model = await pbManager.fetchUser()
       setUserModel(model);
+      setUser(model)
+      return
+    }
+    else if (loginMode == LoginMode.FASRCASTER) {
+      console.log("fid is : ", fid)
+      //fetch user by fid
+      const model = await pbManager.fetchUserByFID(fid)
+      setUserModel(model)
       setUser(model)
       return
     }
@@ -644,6 +656,10 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const [ens, setEns] = useState('');
 
   const {
+    profile: { fid },
+  } = useProfile();
+
+  const {
     resetAll,
     walletConnected,
     setWalletConnected,
@@ -672,7 +688,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   } = useWallet();
 
   const setUser = useAuthStore((state) => state.setUser);
-  const loginViaWallet = useAuthStore((state) => state.loginViaWallet)
+  const loginMode = useAuthStore((state) => state.mode)
 
   const [userModel, setUserModel] = useState(null);
 
@@ -686,9 +702,15 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       return
     }
 
-    if (loginViaWallet == false) {
+    if (loginMode == LoginMode.EMAIL) {
       const model = await pbManager.fetchUser()
       setUserModel(model);
+      setUser(model)
+      return
+    } else if (loginMode == LoginMode.FASRCASTER) {
+      //fetch user by fid
+      const model = await pbManager.fetchUserByFID(fid)
+      setUserModel(model)
       setUser(model)
       return
     }

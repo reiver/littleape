@@ -11,7 +11,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { SignInButton, useProfile } from "@farcaster/auth-kit";
+import { SignInButton } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
@@ -26,7 +26,7 @@ import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FC, FormEvent, useEffect, useState } from "react";
-import { useAuthStore } from "store";
+import { LoginMode, useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
@@ -60,6 +60,7 @@ const RegistrationForm: FC<{
   const setAuth = useAuthStore((state) => state.setAuth);
   const setUser = useAuthStore((state) => state.setUser);
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
+  const loginMode = useAuthStore((state) => state.mode)
 
   const disconnect = useDisconnect();
   const connectionStatus = useConnectionStatus();
@@ -124,7 +125,7 @@ const RegistrationForm: FC<{
       });
 
       //create new user without email
-      var signUpData = new SignUpData(String("Dummy User"), String(`dummy${address}@dummy.com`), String("12345678"), null);
+      var signUpData = new SignUpData(String("Dummy User"), String(`dummy${address}@littleape.com`), String("12345678"), null);
       const newUser = await pbManager.signUp(signUpData)
 
       //save wallet against that user
@@ -140,7 +141,7 @@ const RegistrationForm: FC<{
         setUser(user)
 
         if (newWalletSaved.code == undefined) {
-          setLoginMode(true);
+          setLoginMode(LoginMode.WALLET);
           router.push("/")
         }
 
@@ -152,7 +153,7 @@ const RegistrationForm: FC<{
       const user = await pbManager.fetchUserByWalletId(address)
       if (user.code == undefined) {
         setAuth(user.email, user);
-        setLoginMode(true)
+        setLoginMode(LoginMode.WALLET)
         router.push("/")
       }
     }
@@ -213,7 +214,7 @@ const RegistrationForm: FC<{
             username: record.username,
           };
 
-          setLoginMode(false)
+          setLoginMode(LoginMode.EMAIL)
           setAuth(record.email, user);
         } catch (error) {
           toast({
@@ -243,26 +244,14 @@ const RegistrationForm: FC<{
     }
   };
 
-  const getFarcasterUserProfile = () => {
-    const {
-      isAuthenticated,
-      profile: { username, fid },
-    } = useProfile();
-
-    console.log(`Is Auth: ${isAuthenticated}, userName: ${username}, fid: ${fid}`)
-
-    loginOrCreateNewAccountUsingFarcaster(username, fid)
-  }
-
-  const loginOrCreateNewAccountUsingFarcaster = async (username, fid) => {
+  const loginOrCreateNewAccountUsingFarcaster = async (username, displayName, fid) => {
 
     //fetch if user with fid exists or not
     const userByFid = await pbManager.fetchUserByFID(fid);
 
-    if(userByFid.code==undefined){
+    if (userByFid.code == undefined) {
       //user aleready exists
       setUser(userByFid)
-      setLoginMode(false);
       router.push("/")
       return;
     }
@@ -276,13 +265,14 @@ const RegistrationForm: FC<{
     });
 
     //create new user without email
-    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@dummy.com`), String("12345678"), null, fid);
+    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@littleape.com`), String("12345678"), null, fid, String(displayName));
     const newUser = await pbManager.signUp(signUpData)
 
     if (newUser.code == undefined) {
       setUser(newUser)
-      setLoginMode(false);
       router.push("/")
+    } else {
+      setLoginMode(LoginMode.EMAIL)
     }
 
   }
@@ -346,12 +336,14 @@ const RegistrationForm: FC<{
           <div className={styles.signInWithFarcasterButton}>
             <SignInButton
               onSuccess={(res) => {
-                console.log("Farcaster Login success: ", res)
-                getFarcasterUserProfile()
+                if (loginMode != LoginMode.FASRCASTER) {
+                  console.log("Farcaster Login success: ", res)
+                  loginOrCreateNewAccountUsingFarcaster(res.username, res.displayName, res.fid)
+                  setLoginMode(LoginMode.FASRCASTER);
+                }
               }}
               onError={(err) => {
                 console.log("Error SIWF: ", err)
-                getFarcasterUserProfile()
               }}
             />
           </div>
@@ -453,7 +445,7 @@ const VerifyRegistration: FC<{
         duration: 3000,
         isClosable: true,
       });
-      setLoginMode(false);
+      setLoginMode(LoginMode.EMAIL);
       router.push("/");
     } else if (response.code == "201") {
       toast({
