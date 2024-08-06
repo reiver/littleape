@@ -2,7 +2,6 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
 import { AuthKitProvider } from '@farcaster/auth-kit';
-import '@farcaster/auth-kit/styles.css';
 import {
   QueryClient
 } from '@tanstack/react-query';
@@ -16,11 +15,12 @@ import { useAuthStore } from "store";
 import "styles/global.css";
 import { SWRConfig } from "swr";
 import "../styles/styles.css";
+import '@farcaster/auth-kit/styles.css';
 
 const config = {
   rpcUrl: 'https://mainnet.optimism.io',
-  domain: `${window.location.hostname}`,
-  siweUri: `https://${window.location.hostname}/auth/login`,
+  domain: 'littleape-swart.vercel.app',
+  siweUri: 'https://littleape-swart.vercel.app/auth/login',
 };
 
 dayjs.extend(relativeTime);
