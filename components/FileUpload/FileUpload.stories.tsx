@@ -60,7 +60,6 @@ export const WithAvatar = () => {
     var reader = new FileReader();
 
     reader.onload = function (event) {
-      console.log("loaded");
       setImgSrc(event.target.result);
     };
 

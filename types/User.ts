@@ -6,11 +6,12 @@ export type User = Partial<{
   avatar: string;
   banner: string;
   bio: string;
-  display_name: string;
+  name: string;
   email: string;
   github: string;
   publicKey: string;
   username: string;
+  fid:number;
 }>;
 
 export type ActivityUser = {

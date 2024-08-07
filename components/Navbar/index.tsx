@@ -15,7 +15,6 @@ import {
   chakra,
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
-import { useDisconnect } from "@thirdweb-dev/react";
 import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
@@ -23,10 +22,10 @@ import { UserAvatar } from "components/UserAvatar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
-import { FETCH_USER_INBOX } from "services/api";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
+import { useDisconnect, useWallet } from "web3-wallet-connection";
 
 const VideoIcon = chakra(VideoCameraIcon, { baseStyle: { w: "4" } });
 const NotificationIcon = chakra(BellIcon, { baseStyle: { w: "4" } });
@@ -59,9 +58,12 @@ export const Navbar: FC<BoxProps> = (props) => {
   const logout = useAuthStore((state) => state.logout);
   const disconnect = useDisconnect();
 
+  const { resetAll } = useWallet()
+
   const handleLogout = () => {
     disconnect()
     logout();
+    resetAll()
     router.push("/auth/login");
   };
   return (
@@ -126,7 +128,7 @@ export const Navbar: FC<BoxProps> = (props) => {
                   h={7}
                   size="sm"
                   link={false}
-                  name={user?.display_name || ''}
+                  name={user?.name || ''}
                   src={user?.avatar || ''}
                   username={user?.username || ''}
                 />
@@ -153,8 +155,7 @@ export const Navbar: FC<BoxProps> = (props) => {
 
 const MessagesPopup: FC = () => {
   const user = useAuthStore((state) => state.user);
-  console.log("User in messaagesPOp:", user);
-  const { data: inbox } = useSWR<OrderedCollection>(FETCH_USER_INBOX(user?.username || ''));
+  const { data: inbox } = useSWR<OrderedCollection>(null);//FETCH_USER_INBOX(user?.username || '')
 
   return (
     <Menu placement="bottom-end">
@@ -170,7 +171,7 @@ const MessagesPopup: FC = () => {
           bg: "dark.700",
         }}
       >
-        {inbox &&
+        {inbox && inbox.orderedItems != null &&
           inbox.orderedItems.map((item, i) => {
             const actorUsername =
               item.object.attributedTo.split("/")[item.object.attributedTo.split("/").length - 1];

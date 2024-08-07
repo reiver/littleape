@@ -7,28 +7,34 @@ import {
   PinInput,
   PinInputField,
   Text,
+  useDisclosure,
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { SignInButton } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
+import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
-import { OtpRequestBody, PocketBaseManager, SignUpData } from "lib/pocketBaseManager";
+import { OtpRequestBody, PocketBaseManager, SignUpData, WalletData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, FormEvent, useState } from "react";
-import { useAuthStore } from "store";
+import { FC, FormEvent, useEffect, useState } from "react";
+import { LoginMode, useAuthStore } from "store";
 import { Auth } from "types/Auth";
 import { Error } from "types/Error";
 import { User } from "types/User";
+import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
+import styles from "../MyComponent.module.css";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
+
 const pbManager = PocketBaseManager.getInstance();
 
 const registrationSchema = z.object({
@@ -44,8 +50,115 @@ const verifySchema = z.object({
 const RegistrationForm: FC<{
   onRegister: (code: string, email: string) => void;
 }> = ({ onRegister }) => {
+
+  const { createMessageAndSign } = useWalletActions();
+
+
   const [error, setError] = useState(null);
   const toast = useToast();
+  const router = useRouter();
+  const loggedInUser = useAuthStore((state) => state.user);
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const setUser = useAuthStore((state) => state.setUser);
+  const setLoginMode = useAuthStore((state) => state.setLoginMode);
+  const loginMode = useAuthStore((state) => state.mode)
+
+  const disconnect = useDisconnect();
+  const connectionStatus = useConnectionStatus();
+  let address = useAddress();
+  const sdk = useSDK();
+
+
+  const {
+    showConnectedWallets,
+    setShowConnectedWallets,
+    onSignMessage,
+    setOnSignMessage,
+    walletConnected,
+    setWalletConnected,
+    messageSigned,
+    setMessageSigned,
+    message,
+    setMessage,
+    signature,
+    setSignature,
+    resetAll,
+    walletIsSigned,
+    setWalletIsSigned,
+  } = useWallet();
+
+  const {
+    isOpen: isSignWalletOpen,
+    onOpen: onSignWalletOpen,
+    onClose: onSignWalletClose,
+  } = useDisclosure();
+
+  useEffect(() => {
+    //sign message only if onSignMessage is true
+    if (onSignMessage) {
+      createMessageAndSign()
+    }
+  }, [onSignMessage])
+
+  useEffect(() => {
+    if (address != undefined) {
+      setWalletConnected(true)
+
+      if (walletIsSigned) {
+        loginOrCreateAccount(address)
+      }
+    } else {
+      setWalletConnected(false)
+    }
+
+  }, [address, walletIsSigned])
+
+  const loginOrCreateAccount = async (address) => {
+    const wallet = await pbManager.getWallet(address)
+
+    if (wallet.code != undefined && wallet.code == 404) {
+      toast({
+        title: "This wallet is not connected to any account, Creating new Account for that",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+
+      //create new user without email
+      var signUpData = new SignUpData(String("Dummy User"), String(`dummy${address}@littleape.com`), String("12345678"), null);
+      const newUser = await pbManager.signUp(signUpData)
+
+      //save wallet against that user
+
+      if (newUser.code == undefined) {
+        //user is created, now save wallet
+
+        const walletData = new WalletData(null, address, newUser.id, message, signature, true)
+        const newWalletSaved = await pbManager.saveWallet(walletData)
+
+        const user = await pbManager.fetchUserByWalletId(address)
+
+        setUser(user)
+
+        if (newWalletSaved.code == undefined) {
+          setLoginMode(LoginMode.WALLET);
+          router.push("/")
+        }
+
+      }
+
+
+    }
+    else {
+      const user = await pbManager.fetchUserByWalletId(address)
+      if (user.code == undefined) {
+        setAuth(user.email, user);
+        setLoginMode(LoginMode.WALLET)
+        router.push("/")
+      }
+    }
+  }
 
   const { register, errors, getValues, post, loading } = useForm<{
     code: string;
@@ -66,7 +179,6 @@ const RegistrationForm: FC<{
     const { email, displayname } = getValues();
 
     try {
-      console.log("Inside try");
       var signUpData = new SignUpData(String(displayname), String(email), String("12345678"), null);
       const response = await pbManager.signUp(signUpData);
 
@@ -83,10 +195,40 @@ const RegistrationForm: FC<{
           });
         }
       } else {
-        console.log("Registered: Response: ", response);
 
-        // const verify = await pbManager.verifyEmail(String(email));
-        // console.log("Verify: ", verify);
+        console.log("User SignedUP: ", response)
+
+        const record = response
+
+        try {
+
+          const user: User = {
+            api_key: "",
+            avatar: record.avatar,
+            banner: "",
+            bio: "",
+            name: record.name,
+            email: record.email,
+            github: "",
+            id: record.id,
+            publicKey: "",
+            username: record.username,
+          };
+
+          setLoginMode(LoginMode.EMAIL)
+          setAuth(record.email, user);
+        } catch (error) {
+          toast({
+            title: "The email is invalid.",
+            description: ``,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          console.error("Sign in error:", error);
+          const err: Error = error.response?._data;
+          if (err?.type === "server_error") setError(err.payload);
+        }
 
         onRegister("200", email.toString());
       }
@@ -99,50 +241,164 @@ const RegistrationForm: FC<{
         isClosable: true,
       });
       const err: Error = e.response?._data;
-      console.log("Error:", err);
       if (err?.type === "server_error") setError(err.payload);
     }
   };
 
+  const loginOrCreateNewAccountUsingFarcaster = async (username, displayName, fid) => {
+
+    //fetch if user with fid exists or not
+    const userByFid = await pbManager.fetchUserByFID(fid);
+
+    if (userByFid.code == undefined) {
+      //user aleready exists
+      setUser(userByFid)
+      router.push("/")
+      return;
+    }
+
+    toast({
+      title: "This Farcaster Account is not linked with any GreatApe Account, Creating new Account...",
+      description: ``,
+      status: "error",
+      duration: 6000,
+      isClosable: true,
+    });
+
+    //create new user without email
+    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@littleape.com`), String("12345678"), null, fid, String(displayName));
+    const newUser = await pbManager.signUp(signUpData)
+
+    if (newUser.code == undefined) {
+      setUser(newUser)
+      router.push("/")
+    } else {
+      setLoginMode(LoginMode.EMAIL)
+    }
+
+  }
+
   return (
     <>
-      <Form
-        onSubmit={signUpViaPocketBase}
-        display="flex"
-        flexDirection="column"
-        experimental_spaceY={4}
-      >
-        <Input autoFocus {...register("displayname")} error={errors.displayname} label="Name" />
-        <Input {...register("email")} error={errors.email} />
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
-        <Box>
-          <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
-            Sign up
-          </Button>
-        </Box>
-      </Form>
+      {!walletIsSigned ? (
+        <>
+          <Form
+            onSubmit={signUpViaPocketBase}
+            display="flex"
+            flexDirection="column"
+            experimental_spaceY={4}
+          >
+            <Input autoFocus {...register("displayname")} error={errors.displayname} label="Name" />
+            <Input {...register("email")} error={errors.email} />
+            {error && (
+              <Alert status="error">
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
+            <Box>
+              <Button primary w="full" type="submit" isLoading={loading} mt={error ? 0 : 3}>
+                Sign up
+              </Button>
+            </Box>
+          </Form>
 
-      <Box
-        mt="6"
-        display="flex"
-        flexDirection="column"
-        experimental_spaceY="4"
-        textAlign="center"
-        color="slate.500"
-        _dark={{ color: "slate.400" }}
-      >
-        <span>Already have an account?</span>
-        <Link href="/auth/login">
-          <Button className="block w-full">Login</Button>
-        </Link>
-      </Box>
+          {!walletConnected && (
+            <Box>
+              <ConnectWallet
+                theme={walletConnected ? "light" : "dark"}
+                className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                auth={{ loginOptional: false }}
+                btnTitle="Continue With Your Wallet"
+                showThirdwebBranding={false}
+                onConnect={async (wallet) => {
+                  setWalletConnected(true);
+                  onSignWalletOpen();
+                }}
+              />
+            </Box>
+          )}
+
+          {walletConnected && (
+            <Box>
+              <Button
+                w="full"
+                mt={error ? 0 : 3}
+                onClick={() => {
+                  resetAll();
+                  disconnect();
+                }}
+              >
+                Disconnect Wallet
+              </Button>
+            </Box>
+          )}
+
+          <div>
+            <SignInWithFarcasterButton
+              onSuccess={(res) => {
+                if (loginMode != LoginMode.FARCASTER) {
+                  console.log("Farcaster Login success: ", res)
+                  loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid)
+                  setLoginMode(LoginMode.FARCASTER);
+                }
+              }}
+              onError={(err) => {
+                console.log("Error SIWF: ", err)
+              }}
+            />
+          </div>
+
+          <Box
+            mt="6"
+            display="flex"
+            flexDirection="column"
+            experimental_spaceY="4"
+            textAlign="center"
+            color="slate.500"
+            _dark={{ color: "slate.400" }}
+          >
+            <span>Already have an account?</span>
+            <Button
+              className="block w-full"
+              onClick={() => {
+                if (walletConnected) {
+                  toast({
+                    title: "Please disconnect the wallet first!",
+                    description: ``,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  return;
+                } else {
+                  resetAll();
+                  router.push("/auth/login");
+                }
+              }}
+            >
+              Login
+            </Button>
+          </Box>
+
+          <SignWalletModal
+            user={loggedInUser}
+            isOpen={isSignWalletOpen}
+            onClose={() => {
+              onSignWalletClose();
+              setShowConnectedWallets(false);
+            }}
+            onSignMessage={(value) => {
+              return setOnSignMessage(value);
+            }}
+            forceSign={true}
+          />
+        </>
+      ) : (<div><Text>Loading...</Text></div>)}
     </>
   );
+
+
 };
 
 const pinInputProps = {
@@ -170,7 +426,7 @@ const VerifyRegistration: FC<{
 }> = ({ backToRegistration, email }) => {
   const router = useRouter();
   const toast = useToast();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setLoginMode = useAuthStore((state) => state.setLoginMode);
   const [error, setError] = useState(null);
   const { setValue, errors, post, loading, getValues } = useForm<{
     auth: Auth;
@@ -180,20 +436,8 @@ const VerifyRegistration: FC<{
     e.preventDefault();
     const { code } = getValues();
 
-    // post(e)
-    //   .then(({ auth, user }) => {
-    //     setAuth(auth.token, user);
-    //     router.push("/");
-    //   })
-    //   .catch((e) => {
-    //     const err: Error = e.response?._data;
-    //     if (err?.type === "server_error") setError(err.payload);
-    //   });
-
     var otpRequest = new OtpRequestBody(code, email);
-    console.log("Sending OTP: ", code);
     const response = await pbManager.verifyOtp(otpRequest);
-    console.log("Otp response: ", response);
     if (response.code == "200") {
       toast({
         title: "OTP verified",
@@ -202,6 +446,7 @@ const VerifyRegistration: FC<{
         duration: 3000,
         isClosable: true,
       });
+      setLoginMode(LoginMode.EMAIL);
       router.push("/");
     } else if (response.code == "201") {
       toast({
@@ -274,6 +519,7 @@ const VerifyRegistration: FC<{
 const Register: FC = () => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const toast = useToast();
+  const { walletIsSigned } = useWallet()
   const onRegister = (code, email) => {
     setEmail(email);
     // toast({

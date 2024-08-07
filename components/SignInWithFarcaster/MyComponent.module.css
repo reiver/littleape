@@ -18,3 +18,16 @@
 .connectedButton {
   background: transparent !important;
 }
+
+.signInWithFarcasterButton {
+  margin-top: 8px !important;
+}
+
+.largeText {
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
+
+.smallText {
+  font-size: 16px !important;
+}

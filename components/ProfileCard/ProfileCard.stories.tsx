@@ -25,7 +25,7 @@ useAuthStore.setState({
     username: "john",
     banner: "https://bit.ly/3DEvsyb",
     bio: "This is just a placeholder to fill the blank space.",
-    display_name: "John Doe",
+    name: "John Doe",
   },
 });
 
