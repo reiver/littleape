@@ -41,6 +41,7 @@ import {
 } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -297,21 +298,21 @@ const Login: FC = () => {
                   />
                 </Box>
               }
-              <div className={styles.signInWithFarcasterButton}>
-                <SignInButton
+
+              <div>
+                <SignInWithFarcasterButton
                   onSuccess={(res) => {
+                    console.log("Success SignInWithFarcasterButton: ", res)
                     if (loginMode != LoginMode.FARCASTER) {
                       console.log("Farcaster Login success: ", res)
-                      loginUsingFarcaster(res.username, res.fid)
+                      loginUsingFarcaster(res.data.username, res.data.fid)
                       setLoginMode(LoginMode.FARCASTER);
                     }
                   }}
                   onError={(err) => {
                     console.log("Error SIWF: ", err)
-                  }}
-                />
+                  }} />
               </div>
-
 
               {
                 walletConnected && <Box>

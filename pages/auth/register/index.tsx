@@ -33,6 +33,7 @@ import { User } from "types/User";
 import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -333,12 +334,12 @@ const RegistrationForm: FC<{
             </Box>
           )}
 
-          <div className={styles.signInWithFarcasterButton}>
-            <SignInButton
+          <div>
+            <SignInWithFarcasterButton
               onSuccess={(res) => {
                 if (loginMode != LoginMode.FARCASTER) {
                   console.log("Farcaster Login success: ", res)
-                  loginOrCreateNewAccountUsingFarcaster(res.username, res.displayName, res.fid)
+                  loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid)
                   setLoginMode(LoginMode.FARCASTER);
                 }
               }}

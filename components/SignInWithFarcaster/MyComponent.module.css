@@ -1,0 +1,33 @@
+.connectButtonLight {
+  background-color: #ffffff !important;
+  height: 40px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+.connectButtonAfter {
+  height: 50px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+.connectedButton {
+  background: transparent !important;
+}
+
+.signInWithFarcasterButton {
+  margin-top: 8px !important;
+}
+
+.largeText {
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
+
+.smallText {
+  font-size: 16px !important;
+}

@@ -21,6 +21,7 @@ const config = {
   rpcUrl: 'https://mainnet.optimism.io',
   domain: 'littleape-swart.vercel.app',
   siweUri: 'https://littleape-swart.vercel.app/auth/login',
+  relay: 'https://relay.farcaster.xyz',
 };
 
 dayjs.extend(relativeTime);

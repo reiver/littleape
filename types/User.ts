@@ -11,6 +11,7 @@ export type User = Partial<{
   github: string;
   publicKey: string;
   username: string;
+  fid:number;
 }>;
 
 export type ActivityUser = {

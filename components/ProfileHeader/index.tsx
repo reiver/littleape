@@ -98,10 +98,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   const [wallets, setWallets] = useState([]);
   const address = useAddress();
   const setUser = useAuthStore((state) => state.setUser);
+  const currentUser = useAuthStore((state) => state.user)
   const loginMode = useAuthStore((state) => state.mode)
-  const {
-    profile: { fid },
-  } = useProfile();
+
+  let fid = undefined
+  if (currentUser != undefined) {
+    fid = currentUser.fid
+  }
+
 
   const [userModel, setUserModel] = useState(null);
 
@@ -654,10 +658,12 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const sdk = useSDK();
   const connectionStatus = useConnectionStatus();
   const [ens, setEns] = useState('');
-
-  const {
-    profile: { fid },
-  } = useProfile();
+  const currentUser = useAuthStore((state) => state.user)
+  
+  let fid = undefined
+  if (currentUser != undefined) {
+    fid = currentUser.fid
+  }
 
   const {
     resetAll,
