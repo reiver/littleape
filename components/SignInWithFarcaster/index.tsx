@@ -27,6 +27,9 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
 
     }
 
+    if (url == null) {
+        createChannel()
+    }
 
     const checkStatusContinuously = (channelToken) => {
         const checkStatus = async (channelToken) => {
@@ -56,38 +59,9 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
         checkStatus(channelToken);
     };
 
-
-    const {
-        signIn,
-    } = useSignIn({
-        onSuccess: (res) => {
-            console.log("useSignIn success", res)
-            setError(null);  // Clear any existing error on success
-            if (onSuccess) {
-                onSuccess(res);
-            }
-        },
-        onError: (err) => {
-            console.error('Sign-in error:', err);
-            setError(err.message);
-            if (onError) {
-                onError(err);
-            }
-        }
-    });
-
     return (
         <div>
-
-            {
-                !url && <Button className={styles.connectButtonLight} w="full" mt={error ? 0 : 3} onClick={() => {
-                    createChannel()
-                }}>
-                    Sign In With Farcaster
-                </Button>
-            }
             {url && (
-
                 <div>
                     <Text className={styles.largeText}>Sign in with Farcaster</Text>
                     <Text className={styles.smallText}>Scan with your phone's camera to continue.</Text>
