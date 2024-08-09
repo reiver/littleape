@@ -29,5 +29,62 @@
 }
 
 .smallText {
-  font-size: 16px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #7e7e7e !important;
+}
+
+.textHeading {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+.QRCode {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 263px !important;
+  height: 266px !important;
+  margin-bottom: 20px !important;
+  border: 1px solid #7e7e7e;
+  border-radius: 8px;
+}
+
+.modelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.centerDiv {
+  text-align: center !important;
+  justify-content: center !important;
+  margin-left: 20px !important;
+  margin-right: 20px !important;
+}
+
+.linkBackground {
+  width: 300px !important;
+  height: 36px;
+  background-color: #EBEBEB !important;
+  border-radius: 20px !important;
+  display: flex;
+  align-items: center; /* Vertically center items */
+  justify-content: space-between; /* Distribute space between items */
+  padding: 0 12px; /* Optional: Add padding to ensure items don't touch the edges */
+}
+
+.linkText {
+  margin: 0 8px !important;
+  color: #7E7E7E !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+.iconButton {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
 }
