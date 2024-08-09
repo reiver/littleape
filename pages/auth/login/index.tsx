@@ -3,22 +3,21 @@ import {
   Box,
   FormControl,
   FormErrorMessage,
-  Grid,
   Heading,
   PinInput,
   PinInputField,
   Text,
   VStack,
   useDisclosure,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
+import { SignInButton } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
 import { SignWalletModal } from "components/Modals/SignWalletModal";
-import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
@@ -42,6 +41,7 @@ import {
 } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -239,145 +239,138 @@ const Login: FC = () => {
       <Head>
         <title>GreatApe | Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"700px"}>
+      <Box mx="auto" mt="10" w="full" maxW={"xs"}>
+        <Box
+          display="flex"
+          alignItems="center"
+          experimental_spaceX={"2"}
+          textColor="slate.900"
+          _dark={{
+            textColor: "slate.200",
+          }}
+        >
+          <Logo maxW="8" strokeWidth={2} />
+          <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
+            Login
+          </Heading>
+        </Box>
 
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={24}>
-          <Box>
-
-            <Box
-              display="flex"
-              alignItems="center"
-              experimental_spaceX={"2"}
-              textColor="slate.900"
-              _dark={{
-                textColor: "slate.200",
-              }}
-            >
-              <Logo maxW="8" strokeWidth={2} />
-              <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
-                Login
-              </Heading>
-            </Box>
-
-            {!email ? (
-              walletIsSigned ? (
-                <div>
-                  <Text>Loading...</Text>
-                </div>
-              ) : (
-                <div>
-                  <Form
-                    onSubmit={handleLoginViaPocketBase}
-                    mt="8"
-                    display="flex"
-                    flexDirection="column"
-                    experimental_spaceY={4}
-                  >
-                    <Input autoFocus {...register("email")} error={errors.email} />
-                    {error && (
-                      <Alert status="error">
-                        <AlertIcon />
-                        {error}
-                      </Alert>
-                    )}
-                    <Box>
-                      <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                        Login
-                      </Button>
-                    </Box>
-                  </Form>
-
-                  {
-                    !walletConnected && <Box>
-                      <ConnectWallet
-                        theme={walletConnected ? "light" : "dark"}
-                        className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-                        auth={{ loginOptional: false }}
-                        btnTitle="Continue With Your Wallet"
-                        showThirdwebBranding={false}
-                        onConnect={async (wallet) => {
-                          setWalletConnected(true);
-                          onSignWalletOpen()
-                        }}
-                      />
-                    </Box>
-                  }
-
-                  {
-                    walletConnected && <Box>
-                      <Button w="full" mt={error ? 0 : 3} onClick={() => {
-                        resetAll()
-                        disconnect()
-                      }}>
-                        Disconnect Wallet
-                      </Button>
-                    </Box>
-                  }
-
-                  <Box
-                    mt="6"
-                    display="flex"
-                    flexDirection="column"
-                    experimental_spaceY="4"
-                    textAlign="center"
-                    color="slate.500"
-                    _dark={{ color: "slate.400" }}
-                  >
-                    <span>Don&rsquo;t have an account?</span>
-                    <Button className="block w-full" onClick={(() => {
-                      if (walletConnected) {
-                        toast({
-                          title: "Please disconnect the wallet first!",
-                          description: ``,
-                          status: "error",
-                          duration: 3000,
-                          isClosable: true,
-                        });
-                        return
-                      } else {
-                        resetAll()
-                        router.push("/auth/register")
-                      }
-                    })}>Register now</Button>
-                  </Box>
-                </div>
-              )
-
-            ) : (
-              <VerifyRegistration email={email} backToRegistration={backToRegistration} />
-            )}
-
-            <SignWalletModal
-              user={loggedInUser}
-              isOpen={isSignWalletOpen}
-              onClose={(() => {
-                onSignWalletClose()
-                setShowConnectedWallets(false)
-              })}
-              onSignMessage={(value) => {
-                return setOnSignMessage(value);
-              }}
-              forceSign={true}
-            />
-          </Box>
-
-          <Box>
+        {!email ? (
+          walletIsSigned ? (
             <div>
-              <SignInWithFarcasterButton
-                onSuccess={(res) => {
-                  console.log("Success SignInWithFarcasterButton: ", res)
-                  if (loginMode != LoginMode.FARCASTER) {
-                    console.log("Farcaster Login success: ", res)
-                    loginUsingFarcaster(res.data.username, res.data.fid)
-                    setLoginMode(LoginMode.FARCASTER);
-                  }
-                }}
-                onError={(err) => {
-                  console.log("Error SIWF: ", err)
-                }} />
+              <Text>Loading...</Text>
             </div>
-          </Box>
-        </Grid>
+          ) : (
+            <div>
+              <Form
+                onSubmit={handleLoginViaPocketBase}
+                mt="8"
+                display="flex"
+                flexDirection="column"
+                experimental_spaceY={4}
+              >
+                <Input autoFocus {...register("email")} error={errors.email} />
+                {error && (
+                  <Alert status="error">
+                    <AlertIcon />
+                    {error}
+                  </Alert>
+                )}
+                <Box>
+                  <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                    Login
+                  </Button>
+                </Box>
+              </Form>
+
+              {
+                !walletConnected && <Box>
+                  <ConnectWallet
+                    theme={walletConnected ? "light" : "dark"}
+                    className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                    auth={{ loginOptional: false }}
+                    btnTitle="Continue With Your Wallet"
+                    showThirdwebBranding={false}
+                    onConnect={async (wallet) => {
+                      setWalletConnected(true);
+                      onSignWalletOpen()
+                    }}
+                  />
+                </Box>
+              }
+
+              <div>
+                <SignInWithFarcasterButton
+                  onSuccess={(res) => {
+                    console.log("Success SignInWithFarcasterButton: ", res)
+                    if (loginMode != LoginMode.FARCASTER) {
+                      console.log("Farcaster Login success: ", res)
+                      loginUsingFarcaster(res.data.username, res.data.fid)
+                      setLoginMode(LoginMode.FARCASTER);
+                    }
+                  }}
+                  onError={(err) => {
+                    console.log("Error SIWF: ", err)
+                  }} />
+              </div>
+
+              {
+                walletConnected && <Box>
+                  <Button w="full" mt={error ? 0 : 3} onClick={() => {
+                    resetAll()
+                    disconnect()
+                  }}>
+                    Disconnect Wallet
+                  </Button>
+                </Box>
+              }
+
+              <Box
+                mt="6"
+                display="flex"
+                flexDirection="column"
+                experimental_spaceY="4"
+                textAlign="center"
+                color="slate.500"
+                _dark={{ color: "slate.400" }}
+              >
+                <span>Don&rsquo;t have an account?</span>
+                <Button className="block w-full" onClick={(() => {
+                  if (walletConnected) {
+                    toast({
+                      title: "Please disconnect the wallet first!",
+                      description: ``,
+                      status: "error",
+                      duration: 3000,
+                      isClosable: true,
+                    });
+                    return
+                  } else {
+                    resetAll()
+                    router.push("/auth/register")
+                  }
+                })}>Register now</Button>
+              </Box>
+            </div>
+          )
+
+        ) : (
+          <VerifyRegistration email={email} backToRegistration={backToRegistration} />
+        )}
+
+        <SignWalletModal
+          user={loggedInUser}
+          isOpen={isSignWalletOpen}
+          onClose={(() => {
+            onSignWalletClose()
+            setShowConnectedWallets(false)
+          })}
+          onSignMessage={(value) => {
+            return setOnSignMessage(value);
+          }}
+          forceSign={true}
+        />
+
       </Box>
     </MainLayout>
   );
