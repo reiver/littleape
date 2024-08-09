@@ -172,7 +172,7 @@ const ShowQRCodeModal: FC<ShowQRCodeModalProps> = ({ isOpen, onClose, url, ...pr
                 <ModalFooter>
                     <div className={styles.linkBackground}>
                         <LinkIcon />
-                        <Text className={styles.linkText}>${trimUrl(url, 29)}</Text>
+                        <Text className={styles.linkText}>{trimUrl(url, 30)}</Text>
                         <Button
                             onClick={() => copyToClipboard(url)}
                             className={styles.iconButton}
