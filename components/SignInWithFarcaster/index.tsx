@@ -95,16 +95,12 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
                 !url && <Button className={styles.connectButtonLight} w="full" mt={error ? 0 : 3} onClick={() => {
                     createChannel()
                 }}>
-                    Sign In With Farcaster
+                    Continue With Farcaster
                 </Button>
             }
             {url && (
 
                 <div>
-                    {/* <Text className={styles.largeText}>Sign in with Farcaster</Text>
-                    <Text className={styles.smallText}>Scan with your phone's camera to continue.</Text>
-                    <QRCode uri={url} size={310} /> */}
-
                     <ShowQRCodeModal
                         url={url}
                         isOpen={isShowQRCodeModalOpen}
