@@ -245,7 +245,7 @@ const RegistrationForm: FC<{
     }
   };
 
-  const loginOrCreateNewAccountUsingFarcaster = async (username, displayName, fid) => {
+  const loginOrCreateNewAccountUsingFarcaster = async (username, displayName, fid, bio) => {
 
     //fetch if user with fid exists or not
     const userByFid = await pbManager.fetchUserByFID(fid);
@@ -266,7 +266,7 @@ const RegistrationForm: FC<{
     });
 
     //create new user without email
-    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@littleape.com`), String("12345678"), null, fid, String(displayName));
+    var signUpData = new SignUpData(String(username), String(`${username}-${fid}@littleape.com`), String("12345678"), null, fid, String(displayName), String(bio));
     const newUser = await pbManager.signUp(signUpData)
 
     if (newUser.code == undefined) {
@@ -339,7 +339,7 @@ const RegistrationForm: FC<{
               onSuccess={(res) => {
                 if (loginMode != LoginMode.FARCASTER) {
                   console.log("Farcaster Login success: ", res)
-                  loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid)
+                  loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid, res.data.bio)
                   setLoginMode(LoginMode.FARCASTER);
                 }
               }}

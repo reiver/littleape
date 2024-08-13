@@ -26,6 +26,7 @@ export class SignUpData {
   name: string;
   avatar: File;
   fid: string;
+  bio: string;
 
   constructor(
     username: string,
@@ -33,7 +34,8 @@ export class SignUpData {
     password: string,
     avatar: File = null,
     fid: string = null,
-    displayName: string = username
+    displayName: string = username,
+    bio: string = null
   ) {
     this.username = username;
     this.email = email;
@@ -43,6 +45,7 @@ export class SignUpData {
     this.name = displayName;
     this.avatar = avatar;
     this.fid = fid;
+    this.bio = bio;
   }
 }
 
@@ -140,6 +143,7 @@ export class PocketBaseManager {
       avatar: signUpData.avatar,
       fid: signUpData.fid,
       username: signUpData.username,
+      bio:signUpData.bio,
     };
 
     try {
