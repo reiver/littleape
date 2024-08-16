@@ -2,9 +2,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
 import { AuthKitProvider } from '@farcaster/auth-kit';
-import {
-  QueryClient
-} from '@tanstack/react-query';
+import '@farcaster/auth-kit/styles.css';
+import { Sepolia } from "@thirdweb-dev/chains";
 import theme from "chakra.config";
 import { API_PROFILE } from "constants/API";
 import dayjs from "dayjs";
@@ -14,8 +13,11 @@ import { fetcher } from "services/http";
 import { useAuthStore } from "store";
 import "styles/global.css";
 import { SWRConfig } from "swr";
+import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from '../lib/farcasterProtocol/wagmiconfig';
 import "../styles/styles.css";
-import '@farcaster/auth-kit/styles.css';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 
 const config = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -32,28 +34,34 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <AuthKitProvider config={config}>
-      <WalletProvider>
-        <ThirdwebProvider>
-          <SWRConfig
-            value={{
-              provider: () => new Map(),
-              fetcher,
-              revalidateOnFocus: false,
-              revalidateIfStale: false,
-              fallback: {
-                [API_PROFILE]: pageProps.user,
-                ...pageProps.swrFallback,
-              },
-            }}
-          >
-            <ChakraProvider theme={theme}>
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </SWRConfig>
-        </ThirdwebProvider>
-      </WalletProvider>
-    </AuthKitProvider>
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={wagmiConfig}>
+        <AuthKitProvider config={config}>
+          <WalletProvider>
+            <ThirdwebProvider
+              activeChain={Sepolia}>
+              <SWRConfig
+                value={{
+                  provider: () => new Map(),
+                  fetcher,
+                  revalidateOnFocus: false,
+                  revalidateIfStale: false,
+                  fallback: {
+                    [API_PROFILE]: pageProps.user,
+                    ...pageProps.swrFallback,
+                  },
+                }}
+              >
+                <ChakraProvider theme={theme}>
+                  <Component {...pageProps} />
+                </ChakraProvider>
+              </SWRConfig>
+            </ThirdwebProvider>
+          </WalletProvider>
+        </AuthKitProvider>
+      </WagmiProvider>
+    </QueryClientProvider>
+
 
   );
 }
