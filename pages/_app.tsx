@@ -24,6 +24,10 @@ const config = {
   relay: 'https://relay.farcaster.xyz',
 };
 
+import { PrivyProvider } from '@privy-io/react-auth'
+import { cookieSerialize } from "pocketbase";
+
+
 dayjs.extend(relativeTime);
 
 const queryClient = new QueryClient()
@@ -31,29 +35,42 @@ function App({ Component, pageProps }) {
   const setAuth = useAuthStore((state) => state.setAuth);
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
+  console.log("APP ID: ", process.env.NEXT_PUBLIC_PRIVY_APP_ID)
+
   return (
-    <AuthKitProvider config={config}>
-      <WalletProvider>
-        <ThirdwebProvider>
-          <SWRConfig
-            value={{
-              provider: () => new Map(),
-              fetcher,
-              revalidateOnFocus: false,
-              revalidateIfStale: false,
-              fallback: {
-                [API_PROFILE]: pageProps.user,
-                ...pageProps.swrFallback,
-              },
-            }}
-          >
-            <ChakraProvider theme={theme}>
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </SWRConfig>
-        </ThirdwebProvider>
-      </WalletProvider>
-    </AuthKitProvider>
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID}
+      config={{
+        loginMethods: ['farcaster'],
+        embeddedWallets: {
+          createOnLogin: 'all-users',
+        },
+      }}>
+
+      <AuthKitProvider config={config}>
+        <WalletProvider>
+          <ThirdwebProvider>
+            <SWRConfig
+              value={{
+                provider: () => new Map(),
+                fetcher,
+                revalidateOnFocus: false,
+                revalidateIfStale: false,
+                fallback: {
+                  [API_PROFILE]: pageProps.user,
+                  ...pageProps.swrFallback,
+                },
+              }}
+            >
+              <ChakraProvider theme={theme}>
+                <Component {...pageProps} />
+              </ChakraProvider>
+            </SWRConfig>
+          </ThirdwebProvider>
+        </WalletProvider>
+      </AuthKitProvider>
+
+    </PrivyProvider>
 
   );
 }
