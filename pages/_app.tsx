@@ -12,7 +12,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";
-import "styles/global.css";
+import "../styles/global.css";
 import { SWRConfig } from "swr";
 import "../styles/styles.css";
 import '@farcaster/auth-kit/styles.css';

@@ -25,6 +25,7 @@
     "@types/react-dom": "18.0.0"
   },
   "dependencies": {
+    "@atproto/api": "^0.13.16",
     "@chakra-ui/react": "^2.2.9",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
@@ -79,14 +80,17 @@
     "@types/node": "^18.7.13",
     "@types/react": "^18.0.17",
     "@types/react-virtualized": "^9.21.21",
+    "autoprefixer": "^10.4.20",
     "eslint": "8.23.0",
     "eslint-config-next": "12.2.5",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
+    "postcss": "^8.4.49",
     "prettier": "^2.8.8",
     "storybook-addon-next": "^1.6.9",
     "storybook-dark-mode": "^1.1.2",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5.4.5"
   }
 }

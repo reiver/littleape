@@ -42,6 +42,7 @@ import {
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
 import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
+import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -234,6 +235,11 @@ const Login: FC = () => {
 
   }
 
+  const showLoginBlueSkyModal = async () => {
+    console.log("Show login Blue Sky modal")
+
+  }
+
   return (
     <MainLayout>
       <Head>
@@ -324,6 +330,8 @@ const Login: FC = () => {
                   </Button>
                 </Box>
               }
+
+              <BlueSkyLoginButton />
 
               <Box
                 mt="6"

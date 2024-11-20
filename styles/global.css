@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
 .ProseMirror {
 	h: auto;
 	w: full;
@@ -11,4 +16,4 @@
 }
 .mention, .hashtag {
 	color: var(--chakra-colors-primary-500);
-}
+} */
