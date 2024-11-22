@@ -331,7 +331,10 @@ const Login: FC = () => {
                 </Box>
               }
 
-              <BlueSkyLoginButton />
+              <BlueSkyLoginButton
+                onClose={(user: any) => {
+                  console.log("Login successfull with Blue Sky: ", user)
+                }} />
 
               <Box
                 mt="6"

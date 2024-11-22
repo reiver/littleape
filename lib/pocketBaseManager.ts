@@ -26,6 +26,7 @@ export class SignUpData {
   name: string;
   avatar: File;
   fid: string;
+  did: string;
   bio: string;
 
   constructor(
@@ -34,6 +35,7 @@ export class SignUpData {
     password: string,
     avatar: File = null,
     fid: string = null,
+    did: string = null,
     displayName: string = username,
     bio: string = null
   ) {
@@ -45,9 +47,55 @@ export class SignUpData {
     this.name = displayName;
     this.avatar = avatar;
     this.fid = fid;
+    this.did = did;
     this.bio = bio;
   }
 }
+
+export class SignUpData2 {
+  username: string;
+  email: string;
+  password: string;
+  emailVisibility: boolean;
+  passwordConfirm: string;
+  name: string;
+  avatar: File;
+  fid: string;
+  blueskyid: string;
+  bio: string;
+
+  constructor({
+    username,
+    email,
+    password,
+    avatar = null,
+    fid = null,
+    blueskyid = null,
+    name = username,
+    bio = null,
+  }: {
+    username: string;
+    email: string;
+    password: string;
+    avatar?: File;
+    fid?: string;
+    blueskyid?: string;
+    name?: string;
+    bio?: string;
+  }) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.emailVisibility = true;
+    this.passwordConfirm = password;
+    this.name = name;
+    this.avatar = avatar;
+    this.fid = fid;
+    this.blueskyid = blueskyid;
+    this.bio = bio;
+  }
+}
+
 
 export class SignInData {
   email: string;
@@ -99,6 +147,7 @@ export class WalletData {
 }
 
 export class PocketBaseManager {
+
   private static instance: PocketBaseManager;
   private pocketBase: PocketBase;
   private url = "https://pb.greatape.stream";
@@ -143,7 +192,30 @@ export class PocketBaseManager {
       avatar: signUpData.avatar,
       fid: signUpData.fid,
       username: signUpData.username,
-      bio:signUpData.bio,
+      bio: signUpData.bio,
+    };
+
+    try {
+      const record = await this.pocketBase.collection("users").create(formattedSignUpData);
+
+      return record;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
+  public async signUp2(signUpData: SignUpData2): Promise<any> {
+    const formattedSignUpData = {
+      email: signUpData.email,
+      emailVisibility: signUpData.emailVisibility,
+      password: signUpData.password,
+      passwordConfirm: signUpData.passwordConfirm,
+      name: signUpData.name,
+      avatar: signUpData.avatar,
+      fid: signUpData.fid,
+      blueskyid:signUpData.blueskyid,
+      username: signUpData.username,
+      bio: signUpData.bio,
     };
 
     try {
@@ -243,6 +315,15 @@ export class PocketBaseManager {
   public async fetchUserById(id) {
     try {
       const user = await this.pocketBase.collection("users").getFirstListItem(`id="${id}"`);
+      return user;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
+  public async getUserByBlueSkyId(did: string) {
+    try {
+      const user = await this.pocketBase.collection("users").getFirstListItem(`blueskyid="${did}"`);
       return user;
     } catch (e) {
       return e.data;

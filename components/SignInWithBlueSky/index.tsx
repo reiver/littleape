@@ -6,21 +6,20 @@ import AtIcon from "../../public/at-sign.svg";
 import ServerIcon from "../../public/server.svg";
 import LockIcon from "../../public/lock.svg";
 import LinkIcon from "../../public/external-link.svg"
-import { createSession } from "lib/blueSkyApi";
+import { createSession, fetchProfile } from "lib/blueSkyApi";
+import { Response } from "@atproto/api/dist/client/types/com/atproto/server/createSession";
+import { PocketBaseManager, SignUpData, SignUpData2 } from "lib/pocketBaseManager";
 
 
 
-
-
-
-export const BlueSkyLoginButton = () => {
+export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }) => {
     const [showModal, setShowModal] = useState(false);
 
-
     const showLoginBlueSkyModal = () => setShowModal(true);
-    const closeLoginBlueSkyModal = () => setShowModal(false);
-
-
+    const closeLoginBlueSkyModal = (user?: any) => {
+        setShowModal(false);
+        if (user) onClose(user)
+    }
 
     return (
         <>
@@ -49,9 +48,9 @@ export const BlueSkyLoginButton = () => {
     );
 };
 
-type ShowBlueSkyModalProps = { url: string } & Omit<ModalProps, "children">;
+type ShowBlueSkyModalProps = { url: string, onClose: (response: any) => void } & Omit<ModalProps, "children">;
 
-const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose, url, ...props }) => {
+const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => { }, url, ...props }) => {
 
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
@@ -61,8 +60,17 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose, url, ...
             const sessionResponse = await createSession(email, pass);
             console.log("Session Response:", sessionResponse);
 
-            setEmail("")
-            setPass("")
+            const profile = await fetchProfile(email)
+            console.log("Profile is: ", profile)
+
+            // setEmail("")
+            // setPass("")
+
+
+            const user = await getOrRegisterUserWithBlueSky(profile.data)
+            console.log("User after getOrRegisterUserWithBlueSky: ", user)
+            onClose(user);
+
             // Pass session details to parent component
             // onLoginSuccess(sessionResponse);
         } catch (error) {
@@ -237,3 +245,42 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose, url, ...
         </Modal>
     );
 };
+
+async function getOrRegisterUserWithBlueSky(profile: unknown) {
+    const pbManager = PocketBaseManager.getInstance()
+
+    if (profile != null && profile != undefined) {
+
+        //register new user
+        const username = profile.handle;
+        const did = profile.did;
+        const displayName = profile.displayName;
+        const bio = profile.description;
+
+        console.log("user did: ", did)
+
+        var user = await pbManager.getUserByBlueSkyId(did)
+        console.log("User in PB: ", user)
+
+        if (user.code == 404) {
+            //user not found
+
+            var signUpData = new SignUpData2({
+                username: String(username),
+                email: String(`${username}@littleape.com`),
+                password: String("12345678"),
+                blueskyid: did,
+                name: String(displayName),
+                bio: String(bio)
+            });
+
+            user = await pbManager.signUp2(signUpData);
+
+            console.log("new user by BSKY: ", user)
+
+        }
+
+        return user;
+    }
+
+}
