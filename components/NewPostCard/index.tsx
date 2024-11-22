@@ -1,12 +1,13 @@
 import {
-    Box,
-    BoxProps,
-    ButtonProps,
-    Button as ChakraButton,
-    FormControl,
-    FormErrorMessage,
-    Text,
-    chakra,
+  Box,
+  BoxProps,
+  ButtonProps,
+  Button as ChakraButton,
+  FormControl,
+  FormErrorMessage,
+  Text,
+  chakra,
+  useToast,
 } from "@chakra-ui/react";
 import { PhotoIcon as HeroIconPhotoIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/Button";
@@ -16,12 +17,13 @@ import { UserAvatar } from "components/UserAvatar";
 import { API_OUTBOX, HOST } from "constants/API";
 import { useForm } from "hooks/useForm";
 import dynamic from "next/dynamic";
-import { FC, useRef } from "react";
-import { useAuthStore } from "store";
+import { FC, useRef, useState } from "react";
+import { LoginMode, useAuthStore } from "store";
 import { useSWRConfig } from "swr";
 import { joinURL } from "ufo";
 import { z } from "zod";
 import { EditorProps } from "./Editor";
+import { createPost } from "lib/blueSkyApi";
 
 const Editor = dynamic<EditorProps>(() => import("./Editor").then((module) => module.Editor));
 
@@ -57,6 +59,12 @@ export const NewPostCard: FC<BoxProps> = () => {
   const user = useAuthStore((state) => state.user);
   const { cache, mutate } = useSWRConfig();
   const editorRef = useRef<{ clearContent: () => void }>();
+
+  const [bskyPost, setBskyPost] = useState("")
+  const loginMode = useAuthStore((state) => state.mode)
+  const toast = useToast();
+
+
   const { post, loading, errors, reset, setValue } = useForm(
     API_OUTBOX(user?.username || ''),
     {
@@ -68,13 +76,43 @@ export const NewPostCard: FC<BoxProps> = () => {
     },
     schema
   );
+
+  const publishToBlueSky = async () => {
+    console.log("Publishing to bSKY: ", bskyPost)
+
+    if (bskyPost == "" || bskyPost == undefined || bskyPost == null) {
+      return
+    }
+
+    const res = await createPost(bskyPost)
+    if (res != null && res.validationStatus != undefined && res.validationStatus == "valid") {
+      toast({
+        title: "Posted to Bluesky!",
+        description: ``,
+        status: "success",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+
+    setBskyPost("")
+  }
+
   const handlePost = async (e) => {
-    post(e)
-      .then(() => {
-        reset();
-        if (editorRef.current && editorRef.current.clearContent) editorRef.current.clearContent();
-      })
-      .then(mutate.bind(null, API_OUTBOX(user?.username || ''), cache.get(API_OUTBOX(user?.username || ''))));
+    e.preventDefault()
+
+    if (loginMode == LoginMode.BLUESKY) {
+      publishToBlueSky()
+    } else {
+      toast({
+        title: "Login via Bluesky to post content",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+
   };
   return (
     <Card>
@@ -90,12 +128,11 @@ export const NewPostCard: FC<BoxProps> = () => {
             src={user?.avatar || ''}
           />
           <FormControl isInvalid={!!errors.content}>
-            <Editor
-              onChange={(value) => setValue("content", value)}
-              editorRef={editorRef}
+            <input
+              onChange={(e) => setBskyPost(e.target.value)}
+              value={bskyPost}
               placeholder="Tell your friends about your thoughts"
-              rounded="md"
-              fontSize="sm"
+              className="w-full px-4 py-2 h-12 sm:mb-6 border rounded-md focus:outline-none focus:ring-2 focus:ring-black-400"
             />
             {errors.content && <FormErrorMessage>{errors.content.message}</FormErrorMessage>}
           </FormControl>

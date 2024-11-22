@@ -157,6 +157,13 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       setUserModel(model)
       setUser(model)
       return
+    } else if (loginMode == LoginMode.BLUESKY) {
+      console.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
+      //fetch user by fid
+      const model = await pbManager.getUserByBlueSkyId(currentUser.blueskyid)
+      setUserModel(model)
+      setUser(model)
+      return
     }
   }
 
@@ -659,7 +666,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const connectionStatus = useConnectionStatus();
   const [ens, setEns] = useState('');
   const currentUser = useAuthStore((state) => state.user)
-  
+
   let fid = undefined
   if (currentUser != undefined) {
     fid = currentUser.fid
@@ -716,6 +723,13 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     } else if (loginMode == LoginMode.FARCASTER) {
       //fetch user by fid
       const model = await pbManager.fetchUserByFID(fid)
+      setUserModel(model)
+      setUser(model)
+      return
+    } else if (loginMode == LoginMode.BLUESKY) {
+      console.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
+      //fetch user by fid
+      const model = await pbManager.getUserByBlueSkyId(currentUser.blueskyid)
       setUserModel(model)
       setUser(model)
       return

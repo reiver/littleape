@@ -333,7 +333,11 @@ const Login: FC = () => {
 
               <BlueSkyLoginButton
                 onClose={(user: any) => {
-                  console.log("Login successfull with Blue Sky: ", user)
+                  const _user = user.record
+                  console.log("Login successfull with Blue Sky: ", _user)
+                  setAuth(_user.email, _user);
+                  setLoginMode(LoginMode.BLUESKY)
+                  router.push("/")
                 }} />
 
               <Box

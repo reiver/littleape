@@ -8,6 +8,7 @@ export enum LoginMode {
   EMAIL,
   WALLET,
   FARCASTER,
+  BLUESKY
 }
 
 interface AuthState {

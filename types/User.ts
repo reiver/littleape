@@ -12,6 +12,7 @@ export type User = Partial<{
   publicKey: string;
   username: string;
   fid:number;
+  blueskyid:string;
 }>;
 
 export type ActivityUser = {

@@ -1,4 +1,4 @@
-import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import BlueSkyIconWhite from "../../public/Bluesky-white.svg";
 import BlueSkyIcon from "../../public/Bluesky.svg"
@@ -8,8 +8,12 @@ import LockIcon from "../../public/lock.svg";
 import LinkIcon from "../../public/external-link.svg"
 import { createSession, fetchProfile } from "lib/blueSkyApi";
 import { Response } from "@atproto/api/dist/client/types/com/atproto/server/createSession";
-import { PocketBaseManager, SignUpData, SignUpData2 } from "lib/pocketBaseManager";
+import { PocketBaseManager, SignInData, SignUpData, SignUpData2 } from "lib/pocketBaseManager";
+import { waitForDebugger } from "inspector";
+import error from "next/error";
+import styles from "./MyComponent.module.css";
 
+const pbManager = PocketBaseManager.getInstance()
 
 
 export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }) => {
@@ -34,15 +38,9 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
 
             {/* Button */}
             <div className="relative group">
-                <button
-                    className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
-                    onClick={showLoginBlueSkyModal}
-                >
-                    <BlueSkyIcon />
-                </button>
-                <span className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-50 text-gray-600 text-sm rounded-full px-4 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Bluesky
-                </span>
+                <Button className={styles.connectButtonLight} w="full" mt={error ? 0 : 3} onClick={showLoginBlueSkyModal}>
+                    Continue With Bluesky
+                </Button>
             </div>
         </>
     );
@@ -54,8 +52,14 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
 
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const handleLoginBlueSkyAccount = async () => {
+        if (isLoading) {
+            return
+        }
+
         try {
             const sessionResponse = await createSession(email, pass);
             console.log("Session Response:", sessionResponse);
@@ -69,7 +73,9 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
 
             const user = await getOrRegisterUserWithBlueSky(profile.data)
             console.log("User after getOrRegisterUserWithBlueSky: ", user)
-            onClose(user);
+
+            const loggedInUser = await pbManager.signIn(new SignInData(`${user.username}@littleape.com`, "12345678"))
+            onClose(loggedInUser);
 
             // Pass session details to parent component
             // onLoginSuccess(sessionResponse);
@@ -79,7 +85,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
     }
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} {...props}>
+        <Modal isOpen={isOpen} onClose={onClose} {...props} closeOnOverlayClick={false}>
             <ModalOverlay />
             <ModalContent
                 mx="3"
@@ -218,7 +224,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                 <ModalFooter flexDirection="column" textAlign="center" mt="4">
                     <Text mb="4">
                         Don’t have an account yet?{" "}
-                        <a href="#" style={{ color: "#3182CE", textDecoration: "underline" }}>
+                        <a href="https://bsky.app/" style={{ color: "#3182CE", textDecoration: "underline" }}>
                             Register!
                         </a>
                     </Text>
@@ -234,10 +240,20 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                         _hover={{ bg: "#2B6CB0" }}
                         onClick={() => {
                             handleLoginBlueSkyAccount()
+                            setIsLoading(true)
                         }}
                     >
-                        <BlueSkyIconWhite /> {/* Icon added here */}
-                        Login With Bluesky
+                        {isLoading ? (
+                            <>
+                                <Spinner size="sm" color="white" /> {/* Show spinner while loading */}
+                                Loading...
+                            </>
+                        ) : (
+                            <>
+                                <BlueSkyIconWhite /> {/* Icon */}
+                                Login With Bluesky
+                            </>
+                        )}
                     </Button>
 
                 </ModalFooter>
@@ -247,7 +263,6 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
 };
 
 async function getOrRegisterUserWithBlueSky(profile: unknown) {
-    const pbManager = PocketBaseManager.getInstance()
 
     if (profile != null && profile != undefined) {
 
