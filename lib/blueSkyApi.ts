@@ -26,7 +26,7 @@ export const createSession = async (identifier: string, password: string) => {
 
   } catch (error) {
     console.error("Failed to create session:", error);
-    throw error;
+    return "Invalid credentials";
   }
 };
 

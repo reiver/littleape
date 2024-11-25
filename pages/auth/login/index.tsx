@@ -332,12 +332,25 @@ const Login: FC = () => {
               }
 
               <BlueSkyLoginButton
-                onClose={(user: any) => {
-                  const _user = user.record
-                  console.log("Login successfull with Blue Sky: ", _user)
-                  setAuth(_user.email, _user);
-                  setLoginMode(LoginMode.BLUESKY)
-                  router.push("/")
+                onClose={(user?: any) => {
+
+                  if (user != null) {
+                    if (user != undefined && user == "Invalid credentials") {
+                      toast({
+                        title: "Invalid Credentials!",
+                        description: ``,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                      });
+                    } else {
+                      const _user = user.record
+                      console.log("Login successfull with Blue Sky: ", _user)
+                      setAuth(_user.email, _user);
+                      setLoginMode(LoginMode.BLUESKY)
+                      router.push("/")
+                    }
+                  }
                 }} />
 
               <Box

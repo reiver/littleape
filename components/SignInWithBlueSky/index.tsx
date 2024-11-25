@@ -12,6 +12,7 @@ import { PocketBaseManager, SignInData, SignUpData, SignUpData2 } from "lib/pock
 import { waitForDebugger } from "inspector";
 import error from "next/error";
 import styles from "./MyComponent.module.css";
+import { responseCache } from "viem/_types/utils/promise/withCache";
 
 const pbManager = PocketBaseManager.getInstance()
 
@@ -22,7 +23,17 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
     const showLoginBlueSkyModal = () => setShowModal(true);
     const closeLoginBlueSkyModal = (user?: any) => {
         setShowModal(false);
-        if (user) onClose(user)
+
+        if (user != null) {
+            if (user != undefined && user == "Invalid credentials") {
+                onClose("Invalid credentials")
+                return
+            }
+
+            onClose(user)
+        }
+
+
     }
 
     return (
@@ -64,21 +75,24 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
             const sessionResponse = await createSession(email, pass);
             console.log("Session Response:", sessionResponse);
 
-            const profile = await fetchProfile(email)
-            console.log("Profile is: ", profile)
+            if (sessionResponse.success == true) {
 
-            // setEmail("")
-            // setPass("")
+                const profile = await fetchProfile(email)
+                console.log("Profile is: ", profile)
 
+                const user = await getOrRegisterUserWithBlueSky(profile.data)
+                console.log("User after getOrRegisterUserWithBlueSky: ", user)
 
-            const user = await getOrRegisterUserWithBlueSky(profile.data)
-            console.log("User after getOrRegisterUserWithBlueSky: ", user)
+                const loggedInUser = await pbManager.signIn(new SignInData(`${user.username}@littleape.com`, "12345678"))
+                onClose(loggedInUser);
 
-            const loggedInUser = await pbManager.signIn(new SignInData(`${user.username}@littleape.com`, "12345678"))
-            onClose(loggedInUser);
+            } else {
+                if (sessionResponse.includes("Invalid credentials")) {
+                    onClose("Invalid credentials")
+                    return
+                }
+            }
 
-            // Pass session details to parent component
-            // onLoginSuccess(sessionResponse);
         } catch (error) {
             console.error("Login Error:", error);
         }
