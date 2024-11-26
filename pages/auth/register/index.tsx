@@ -34,6 +34,7 @@ import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, 
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
 import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
+import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -349,6 +350,27 @@ const RegistrationForm: FC<{
             />
           </div>
 
+          <BlueSkyLoginButton
+            onClose={(user?: any) => {
+
+              if (user != null) {
+                if (user != undefined && user == "Invalid credentials") {
+                  toast({
+                    title: "Invalid Credentials!",
+                    description: ``,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                } else {
+                  const _user = user.record
+                  console.log("Login successfull with Blue Sky: ", _user)
+                  setAuth(_user.email, _user);
+                  setLoginMode(LoginMode.BLUESKY)
+                  router.push("/")
+                }
+              }
+            }} />
           <Box
             mt="6"
             display="flex"
