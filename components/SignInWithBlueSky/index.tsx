@@ -77,7 +77,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
 
             if (sessionResponse.success == true) {
 
-                const profile = await fetchProfile(email)
+                const profile = await fetchProfile(sessionResponse.data.did)
                 console.log("Profile is: ", profile)
 
                 const user = await getOrRegisterUserWithBlueSky(profile.data)
