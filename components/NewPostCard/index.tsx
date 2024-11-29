@@ -23,12 +23,13 @@ import { useSWRConfig } from "swr";
 import { joinURL } from "ufo";
 import { z } from "zod";
 import { EditorProps } from "./Editor";
-import { createPost } from "lib/blueSkyApi";
+import { BlueSkyApi } from "lib/blueSkyApi";
 
 const Editor = dynamic<EditorProps>(() => import("./Editor").then((module) => module.Editor));
 
 const PhotoIcon = chakra(HeroIconPhotoIcon);
 const VideoIcon = chakra(VideoCameraIcon);
+const blueSkyApi = BlueSkyApi.getInstance()
 
 const ActionButton: FC<ButtonProps> = (props) => {
   return (
@@ -84,7 +85,7 @@ export const NewPostCard: FC<BoxProps> = () => {
       return
     }
 
-    const res = await createPost(bskyPost)
+    const res = await blueSkyApi.createPost(bskyPost)
     if (res != null && res.validationStatus != undefined && res.validationStatus == "valid") {
       toast({
         title: "Posted to Bluesky!",

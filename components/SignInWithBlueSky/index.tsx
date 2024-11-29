@@ -1,4 +1,4 @@
-import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, Spinner, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import BlueSkyIconWhite from "../../public/Bluesky-white.svg";
 import BlueSkyIcon from "../../public/Bluesky.svg"
@@ -6,7 +6,7 @@ import AtIcon from "../../public/at-sign.svg";
 import ServerIcon from "../../public/server.svg";
 import LockIcon from "../../public/lock.svg";
 import LinkIcon from "../../public/external-link.svg"
-import { createSession, fetchProfile } from "lib/blueSkyApi";
+import { BlueSkyApi } from "lib/blueSkyApi";
 import { Response } from "@atproto/api/dist/client/types/com/atproto/server/createSession";
 import { PocketBaseManager, SignInData, SignUpData, SignUpData2 } from "lib/pocketBaseManager";
 import { waitForDebugger } from "inspector";
@@ -25,8 +25,8 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
         setShowModal(false);
 
         if (user != null) {
-            if (user != undefined && user == "Invalid credentials") {
-                onClose("Invalid credentials")
+            if (user != undefined && user.includes("Invalid")) {
+                onClose(user)
                 return
             }
 
@@ -60,10 +60,30 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
 type ShowBlueSkyModalProps = { url: string, onClose: (response: any) => void } & Omit<ModalProps, "children">;
 
 const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => { }, url, ...props }) => {
+    const toast = useToast();
 
+    const [serviceProvider, setServiceProriver] = useState("Bsky.social")
     const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
     const [isLoading, setIsLoading] = useState(false);
+
+    const createServiceUrl = async () => {
+        if (serviceProvider && typeof serviceProvider === "string") {
+            console.log("Service Provider:", serviceProvider);
+
+            // Check if it starts with "http://" or "https://"
+            const isValidHttp = serviceProvider.startsWith("http://") || serviceProvider.startsWith("https://");
+
+            // If valid, return as is; otherwise, prepend "https://"
+            const url = isValidHttp ? serviceProvider : `https://${serviceProvider}`;
+
+            console.log("Formatted Service URL:", url);
+            return url; // Return the formatted URL
+        }
+
+        // Return default
+        return BlueSkyApi.blueSkyServiceUrl;
+    };
 
 
     const handleLoginBlueSkyAccount = async () => {
@@ -71,13 +91,32 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
             return
         }
 
+        if (email == "" || pass == "") {
+            toast({
+                title: "Please input email/username and password",
+                description: ``,
+                status: "error",
+                duration: 6000,
+                isClosable: true,
+            });
+            return
+        }
+
+        setIsLoading(true)
+
+        const url = await createServiceUrl()
+
         try {
-            const sessionResponse = await createSession(email, pass);
+
+            //initalize blue sky instance
+            const blueSkyApi = BlueSkyApi.getInstance(url)
+
+            const sessionResponse = await blueSkyApi.createSession(email, pass);//createSession(email, pass);
             console.log("Session Response:", sessionResponse);
 
             if (sessionResponse.success == true) {
 
-                const profile = await fetchProfile(sessionResponse.data.did)
+                const profile = await blueSkyApi.fetchProfile(sessionResponse.data.did) //fetchProfile(sessionResponse.data.did)
                 console.log("Profile is: ", profile)
 
                 const user = await getOrRegisterUserWithBlueSky(profile.data)
@@ -87,8 +126,8 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                 onClose(loggedInUser);
 
             } else {
-                if (sessionResponse.includes("Invalid credentials")) {
-                    onClose("Invalid credentials")
+                if (sessionResponse.includes("Invalid")) {
+                    onClose(sessionResponse)
                     return
                 }
             }
@@ -122,9 +161,9 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                             display: "flex",
                             alignItems: "center",
                             marginBottom: "12px",
-                            border: "1px solid #E0E0E0",
-                            borderRadius: "6px",
-                            padding: "12px",
+                            border: "2px solid #000000",
+                            borderRadius: "8px",
+                            padding: "16px"
                         }}
                     >
                         <span
@@ -141,7 +180,17 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                         >
                             <ServerIcon />
                         </span>
-                        Bsky.social
+                        <input
+                            type="text"
+                            placeholder="Bsky.Social"
+                            value={serviceProvider}
+                            onChange={(e) => setServiceProriver(e.target.value)}
+                            style={{
+                                width: "100%",
+                                border: "none",
+                                outline: "none",
+                            }}
+                        />
                     </div>
 
                     {/* Username/Email Input */}
@@ -149,9 +198,9 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            border: "1px solid #E0E0E0",
-                            borderRadius: "6px",
-                            padding: "12px",
+                            border: "2px solid #000000",
+                            borderRadius: "8px",
+                            padding: "16px",
                             marginBottom: "12px",
                         }}
                     >
@@ -187,9 +236,9 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            border: "1px solid #E0E0E0",
-                            borderRadius: "6px",
-                            padding: "12px",
+                            border: "2px solid #000000",
+                            borderRadius: "8px",
+                            padding: "16px",
                             position: "relative",
                         }}
                     >
@@ -254,7 +303,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                         _hover={{ bg: "#2B6CB0" }}
                         onClick={() => {
                             handleLoginBlueSkyAccount()
-                            setIsLoading(true)
+
                         }}
                     >
                         {isLoading ? (

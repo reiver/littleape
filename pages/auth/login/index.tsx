@@ -335,9 +335,9 @@ const Login: FC = () => {
                 onClose={(user?: any) => {
 
                   if (user != null) {
-                    if (user != undefined && user == "Invalid credentials") {
+                    if (user != undefined && user.includes("Invalid")) {
                       toast({
-                        title: "Invalid Credentials!",
+                        title: user,
                         description: ``,
                         status: "error",
                         duration: 3000,
