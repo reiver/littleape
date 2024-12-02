@@ -10,10 +10,11 @@ export class BlueSkyApi {
 
   // Static method to get the singleton instance
   public static getInstance(serviceUrl: string = ""): BlueSkyApi {
-    if (serviceUrl == "") {
-      return
-    }
     if (!BlueSkyApi.instance) {
+      if (serviceUrl == "") {
+        console.log("Need service url to create new Bluesky Instance")
+        return
+      }
       console.log("Creating new Bluesky Instance")
       BlueSkyApi.instance = new BlueSkyApi(serviceUrl);
     } else {
@@ -23,6 +24,7 @@ export class BlueSkyApi {
   }
 
   public static clearInstance() {
+    console.log("Clearing Bluesky Instance");
     BlueSkyApi.instance = null
   }
 

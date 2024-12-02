@@ -29,7 +29,6 @@ const Editor = dynamic<EditorProps>(() => import("./Editor").then((module) => mo
 
 const PhotoIcon = chakra(HeroIconPhotoIcon);
 const VideoIcon = chakra(VideoCameraIcon);
-const blueSkyApi = BlueSkyApi.getInstance()
 
 const ActionButton: FC<ButtonProps> = (props) => {
   return (
@@ -79,7 +78,10 @@ export const NewPostCard: FC<BoxProps> = () => {
   );
 
   const publishToBlueSky = async () => {
+    const blueSkyApi = BlueSkyApi.getInstance()
+
     console.log("Publishing to bSKY: ", bskyPost)
+    console.log("Bsky API for post: ", blueSkyApi)
 
     if (bskyPost == "" || bskyPost == undefined || bskyPost == null) {
       return
