@@ -16,9 +16,14 @@ export class BlueSkyApi {
     if (!BlueSkyApi.instance) {
       console.log("Creating new Bluesky Instance")
       BlueSkyApi.instance = new BlueSkyApi(serviceUrl);
+    } else {
+      console.log("Returning Old Bluesky Instance")
     }
-    console.log("Returning Old Bluesky Instance")
     return BlueSkyApi.instance;
+  }
+
+  public static clearInstance() {
+    BlueSkyApi.instance = null
   }
 
   private constructor(serviceUrl: string) {

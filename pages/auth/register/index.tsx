@@ -352,9 +352,8 @@ const RegistrationForm: FC<{
 
           <BlueSkyLoginButton
             onClose={(user?: any) => {
-
-              if (user != null) {
-                if (user != undefined && user.includes("Invalid")) {
+              if (user != null && user != undefined) {
+                if (user.record == null || user.record == undefined) {
                   toast({
                     title: user,
                     description: ``,

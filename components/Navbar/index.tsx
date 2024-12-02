@@ -19,6 +19,7 @@ import { Container } from "components/Container";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
+import { BlueSkyApi } from "lib/blueSkyApi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
@@ -63,7 +64,8 @@ export const Navbar: FC<BoxProps> = (props) => {
   const handleLogout = () => {
     disconnect()
     logout();
-    resetAll()
+    resetAll();
+    BlueSkyApi.clearInstance()
     router.push("/auth/login");
   };
   return (

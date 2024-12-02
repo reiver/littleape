@@ -25,7 +25,8 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
         setShowModal(false);
 
         if (user != null) {
-            if (user != undefined && user.includes("Invalid")) {
+            console.log("User is: ", user)
+            if (user != undefined && user.record == null) {
                 onClose(user)
                 return
             }
@@ -127,6 +128,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
 
             } else {
                 if (sessionResponse.includes("Invalid")) {
+                    BlueSkyApi.clearInstance()
                     onClose(sessionResponse)
                     return
                 }
