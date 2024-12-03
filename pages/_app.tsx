@@ -2,6 +2,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { ThirdwebProvider, WalletProvider } from "web3-wallet-connection";
 
 import { AuthKitProvider } from '@farcaster/auth-kit';
+import '@farcaster/auth-kit/styles.css';
 import {
   QueryClient
 } from '@tanstack/react-query';
@@ -12,10 +13,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "react-virtualized/styles.css";
 import { fetcher } from "services/http";
 import { useAuthStore } from "store";
-import "../styles/global.css";
 import { SWRConfig } from "swr";
+import "../styles/global.css";
 import "../styles/styles.css";
-import '@farcaster/auth-kit/styles.css';
 
 const config = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -34,7 +34,7 @@ function App({ Component, pageProps }) {
   return (
     <AuthKitProvider config={config}>
       <WalletProvider>
-        <ThirdwebProvider>
+        <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
           <SWRConfig
             value={{
               provider: () => new Map(),

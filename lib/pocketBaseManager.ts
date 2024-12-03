@@ -74,7 +74,7 @@ export class SignUpData2 {
     name = username,
     bio = null,
   }: {
-    username: string;
+    username?: string;
     email: string;
     password: string;
     avatar?: File;

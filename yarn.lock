@@ -5445,7 +5445,7 @@
     mime "3.0.0"
     tiny-invariant "^1.3.3"
 
-"@thirdweb-dev/react@^4.6.31":
+"@thirdweb-dev/react@^4.9.4":
   version "4.9.4"
   resolved "https://registry.npmjs.org/@thirdweb-dev/react/-/react-4.9.4.tgz"
   integrity sha512-GNt30Aq8+KuJ3RCBlkpGBg1RJbbuiPytZi5M5jqCBfHFNrqCsNATKnqXnJ6Hs8Kj76iRplPtCb/gYfUwYESNgw==
@@ -18722,13 +18722,13 @@ web3-utils@1.5.2:
     randombytes "^2.1.0"
     utf8 "3.0.0"
 
-web3-wallet-connection@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/web3-wallet-connection/-/web3-wallet-connection-1.0.3.tgz"
-  integrity sha512-PpMTGECdgbQdlAHTvzX3NLr7kmjiACoCXPGHUIbNqEcXexXlyP8lXjKTTauh9f1pcEed8BiGJv/mojMOn/KIkQ==
+web3-wallet-connection@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/web3-wallet-connection/-/web3-wallet-connection-1.0.5.tgz"
+  integrity sha512-qb1cBwUWAufw0WvgoYKfnL35rzG3dCusR+eQhO7YwQx5Vq1D5o+HlveUoOqcbnJBB5trdu1bQxdN6HuwNS491g==
   dependencies:
     "@thirdweb-dev/auth" "^4.1.90"
-    "@thirdweb-dev/react" "^4.6.31"
+    "@thirdweb-dev/react" "^4.9.4"
     "@thirdweb-dev/sdk" "^4.0.92"
     alchemy-sdk "^3.3.1"
     ethers "^5.7.2"

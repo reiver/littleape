@@ -63,7 +63,7 @@
     "ufo": "^0.8.5",
     "uuid": "^10.0.0",
     "viem": "^2.19.1",
-    "web3-wallet-connection": "^1.0.3",
+    "web3-wallet-connection": "^1.0.5",
     "zod": "^3.18.0",
     "zustand": "^4.1.1"
   },

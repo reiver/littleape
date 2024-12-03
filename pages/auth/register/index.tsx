@@ -11,17 +11,18 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { SignInButton } from "@farcaster/auth-kit";
 import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import { Logo } from "components/Logo";
 import { SignWalletModal } from "components/Modals/SignWalletModal";
+import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { API_SIGN_UP, API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
 import { MainLayout } from "layouts/Main";
-import { OtpRequestBody, PocketBaseManager, SignUpData, WalletData } from "lib/pocketBaseManager";
+import { OtpRequestBody, PocketBaseManager, SignUpData, SignUpData2, WalletData } from "lib/pocketBaseManager";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -33,8 +34,6 @@ import { User } from "types/User";
 import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
-import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
-import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -127,8 +126,13 @@ const RegistrationForm: FC<{
       });
 
       //create new user without email
-      var signUpData = new SignUpData(String("Dummy User"), String(`dummy${address}@littleape.com`), String("12345678"), null);
-      const newUser = await pbManager.signUp(signUpData)
+      var signUpData = new SignUpData2({
+        email: String(`dummy${address}@littleape.com`),
+        password: String("12345678"),
+        name: String("Dummy User"),
+      });
+
+      const newUser = await pbManager.signUp2(signUpData);
 
       //save wallet against that user
 
@@ -410,6 +414,7 @@ const RegistrationForm: FC<{
               setShowConnectedWallets(false);
             }}
             onSignMessage={(value) => {
+              console.log("Signed Message: ", value)
               return setOnSignMessage(value);
             }}
             forceSign={true}
