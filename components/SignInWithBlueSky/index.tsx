@@ -115,12 +115,15 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
             const sessionResponse = await blueSkyApi.createSession(email, pass);//createSession(email, pass);
             console.log("Session Response:", sessionResponse);
 
+            const sessionWithService = await blueSkyApi.getBlueSkySessionWithServiceUrl()
+            console.log("sessionWithService: ", sessionWithService)
+
             if (sessionResponse.success == true) {
 
                 const profile = await blueSkyApi.fetchProfile(sessionResponse.data.did) //fetchProfile(sessionResponse.data.did)
                 console.log("Profile is: ", profile)
 
-                const user = await getOrRegisterUserWithBlueSky(profile.data)
+                const user = await getOrRegisterUserWithBlueSky(profile.data, sessionWithService)
                 console.log("User after getOrRegisterUserWithBlueSky: ", user)
 
                 const loggedInUser = await pbManager.signIn(new SignInData(`${user.username}@littleape.com`, "12345678"))
@@ -327,7 +330,7 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
     );
 };
 
-async function getOrRegisterUserWithBlueSky(profile: unknown) {
+async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService: any) {
 
     if (profile != null && profile != undefined) {
 
@@ -342,6 +345,9 @@ async function getOrRegisterUserWithBlueSky(profile: unknown) {
         var user = await pbManager.getUserByBlueSkyId(did)
         console.log("User in PB: ", user)
 
+        var savedSessionInfo = await pbManager.fetchBlueSkySessionByUserId(user.id)
+        console.log("Saved Blue Sky Session in DB: ", savedSessionInfo)
+
         if (user.code == 404) {
             //user not found
 
@@ -351,14 +357,42 @@ async function getOrRegisterUserWithBlueSky(profile: unknown) {
                 password: String("12345678"),
                 blueskyid: did,
                 name: String(displayName),
-                bio: String(bio)
+                bio: String(bio),
             });
 
             user = await pbManager.signUp2(signUpData);
 
             console.log("new user by BSKY: ", user)
 
+            // Parse the JSON string back into an object
+            const sessObj = JSON.parse(sessionWithService);
+
+            // Add a new element to the object
+            sessObj.userid = user.id;
+
+            // Convert the updated object back to a JSON string if needed
+            const updatedSess = JSON.stringify(sessObj);
+
+            //save user bsky session data
+            const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
+            console.log("New Session info Saved: ", sessionSaved)
+
+            return user;
+
         }
+
+        // Parse the JSON string back into an object
+        const sessObj = JSON.parse(sessionWithService);
+
+        // Add a new element to the object
+        sessObj.userid = user.id;
+
+        // Convert the updated object back to a JSON string if needed
+        const updatedSess = JSON.stringify(sessObj);
+
+        //update session info
+        const updatedSessionInfo = await pbManager.updateBlueSkySession(savedSessionInfo.id, updatedSess);
+        console.log("Session info Updated: ", updatedSessionInfo)
 
         return user;
     }

@@ -104,7 +104,7 @@ export const NewPostCard: FC<BoxProps> = () => {
   const handlePost = async (e) => {
     e.preventDefault()
 
-    if (loginMode == LoginMode.BLUESKY) {
+    if (loginMode == LoginMode.BLUESKY || BlueSkyApi.getInstance() != null) {
       publishToBlueSky()
     } else {
       toast({

@@ -6,6 +6,7 @@ export class BlueSkyApi {
   private session: { identifier: string; password: string } | null;
   private static instance: BlueSkyApi | null = null; // Static instance property
   public static blueSkyServiceUrl = "https://bsky.social"
+  private currentServiceUrl = "";
 
 
   // Static method to get the singleton instance
@@ -33,6 +34,11 @@ export class BlueSkyApi {
       service: serviceUrl,
     });
     this.session = null;
+    this.currentServiceUrl = serviceUrl;
+  }
+
+  public getCurrentServiceUrl() {
+    return this.currentServiceUrl;
   }
 
   // Function to authenticate and set up a session
@@ -50,6 +56,16 @@ export class BlueSkyApi {
       console.error("Failed to create session:", error);
       return "Invalid credentials OR service URL";
     }
+  }
+
+  //get session from agent
+  public async getBlueSkySessionWithServiceUrl() {
+    const sess = JSON.stringify({
+      ...this.agent.session,
+      service: this.agent.serviceUrl.toString(),
+    })
+
+    return sess
   }
 
   // Logout function
@@ -80,7 +96,7 @@ export class BlueSkyApi {
   // Create a post
   public async createPost(text: string) {
     try {
-      if (!this.session) {
+      if (!this.agent.session) {
         throw new Error("Agent is not authenticated. Please create a session first.");
       }
 
@@ -123,53 +139,17 @@ export class BlueSkyApi {
     return decodeJWT(session.accessJwt).exp * 1000; // Convert expiry date to milliseconds
   }
 
-  // Get the session from local storage and resume if needed
-  public async getSession(forceRefresh = false) {
-    if (!forceRefresh && !this.sessionIsExpiring()) {
-      return this.agent.session; // Session is valid, no need to resume
-    }
-
-    const savedSession = this.getSessionFromLocalStorage();
-    if (!savedSession || (savedSession && !savedSession.service)) throw new Error('No saved session available');
-
-    // Try to resume the session if expired
-    const response = await this.agent.resumeSession(savedSession);
-    if (!response.success) throw new Error('Failed to resume session');
-
-    console.log('Session resumed. Expiry:', new Date(this.getSessionExpiryDate(this.agent.session)).toLocaleString('en-US'));
-
-    // Save the refreshed session
-    this.saveSessionToLocalStorage();
-    return this.agent.session;
-  }
-
-  // Save the session to local storage
-  private saveSessionToLocalStorage() {
-    if (!this.agent.session) return;
-    localStorage.setItem(
-      'atpSession',
-      JSON.stringify({
-        ...this.agent.session,
-        service: this.agent.serviceUrl.toString(),
-      }),
-    );
-    console.log('Session saved to local storage.');
-  }
-
-  // Retrieve session from local storage
-  private getSessionFromLocalStorage() {
-    return typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem('atpSession') || 'null') : null;
-  }
-
   // Resume the session manually if expired
-  public async resumeSession() {
-    try {
-      const session = await this.getSession(true); // Force refresh
-      return session;
-    } catch (error) {
-      console.error("Failed to resume session:", error);
-      throw error;
+  public async resumeSession(bskySession: any) {
+
+    if (bskySession != null) {
+      // Try to resume the session if expired
+      const response = await this.agent.resumeSession(bskySession);
+      if (!response.success) throw new Error('Failed to resume session');
+
+      return this.agent.session
     }
+
   }
 }
 

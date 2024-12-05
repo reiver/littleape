@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import PocketBase from "pocketbase";
 
 export class OtpRequestBody {
@@ -204,6 +205,31 @@ export class PocketBaseManager {
     }
   }
 
+  public async saveBlueSkySessionInfo(blueSkySessionData: any) {
+    console.log("Session to be saved: ", blueSkySessionData)
+
+    try {
+      const record = await this.pocketBase.collection("blueSkySessions").create(blueSkySessionData);
+
+      return record;
+    } catch (e) {
+      return e.data;
+    }
+
+  }
+
+  public async updateBlueSkySession(id: string, blueSkySessionData: any) {
+    console.log("Session to be update: ", blueSkySessionData)
+
+    try {
+      const record = await this.pocketBase.collection("blueSkySessions").update(id, blueSkySessionData);
+
+      return record;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
   public async signUp2(signUpData: SignUpData2): Promise<any> {
     const formattedSignUpData = {
       email: signUpData.email,
@@ -213,7 +239,7 @@ export class PocketBaseManager {
       name: signUpData.name,
       avatar: signUpData.avatar,
       fid: signUpData.fid,
-      blueskyid:signUpData.blueskyid,
+      blueskyid: signUpData.blueskyid,
       username: signUpData.username,
       bio: signUpData.bio,
     };
@@ -224,6 +250,18 @@ export class PocketBaseManager {
       return record;
     } catch (e) {
       return e.data;
+    }
+  }
+
+  public async fetchBlueSkySessionByUserId(userid: string) {
+    try {
+      const bskySession = await this.pocketBase
+        .collection("blueSkySessions")
+        .getFirstListItem(`userid="${userid}"`);
+
+      return bskySession;
+    } catch (error) {
+      return error.data;
     }
   }
 

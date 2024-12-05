@@ -43,6 +43,8 @@ import { z } from "zod";
 import styles from "../MyComponent.module.css";
 import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
+import { BlueSkyApi } from "lib/blueSkyApi";
+import { checkUserHasBlueSkyLinked } from "lib/utils";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -55,7 +57,6 @@ const verifySchema = z.object({
   code: z.string().min(6),
   email: z.string().min(1),
 });
-
 
 
 const Login: FC = () => {
@@ -134,6 +135,7 @@ const Login: FC = () => {
       if (user.code == undefined) {
         setAuth(user.email, user);
         setLoginMode(LoginMode.WALLET)
+        checkUserHasBlueSkyLinked(user)
         router.push("/")
       }
     }

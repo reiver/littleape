@@ -34,6 +34,7 @@ import { User } from "types/User";
 import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, useWallet, useWalletActions } from "web3-wallet-connection";
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
+import { checkUserHasBlueSkyLinked } from "lib/utils";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -148,6 +149,7 @@ const RegistrationForm: FC<{
 
         if (newWalletSaved.code == undefined) {
           setLoginMode(LoginMode.WALLET);
+          checkUserHasBlueSkyLinked(user)
           router.push("/")
         }
 
@@ -159,7 +161,8 @@ const RegistrationForm: FC<{
       const user = await pbManager.fetchUserByWalletId(address)
       if (user.code == undefined) {
         setAuth(user.email, user);
-        setLoginMode(LoginMode.WALLET)
+        setLoginMode(LoginMode.WALLET);
+        checkUserHasBlueSkyLinked(user)
         router.push("/")
       }
     }
