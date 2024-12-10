@@ -376,7 +376,9 @@ const RegistrationForm: FC<{
                   router.push("/")
                 }
               }
-            }} />
+            }}
+
+            existingAccountId="" />
           <Box
             mt="6"
             display="flex"

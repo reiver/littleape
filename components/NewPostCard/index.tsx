@@ -16,6 +16,8 @@ import { Form } from "components/Form";
 import { UserAvatar } from "components/UserAvatar";
 import { API_OUTBOX, HOST } from "constants/API";
 import { useForm } from "hooks/useForm";
+import { BlueSkyApi } from "lib/blueSkyApi";
+import { PocketBaseManager } from "lib/pocketBaseManager";
 import dynamic from "next/dynamic";
 import { FC, useRef, useState } from "react";
 import { LoginMode, useAuthStore } from "store";
@@ -23,7 +25,6 @@ import { useSWRConfig } from "swr";
 import { joinURL } from "ufo";
 import { z } from "zod";
 import { EditorProps } from "./Editor";
-import { BlueSkyApi } from "lib/blueSkyApi";
 
 const Editor = dynamic<EditorProps>(() => import("./Editor").then((module) => module.Editor));
 
@@ -78,7 +79,9 @@ export const NewPostCard: FC<BoxProps> = () => {
   );
 
   const publishToBlueSky = async () => {
-    const blueSkyApi = BlueSkyApi.getInstance()
+    const pbManager = PocketBaseManager.getInstance()
+    const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id.toString())
+    const blueSkyApi = BlueSkyApi.getInstance(bskySession.service)
 
     console.log("Publishing to bSKY: ", bskyPost)
     console.log("Bsky API for post: ", blueSkyApi)

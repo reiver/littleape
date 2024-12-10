@@ -11,19 +11,21 @@ export const checkUserHasBlueSkyLinked = async (user: any) => {
     //create blueSKy Instance
     const bskyInstance = BlueSkyApi.getInstance(bskySession.service)
 
-    const resumedSession = await bskyInstance.resumeSession(bskySession)
-    const newAccessJWT = resumedSession.accessJwt
+    if (bskyInstance != undefined && bskyInstance != null) {
+        const resumedSession = await bskyInstance.resumeSession(bskySession)
+        const newAccessJWT = resumedSession.accessJwt
 
-    if (oldAccessJWT != newAccessJWT) {
-        const updatedSession = JSON.stringify({
-            accessJwt: newAccessJWT,
-        })
+        if (oldAccessJWT != newAccessJWT) {
+            const updatedSession = JSON.stringify({
+                accessJwt: newAccessJWT,
+            })
 
-        //update resumed session data
-        const updated = await pbManager.updateBlueSkySession(bskySession.id, updatedSession)
-        console.log("Session Updated at DB")
-    } else {
-        console.log("No need to updated the access token in DB")
+            //update resumed session data
+            const updated = await pbManager.updateBlueSkySession(bskySession.id, updatedSession)
+            console.log("Session Updated at DB")
+        } else {
+            console.log("No need to updated the access token in DB")
+        }
     }
 
 }

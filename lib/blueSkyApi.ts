@@ -11,6 +11,7 @@ export class BlueSkyApi {
 
   // Static method to get the singleton instance
   public static getInstance(serviceUrl: string = ""): BlueSkyApi {
+    console.log("Requesting insatincae: ", serviceUrl)
     if (!BlueSkyApi.instance) {
       if (serviceUrl == "") {
         console.log("Need service url to create new Bluesky Instance")
@@ -99,13 +100,8 @@ export class BlueSkyApi {
 
       const session = this.agent.sessionManager.session
 
-      if (session == null) {
-        console.error("No Active BlueSky session found");
-        return
-      }
-
       console.log("Session : ", session);
-      const response = await this.deleteSession(session.refreshJwt)
+      const response = "No need to delete bsky session" //await this.deleteSession(session.refreshJwt)
       this.session = null; // Clear session
       BlueSkyApi.clearInstance()
       console.log("Logout successfully:", response);
@@ -177,6 +173,10 @@ export class BlueSkyApi {
   public async resumeSession(bskySession: any) {
 
     if (bskySession != null) {
+      console.log("Old bsky session: ", bskySession)
+      const sess = await this.refreshSession(bskySession.service, bskySession.refreshJwt)
+      return sess
+
       // Try to resume the session if expired
       const response = await this.agent.resumeSession(bskySession);
       if (!response.success) throw new Error('Failed to resume session');
@@ -184,6 +184,31 @@ export class BlueSkyApi {
       return this.agent.session
     }
 
+  }
+
+  private async refreshSession(service: string, authToken: string) {
+    const url = `${service}xrpc/com.atproto.server.refreshSession`;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${authToken}` // Add your auth token here
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return new Error(`Error: ${response.status} - ${errorData.error || "Unknown error"}`);
+      }
+
+      console.log("Session refreshed successfully.");
+      return response
+    } catch (error) {
+      console.error("Failed to refresh session:", error);
+      return error
+    }
   }
 }
 

@@ -25,7 +25,8 @@ import {
   Text,
   chakra,
   useDisclosure,
-  useMediaQuery
+  useMediaQuery,
+  useToast
 } from "@chakra-ui/react";
 import { CameraIcon as HeroCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { FileUpload } from "components/FileUpload";
@@ -58,6 +59,7 @@ import BlackCheckIcon from '../../public/BlackCheck.svg';
 import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
+import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -257,13 +259,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           if (element.isConnected) {
             setCurrentlyConnectedWallet(element)
             setWalletConnected(true);
-
-            if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
-              setWalletVerified(true);
-            }
-
             //get connected wallet's ens
 
+          }
+
+          if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
+            console.log("Wallet is verified")
+
+            setWalletVerified(true);
           }
         });
       }
@@ -656,6 +659,10 @@ type EditProfileModalProps = {
   user: User;
 } & Omit<ModalProps, "children">;
 
+const linkBlueSkyAccount = async () => {
+  console.log("Link Bsky Account")
+}
+
 
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
@@ -704,13 +711,29 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const loginMode = useAuthStore((state) => state.mode)
 
   const [userModel, setUserModel] = useState(null);
+  const [bskyAccountLinked, setBskyAccountLinked] = useState(false);
+  const [walletLinkedWithBsky, setWalletLinkedWithBsky] = useState(false)
 
   const fetchUserModel = async () => {
     if (address) {
       const model = await pbManager.fetchUserByWalletId(address)
+      console.log("Model: ", model)
       if (model.code == undefined) {
         setUserModel(model)
         setUser(model)
+
+        const pbSession = await pbManager.fetchBlueSkySessionByUserId(model.id)
+        console.log("Pb Session: ", pbSession)
+
+        if (pbSession != undefined && pbSession != null) {
+          if (pbSession.code != undefined && pbSession.code == 404) {
+            setBskyAccountLinked(false)
+          } else {
+            setBskyAccountLinked(true)
+          }
+        } else {
+          setBskyAccountLinked(false)
+        }
       }
       return
     }
@@ -866,6 +889,9 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     fetchData();
     checkWalletStatus();
   }, [walletConnected, address, userModel, messageSigned, signature]);
+
+  const toast = useToast();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
 
   useEffect(() => {
@@ -1044,26 +1070,78 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         Your Wallet Address Is Verified
                       </Text>
                     </Flex>
-                  ) : !walletConnected ? (
-                    // Show ConnectWallet component when wallet is not connected
-                    <Flex alignItems="center" cursor="pointer">
+                  ) : !walletConnected && walletVerified ? (
+                    // Show verified wallet address text field
+                    <Flex alignItems="center" cursor="pointer" onClick={() => setShowConnectedWallets(true)}>
                       <BlackCheckIcon className={styles.blackIcon} />
-                      <ConnectWallet
-                        theme="light"
-                        className={styles.connectButton}
-                        auth={{ loginOptional: false }}
-                        btnTitle="Verify Your Wallet Address"
-                        showThirdwebBranding={false}
-                        onConnect={async (wallet) => {
-                          setWalletConnected(true);
-                          setShowConnectedWallets(true);
-                        }}
-                      />
+                      <Text className={styles.textBold11}>
+                        Your Wallet Address Is Verified
+                      </Text>
                     </Flex>
+                  ) :
 
-                  ) : null // Handle any other conditions if necessary
+                    !walletConnected ? (
+                      // Show ConnectWallet component when wallet is not connected
+                      <Flex alignItems="center" cursor="pointer">
+                        <BlackCheckIcon className={styles.blackIcon} />
+                        <ConnectWallet
+                          theme="light"
+                          className={styles.connectButton}
+                          auth={{ loginOptional: false }}
+                          btnTitle="Verify Your Wallet Address"
+                          showThirdwebBranding={false}
+                          onConnect={async (wallet) => {
+                            setWalletConnected(true);
+                            setShowConnectedWallets(true);
+                          }}
+                        />
+                      </Flex>
+
+                    ) : null // Handle any other conditions if necessary
                 }
+              </Box>
 
+
+              <Box >
+
+                {/* Connect Bsky Account */}
+                {
+                  loginMode == LoginMode.WALLET && userModel ? (
+
+                    !bskyAccountLinked ? (
+                      <BlueSkyLoginButton
+                        onClose={(user?: any) => {
+                          if (user != null && user != undefined) {
+                            if (user.record == null || user.record == undefined) {
+                              toast({
+                                title: user,
+                                description: ``,
+                                status: "error",
+                                duration: 3000,
+                                isClosable: true,
+                              });
+                            } else {
+                              const _user = user.record
+                              console.log("Login successfull with Blue Sky: ", _user)
+                              setBskyAccountLinked(true)
+                              setAuth(_user.email, _user);
+                              // setLoginMode(LoginMode.BLUESKY)
+                            }
+                          }
+                        }}
+                        existingAccountId={userModel.id} />
+                    ) : (
+                      <Flex alignItems="center" cursor="pointer">
+                        <BlackCheckIcon className={styles.blackIcon} />
+                        <Text className={styles.textBold11}>
+                          Your Blue Sky Account is Already Linked
+                        </Text>
+                      </Flex>
+                    )
+                  ) : (
+                    null
+                  )
+                }
               </Box>
             </Box>
           </ModalBody>

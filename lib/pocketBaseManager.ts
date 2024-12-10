@@ -204,6 +204,16 @@ export class PocketBaseManager {
     }
   }
 
+  public async updateUserProfileAndLinkBlueSky(userid: string, updatedProfileData: any) {
+    try {
+      const record = await this.pocketBase.collection("users").update(userid, updatedProfileData);
+
+      return record;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
   public async saveBlueSkySessionInfo(blueSkySessionData: any) {
 
     try {

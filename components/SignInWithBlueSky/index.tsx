@@ -17,7 +17,7 @@ import { responseCache } from "viem/_types/utils/promise/withCache";
 const pbManager = PocketBaseManager.getInstance()
 
 
-export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }) => {
+export const BlueSkyLoginButton = ({ onClose, existingAccountId = "" }: { onClose: (user: any) => void, existingAccountId: string }) => {
     const [showModal, setShowModal] = useState(false);
 
     const showLoginBlueSkyModal = () => setShowModal(true);
@@ -45,6 +45,7 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
                     isOpen={showModal}
                     onClose={closeLoginBlueSkyModal}
                     url="https://bsky.social/login" // Replace with your actual URL
+                    existingAccountId={existingAccountId}
                 />
             )}
 
@@ -58,9 +59,9 @@ export const BlueSkyLoginButton = ({ onClose }: { onClose: (user: any) => void }
     );
 };
 
-type ShowBlueSkyModalProps = { url: string, onClose: (response: any) => void } & Omit<ModalProps, "children">;
+type ShowBlueSkyModalProps = { url: string, onClose: (response: any) => void, existingAccountId: string } & Omit<ModalProps, "children">;
 
-const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => { }, url, ...props }) => {
+const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => { }, url, existingAccountId, ...props }) => {
     const toast = useToast();
 
     const [serviceProvider, setServiceProriver] = useState("Bsky.social")
@@ -123,10 +124,10 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
                 const profile = await blueSkyApi.fetchProfile(sessionResponse.data.did) //fetchProfile(sessionResponse.data.did)
                 console.log("Profile is: ", profile)
 
-                const user = await getOrRegisterUserWithBlueSky(profile.data, sessionWithService)
+                const user = await getOrRegisterUserWithBlueSky(profile.data, sessionWithService, existingAccountId)
                 console.log("User after getOrRegisterUserWithBlueSky: ", user)
 
-                const loggedInUser = await pbManager.signIn(new SignInData(`${user.username}@littleape.com`, "12345678"))
+                const loggedInUser = await pbManager.signIn(new SignInData(`${user.email}`, "12345678"))
                 onClose(loggedInUser);
 
             } else {
@@ -330,7 +331,36 @@ const ShowBlueSkyModal: FC<ShowBlueSkyModalProps> = ({ isOpen, onClose = () => {
     );
 };
 
-async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService: any) {
+async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService: any, existingAccountId: string) {
+
+    if (existingAccountId != "") {
+        console.log("existing account id: ", existingAccountId)
+        console.log("Bsky Profile: ", profile)
+        console.log("sessionWithService: ", sessionWithService)
+
+        const updatedData = JSON.stringify({
+            username: profile.handle,
+            blueskyid: profile.did,
+            name: profile.displayName,
+            bio: profile.description,
+        })
+        const user = await pbManager.updateUserProfileAndLinkBlueSky(existingAccountId, updatedData)
+
+        // Parse the JSON string back into an object
+        const sessObj = JSON.parse(sessionWithService);
+
+        // Add a new element to the object
+        sessObj.userid = user.id;
+
+        // Convert the updated object back to a JSON string if needed
+        const updatedSess = JSON.stringify(sessObj);
+
+        //save user bsky session data
+        const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
+        console.log("New Session info Saved: ", sessionSaved)
+
+        return user
+    }
 
     if (profile != null && profile != undefined) {
 

@@ -62,7 +62,8 @@ export const Navbar: FC<BoxProps> = (props) => {
 
   const { resetAll } = useWallet()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+
     const blueSkyApi = BlueSkyApi.getInstance()
 
     if (blueSkyApi != undefined && blueSkyApi != null) {
