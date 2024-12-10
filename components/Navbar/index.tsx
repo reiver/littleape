@@ -59,13 +59,19 @@ export const Navbar: FC<BoxProps> = (props) => {
   const logout = useAuthStore((state) => state.logout);
   const disconnect = useDisconnect();
 
+
   const { resetAll } = useWallet()
 
   const handleLogout = () => {
+    const blueSkyApi = BlueSkyApi.getInstance()
+
+    if (blueSkyApi != undefined && blueSkyApi != null) {
+      blueSkyApi.logout()
+    }
+
     disconnect()
     logout();
     resetAll();
-    BlueSkyApi.clearInstance()
     router.push("/auth/login");
   };
   return (

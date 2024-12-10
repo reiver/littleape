@@ -50,7 +50,7 @@ export class BlueSkyApi {
       });
 
       this.session = { identifier, password }; // Store session information
-      console.log("Session created successfully:", response.data);
+      console.log("Session created successfully:");
       return response;
     } catch (error) {
       console.error("Failed to create session:", error);
@@ -68,11 +68,46 @@ export class BlueSkyApi {
     return sess
   }
 
+  public async deleteSession(authToken: string) {
+    const url = "https://bsky.social/xrpc/com.atproto.server.deleteSession";
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${authToken}` // Add your auth token here
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return new Error(`Error: ${response.status} - ${errorData.error || "Unknown error"}`);
+      }
+
+      console.log("Session deleted successfully.");
+      return response
+    } catch (error) {
+      console.error("Failed to delete session:", error);
+      return error
+    }
+  }
+
   // Logout function
   public async logout() {
     try {
-      const response = await this.agent.logout();
+
+      const session = this.agent.sessionManager.session
+
+      if (session == null) {
+        console.error("No Active BlueSky session found");
+        return
+      }
+
+      console.log("Session : ", session);
+      const response = await this.deleteSession(session.refreshJwt)
       this.session = null; // Clear session
+      BlueSkyApi.clearInstance()
       console.log("Logout successfully:", response);
       return response;
     } catch (error) {
@@ -85,7 +120,6 @@ export class BlueSkyApi {
   public async fetchProfile(identifier: string) {
     try {
       const profile = await this.agent.getProfile({ actor: identifier });
-      console.log("Profile: ", profile);
       return profile;
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -111,7 +145,7 @@ export class BlueSkyApi {
         text,
       });
 
-      console.log("Post created successfully:", response);
+      console.log("Post created successfully");
       return response;
     } catch (error) {
       console.error("Failed to create post:", error);

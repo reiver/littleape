@@ -158,7 +158,6 @@ export class PocketBaseManager {
     this.pocketBase = new PocketBase("https://pb.greatape.stream"); //http://127.0.0.1:8090 //https://pb.greatape.stream/
 
     this.pocketBase.authStore.onChange((token, model) => {
-      // console.log("New store data:", token, model);
     });
 
     this.pocketBase.autoCancellation(false);
@@ -206,7 +205,6 @@ export class PocketBaseManager {
   }
 
   public async saveBlueSkySessionInfo(blueSkySessionData: any) {
-    console.log("Session to be saved: ", blueSkySessionData)
 
     try {
       const record = await this.pocketBase.collection("blueSkySessions").create(blueSkySessionData);
@@ -219,8 +217,6 @@ export class PocketBaseManager {
   }
 
   public async updateBlueSkySession(id: string, blueSkySessionData: any) {
-    console.log("Session to be update: ", blueSkySessionData)
-
     try {
       const record = await this.pocketBase.collection("blueSkySessions").update(id, blueSkySessionData);
 
