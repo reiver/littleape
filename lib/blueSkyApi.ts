@@ -173,14 +173,13 @@ export class BlueSkyApi {
   public async resumeSession(bskySession: any) {
 
     if (bskySession != null) {
-      console.log("Old bsky session: ", bskySession)
+      // console.log("Old bsky session: ", bskySession)
       const sess = await this.refreshSession(bskySession.service, bskySession.refreshJwt)
-      return sess
 
-      // Try to resume the session if expired
-      const response = await this.agent.resumeSession(bskySession);
-      if (!response.success) throw new Error('Failed to resume session');
+      //save session data in agent
+      this.agent.sessionManager.session = sess
 
+      // console.log("Agent Session: ", this.agent.session)
       return this.agent.session
     }
 
@@ -204,7 +203,7 @@ export class BlueSkyApi {
       }
 
       console.log("Session refreshed successfully.");
-      return response
+      return await response.json()
     } catch (error) {
       console.error("Failed to refresh session:", error);
       return error
