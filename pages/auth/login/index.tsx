@@ -202,6 +202,7 @@ const Login: FC = () => {
       };
 
       setLoginMode(LoginMode.EMAIL)
+      checkUserHasBlueSkyLinked(user)
       setAuth(record.email, user);
     } catch (error) {
       toast({
@@ -223,6 +224,7 @@ const Login: FC = () => {
 
     if (user.code == undefined) {
       setUser(user)
+      checkUserHasBlueSkyLinked(user)
       router.push("/")
     } else {
       toast({
@@ -354,7 +356,7 @@ const Login: FC = () => {
                     }
                   }
                 }}
-                
+
                 existingAccountId="" />
 
               <Box

@@ -224,6 +224,7 @@ const RegistrationForm: FC<{
           };
 
           setLoginMode(LoginMode.EMAIL)
+          checkUserHasBlueSkyLinked(user)
           setAuth(record.email, user);
         } catch (error) {
           toast({
@@ -261,6 +262,7 @@ const RegistrationForm: FC<{
     if (userByFid.code == undefined) {
       //user aleready exists
       setUser(userByFid)
+      checkUserHasBlueSkyLinked(userByFid)
       router.push("/")
       return;
     }
@@ -279,6 +281,7 @@ const RegistrationForm: FC<{
 
     if (newUser.code == undefined) {
       setUser(newUser)
+      checkUserHasBlueSkyLinked(newUser)
       router.push("/")
     } else {
       setLoginMode(LoginMode.EMAIL)
@@ -349,6 +352,7 @@ const RegistrationForm: FC<{
                   console.log("Farcaster Login success: ", res)
                   loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid, res.data.bio)
                   setLoginMode(LoginMode.FARCASTER);
+
                 }
               }}
               onError={(err) => {

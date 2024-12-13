@@ -338,26 +338,41 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
         console.log("Bsky Profile: ", profile)
         console.log("sessionWithService: ", sessionWithService)
 
-        const updatedData = JSON.stringify({
-            username: profile.handle,
-            blueskyid: profile.did,
-            name: profile.displayName,
-            bio: profile.description,
-        })
-        const user = await pbManager.updateUserProfileAndLinkBlueSky(existingAccountId, updatedData)
+        //fetch existing user
+        const existingUser = await pbManager.fetchUserById(existingAccountId)
+        let user; // Declare the variable outside the if-else block
 
-        // Parse the JSON string back into an object
-        const sessObj = JSON.parse(sessionWithService);
+        if (existingUser.fid === 0) {
+            // User doesn't have Farcaster linked, so save all Bluesky data
+            const updatedData = JSON.stringify({
+                username: profile.handle,
+                blueskyid: profile.did,
+                name: profile.displayName,
+                bio: profile.description,
+            });
+            user = await pbManager.updateUserProfileAndLinkBlueSky(existingAccountId, updatedData);
+        } else {
+            // User has Farcaster linked, save only required data
+            const updatedData = JSON.stringify({
+                blueskyid: profile.did,
+            });
+            user = await pbManager.updateUserProfileAndLinkBlueSky(existingAccountId, updatedData);
+        }
 
-        // Add a new element to the object
-        sessObj.userid = user.id;
+        if (user != undefined) {
+            // Parse the JSON string back into an object
+            const sessObj = JSON.parse(sessionWithService);
 
-        // Convert the updated object back to a JSON string if needed
-        const updatedSess = JSON.stringify(sessObj);
+            // Add a new element to the object
+            sessObj.userid = user.id;
 
-        //save user bsky session data
-        const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
-        console.log("New Session info Saved: ", sessionSaved)
+            // Convert the updated object back to a JSON string if needed
+            const updatedSess = JSON.stringify(sessObj);
+
+            //save user bsky session data
+            const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
+            console.log("New Session info Saved: ", sessionSaved)
+        }
 
         return user
     }

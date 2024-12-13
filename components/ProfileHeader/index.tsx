@@ -60,6 +60,7 @@ import CopyIcon from '../../public/Copy.svg';
 import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
+import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -659,9 +660,6 @@ type EditProfileModalProps = {
   user: User;
 } & Omit<ModalProps, "children">;
 
-const linkBlueSkyAccount = async () => {
-  console.log("Link Bsky Account")
-}
 
 
 const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
@@ -712,8 +710,28 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
   const [userModel, setUserModel] = useState(null);
   const [bskyAccountLinked, setBskyAccountLinked] = useState(false);
+  const [farcasterAccountLinked, setFarcasterAccountLinked] = useState(false);
   const [walletLinkedWithBsky, setWalletLinkedWithBsky] = useState(false)
 
+
+  const checkWhichAccountIsLinked = (model) => {
+    if (model != null && model != undefined) {
+      if (model.fid != 0) {
+        //farcaster account is linked
+        setFarcasterAccountLinked(true)
+      } else {
+        setFarcasterAccountLinked(false)
+      }
+
+      if (model.blueskyid != "") {
+        //blue sky account it linked
+        setBskyAccountLinked(true)
+      } else {
+        setBskyAccountLinked(false)
+      }
+    }
+
+  }
   const fetchUserModel = async () => {
     if (address) {
       const model = await pbManager.fetchUserByWalletId(address)
@@ -721,19 +739,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       if (model.code == undefined) {
         setUserModel(model)
         setUser(model)
-
-        const pbSession = await pbManager.fetchBlueSkySessionByUserId(model.id)
-        console.log("Pb Session: ", pbSession)
-
-        if (pbSession != undefined && pbSession != null) {
-          if (pbSession.code != undefined && pbSession.code == 404) {
-            setBskyAccountLinked(false)
-          } else {
-            setBskyAccountLinked(true)
-          }
-        } else {
-          setBskyAccountLinked(false)
-        }
+        checkWhichAccountIsLinked(model)
       }
       return
     }
@@ -742,12 +748,14 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       const model = await pbManager.fetchUser()
       setUserModel(model);
       setUser(model)
+      checkWhichAccountIsLinked(model)
       return
     } else if (loginMode == LoginMode.FARCASTER) {
       //fetch user by fid
       const model = await pbManager.fetchUserByFID(fid)
       setUserModel(model)
       setUser(model)
+      checkWhichAccountIsLinked(model)
       return
     } else if (loginMode == LoginMode.BLUESKY) {
       console.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
@@ -755,6 +763,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       const model = await pbManager.getUserByBlueSkyId(currentUser.blueskyid)
       setUserModel(model)
       setUser(model)
+      checkWhichAccountIsLinked(model)
       return
     }
   }
@@ -916,6 +925,81 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
     }
   }, [walletConnected, address])
 
+
+  const isLoginViaFarcaster = () => {
+    return loginMode == LoginMode.FARCASTER
+  }
+
+  const isLoginViaBsky = () => {
+    return loginMode == LoginMode.BLUESKY
+  }
+
+  const isLoginViaWallet = () => {
+    return loginMode == LoginMode.WALLET
+  }
+
+  const isLoginViaEmail = () => {
+    return loginMode == LoginMode.EMAIL
+  }
+
+  const saveFarcasterData = async (existingUser, res) => {
+
+    const data = res.data;
+
+    console.log("Existing User: ", existingUser)
+    console.log("Farcster Data: ", data)
+
+
+    //check if this farcaster account already linked with any Greatape account or not
+    const userByFid = await pbManager.fetchUserByFID(data.fid)
+    console.log("User by fid: ", userByFid)
+
+    if (userByFid.code != undefined && userByFid.code == 404) {
+      //link farcaster account
+
+      if (existingUser.blueskyid == null || existingUser.blueskyid == undefined || existingUser.blueskyid == "") {
+        //no bsky account linked, save whole farcaster data
+        console.log("Saving whole Farcaster DATA")
+
+        const updatedData = JSON.stringify({
+          username: data.username,
+          fid: data.fid,
+          name: data.displayName,
+          bio: data.bio,
+        })
+
+        const user = await pbManager.updateUserProfileAndLinkFarcatser(existingUser.id, updatedData)
+        console.log("Updated user: ", user)
+
+        setFarcasterAccountLinked(true)
+
+      } else if (existingUser.fid == 0) {
+        //bsky account is linked, save only FID
+        console.log("Saving only FID")
+
+        const updatedData = JSON.stringify({
+          fid: data.fid
+        })
+
+        const user = await pbManager.updateUserProfileAndLinkFarcatser(existingUser.id, updatedData)
+        console.log("Updated user: ", user)
+
+        setFarcasterAccountLinked(true)
+
+      }
+
+    } else {
+      toast({
+        title: "Please link another Farcaster Account!",
+        description: `This Farcaster Account is already linked with one of the Greatape Account`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+
+
+  }
 
 
   return (
@@ -1106,7 +1190,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
                 {/* Connect Bsky Account */}
                 {
-                  loginMode == LoginMode.WALLET && userModel ? (
+                  (isLoginViaWallet() || isLoginViaEmail() || isLoginViaFarcaster()) && userModel ? (
 
                     !bskyAccountLinked ? (
                       <BlueSkyLoginButton
@@ -1135,6 +1219,42 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                         <BlackCheckIcon className={styles.blackIcon} />
                         <Text className={styles.textBold11}>
                           Your Blue Sky Account is Already Linked
+                        </Text>
+                      </Flex>
+                    )
+                  ) : (
+                    null
+                  )
+                }
+              </Box>
+
+              <Box >
+
+                {/* Connect Farcaster Account */}
+                {
+                  (isLoginViaWallet() || isLoginViaBsky() || isLoginViaEmail()) && userModel ? (
+                    !farcasterAccountLinked ? (
+                      <SignInWithFarcasterButton
+                        onSuccess={(res) => {
+                          console.log("Login successfull with Farcaster: ", res)
+                          saveFarcasterData(userModel, res)
+                        }
+                        }
+                        onError={(err) => {
+                          toast({
+                            title: err,
+                            description: ``,
+                            status: "error",
+                            duration: 3000,
+                            isClosable: true,
+                          });
+                        }
+                        } />
+                    ) : (
+                      <Flex alignItems="center" cursor="pointer">
+                        <BlackCheckIcon className={styles.blackIcon} />
+                        <Text className={styles.textBold11}>
+                          Your Farcaster Account is Already Linked
                         </Text>
                       </Flex>
                     )

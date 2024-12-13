@@ -51,6 +51,8 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
                 // console.log("Status: ", status.data);
 
                 if (status.data.state === "completed") {
+                    onShowQRCodeModalClose()
+                    setUrl(null)
                     onSuccess(status)
                     return;
                 }

@@ -27,7 +27,6 @@ export class SignUpData {
   name: string;
   avatar: File;
   fid: string;
-  did: string;
   bio: string;
 
   constructor(
@@ -36,8 +35,7 @@ export class SignUpData {
     password: string,
     avatar: File = null,
     fid: string = null,
-    did: string = null,
-    displayName: string = username,
+    name: string = username,
     bio: string = null
   ) {
     this.username = username;
@@ -45,10 +43,9 @@ export class SignUpData {
     this.password = password;
     this.emailVisibility = true;
     this.passwordConfirm = password;
-    this.name = displayName;
+    this.name = name;
     this.avatar = avatar;
     this.fid = fid;
-    this.did = did;
     this.bio = bio;
   }
 }
@@ -205,6 +202,16 @@ export class PocketBaseManager {
   }
 
   public async updateUserProfileAndLinkBlueSky(userid: string, updatedProfileData: any) {
+    try {
+      const record = await this.pocketBase.collection("users").update(userid, updatedProfileData);
+
+      return record;
+    } catch (e) {
+      return e.data;
+    }
+  }
+
+  public async updateUserProfileAndLinkFarcatser(userid: string, updatedProfileData: any) {
     try {
       const record = await this.pocketBase.collection("users").update(userid, updatedProfileData);
 

@@ -106,8 +106,11 @@ export const NewPostCard: FC<BoxProps> = () => {
 
   const handlePost = async (e) => {
     e.preventDefault()
+    const pbManager = PocketBaseManager.getInstance()
+    const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id.toString())
+    const blueSkyApi = BlueSkyApi.getInstance(bskySession.service)
 
-    if (loginMode == LoginMode.BLUESKY || BlueSkyApi.getInstance() != null) {
+    if (loginMode == LoginMode.BLUESKY || blueSkyApi != null) {
       publishToBlueSky()
     } else {
       toast({
