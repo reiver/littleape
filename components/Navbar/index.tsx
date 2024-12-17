@@ -53,6 +53,19 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   );
 };
 
+const handleVideoClick = (user) => {
+  if (user != null && user != undefined && user.username != undefined) {
+    console.log("User: ", user.username)
+
+    // Define the target URL
+    const redirectUrl = `http://localhost:3000/@${user.username}/host?host=localhost:8080&from=ga`;
+
+    // Perform the redirection
+    window.location.href = redirectUrl;
+  }
+
+}
+
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
@@ -117,7 +130,9 @@ export const Navbar: FC<BoxProps> = (props) => {
           {user && (
             <>
               <MessagesPopup />
-              <ActionIconButton>
+              <ActionIconButton onClick={() => {
+                handleVideoClick(user)
+              }}>
                 <VideoIcon />
               </ActionIconButton>
             </>
