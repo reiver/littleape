@@ -3,12 +3,15 @@ import { Feed } from "components/Feed";
 import { Footer } from "components/Footer";
 import { MainMenu } from "components/MainMenu";
 import { MightLikeCard } from "components/MightLikeCard";
+import { LOGJAM_BACKEND_URL, LOGJAM_URL } from "components/Navbar";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
 import { DashboardLayout } from "layouts/Dashboard";
 import { PocketBaseManager } from "lib/pocketBaseManager";
+import { checkUserHasBlueSkyLinked } from "lib/utils";
 import Head from "next/head";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "store";
 import { useAddress } from "web3-wallet-connection";
 
@@ -17,6 +20,30 @@ const pbManager = PocketBaseManager.getInstance()
 export default function Home() {
   let user = useAuthStore((state) => state.user);
   const address = useAddress()
+
+  const [postContent, setPostContent] = useState("")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // This code runs only in the browser
+      window.addEventListener("message", (event) => {
+        setPostContent(null)
+        if (event.origin === LOGJAM_URL) {
+
+          const url = `${event.data.audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+
+          setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+        }
+      });
+
+      // Cleanup event listener
+      return () => {
+        window.removeEventListener("message", () => { });
+      };
+    }
+  }, []);
+
+
   return (
     <>
       <Head>
@@ -60,7 +87,7 @@ export default function Home() {
           flexDirection="column"
           experimental_spaceY={3}
         >
-          <NewPostCard />
+          <NewPostCard defaultValue={postContent} />
           <Feed username={user?.username || ''} />
         </Box>
         <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>

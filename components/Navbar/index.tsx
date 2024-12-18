@@ -53,26 +53,35 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   );
 };
 
+export const LOGJAM_URL = "http://localhost:3000"
+export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
+
+
 const handleVideoClick = (user) => {
-  if (user != null && user != undefined && user.username != undefined) {
-    console.log("User: ", user.username)
+  if (user != null && user.username != undefined) {
+    console.log("User: ", user.username);
 
     // Define the target URL
-    const redirectUrl = `http://localhost:3000/@${user.username}/host?host=localhost:8080&from=ga`;
+    const redirectUrl = `${LOGJAM_URL}/@${user.username}/host?host=${LOGJAM_BACKEND_URL}`;
 
-    // Perform the redirection
-    window.location.href = redirectUrl;
+    // Open the new app in a new tab or window
+    const newWindow = window.open(redirectUrl);
+
+    // Post a message to the new window
+    if (newWindow) {
+      setTimeout(() => {
+        newWindow.postMessage({ from: "greatape", url: window.location.href, username: user.username }, LOGJAM_URL);
+      }, 2000);
+    }
   }
+};
 
-}
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const disconnect = useDisconnect();
-
-
   const { resetAll } = useWallet()
 
   const handleLogout = async () => {

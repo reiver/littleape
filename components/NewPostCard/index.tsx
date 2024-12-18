@@ -19,7 +19,7 @@ import { useForm } from "hooks/useForm";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { PocketBaseManager } from "lib/pocketBaseManager";
 import dynamic from "next/dynamic";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { LoginMode, useAuthStore } from "store";
 import { useSWRConfig } from "swr";
 import { joinURL } from "ufo";
@@ -56,7 +56,7 @@ const schema = z.object({
   content: z.string().min(1),
 });
 
-export const NewPostCard: FC<BoxProps> = () => {
+export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultValue = "" }) => {
   const user = useAuthStore((state) => state.user);
   const { cache, mutate } = useSWRConfig();
   const editorRef = useRef<{ clearContent: () => void }>();
@@ -64,6 +64,14 @@ export const NewPostCard: FC<BoxProps> = () => {
   const [bskyPost, setBskyPost] = useState("")
   const loginMode = useAuthStore((state) => state.mode)
   const toast = useToast();
+
+  useEffect(() => {
+    console.log("Default values changes: ", defaultValue)
+    // Update bskyPost state when defaultValue changes
+    if (defaultValue) {
+      setBskyPost(defaultValue);
+    }
+  }, [defaultValue]);
 
 
   const { post, loading, errors, reset, setValue } = useForm(
@@ -91,6 +99,7 @@ export const NewPostCard: FC<BoxProps> = () => {
     }
 
     const res = await blueSkyApi.createPost(bskyPost)
+    defaultValue = null
     if (res != null && res.validationStatus != undefined && res.validationStatus == "valid") {
       toast({
         title: "Posted to Bluesky!",

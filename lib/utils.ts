@@ -6,6 +6,11 @@ const pbManager = PocketBaseManager.getInstance();
 export const checkUserHasBlueSkyLinked = async (user: any) => {
 
     const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id)
+
+    if (bskySession == undefined || bskySession == null) {
+        return false
+    }
+
     const oldAccessJWT = bskySession.accessJwt
 
     //create blueSKy Instance
@@ -23,9 +28,12 @@ export const checkUserHasBlueSkyLinked = async (user: any) => {
             //update resumed session data
             const updated = await pbManager.updateBlueSkySession(bskySession.id, updatedSession)
             console.log("Session Updated at DB")
+            return true
         } else {
             console.log("No need to updated the access token in DB")
         }
     }
+
+    return true
 
 }

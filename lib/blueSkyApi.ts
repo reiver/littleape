@@ -1,5 +1,5 @@
 // src/lib/api.ts
-import { AtpAgent, AtpSessionData } from "@atproto/api";
+import { AppBskyRichtextFacet, AtpAgent, AtpSessionData } from "@atproto/api";
 
 export class BlueSkyApi {
   private agent: AtpAgent;
@@ -135,19 +135,55 @@ export class BlueSkyApi {
         throw new Error("No DID found. Ensure session is created.");
       }
 
+      // Regex to detect URLs in the text
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const urls = text.match(urlRegex);
+
+      console.log("URLs: ", urls)
+      // If a URL is found in the text
+      if (urls && urls.length > 0) {
+        const url = urls[0]; // Take the first URL if there are multiple
+        const facets: AppBskyRichtextFacet.Main[] = [
+          {
+            features: [
+              {
+                $type: 'app.bsky.richtext.facet#link',
+                uri: url,
+              },
+            ],
+            index: {
+              byteStart: text.indexOf(url),
+              byteEnd: text.indexOf(url) + url.length,
+            },
+          },
+        ];
+
+        const response = await this.agent.post({
+          repo, // The DID of the authenticated user
+          collection: "app.bsky.feed.post", // Post collection
+          text,
+          facets,
+        });
+
+        console.log("Post created successfully with Link URL");
+        return response;
+      }
+
+      // If no URL is found, just post the text as is
       const response = await this.agent.post({
         repo, // The DID of the authenticated user
         collection: "app.bsky.feed.post", // Post collection
         text,
       });
 
-      console.log("Post created successfully");
+      console.log("Post created successfully without URL");
       return response;
     } catch (error) {
       console.error("Failed to create post:", error);
       throw error;
     }
   }
+
 
   // Check if the session is expiring soon (within 10 minutes)
   private sessionIsExpiring(): boolean {
