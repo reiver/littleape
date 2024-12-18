@@ -53,7 +53,7 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   );
 };
 
-export const LOGJAM_URL = "http://localhost:3000"
+export const LOGJAM_URL = "https://logjam-frontend.vercel.app" //"http://localhost:3000"
 export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
 
 
