@@ -1,4 +1,4 @@
-import { AUTH_KEY } from "constants/app";
+import { AUTH_KEY, USER_COOKIE } from "constants/app";
 import Cookies from "js-cookie";
 import { PocketBaseManager } from "lib/pocketBaseManager";
 import { User } from "types/User";
@@ -30,6 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   mode: LoginMode.EMAIL,
   setAuth: (token, user) => {
     Cookies.set(AUTH_KEY, token, { sameSite: "None", secure: true });
+    Cookies.set(USER_COOKIE, JSON.stringify(user))
     set(() => ({
       token,
       user,
@@ -47,6 +48,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   logout: () => {
     Cookies.remove(AUTH_KEY);
+    Cookies.remove(USER_COOKIE);
     pbManager.logout(); // Clear the PocketBase auth store
     set(() => ({
       token: undefined,

@@ -7,39 +7,66 @@ import { LOGJAM_BACKEND_URL, LOGJAM_URL } from "components/Navbar";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
+import { AUTH_KEY, USER_COOKIE } from "constants/app";
+import Cookies from "js-cookie";
 import { DashboardLayout } from "layouts/Dashboard";
 import { PocketBaseManager } from "lib/pocketBaseManager";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "store";
+import { User } from "types/User";
 import { useAddress } from "web3-wallet-connection";
 
 const pbManager = PocketBaseManager.getInstance()
 
 export default function Home() {
+
+  const setAuth = useAuthStore((state) => state.setAuth);
   let user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    const userFromCookie = Cookies.get(USER_COOKIE)
+
+    if (userFromCookie != null && userFromCookie != undefined) {
+      const userObj: User = JSON.parse(userFromCookie);
+      setAuth(userObj.email, userObj)
+      checkUserHasBlueSkyLinked(userObj)
+    }
+  }, [])
+
   const address = useAddress()
 
   const [postContent, setPostContent] = useState("")
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // This code runs only in the browser
-      window.addEventListener("message", (event) => {
-        setPostContent(null)
-        if (event.origin === LOGJAM_URL) {
 
-          const url = `${event.data.audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+      const hashData = window.location.hash.split("#data=")[1];
 
-          setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+      if (hashData) {
+        try {
+          // Decode and parse the received data
+          const receivedData = JSON.parse(decodeURIComponent(hashData));
+          window.location.hash = "";
+          setPostContent(null)
+
+          if (receivedData.from == "logjam") {
+
+            const audienceLink = receivedData.audienceLink
+
+            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+
+            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+          }
+
+        } catch (error) {
+          console.error("Failed to parse hash data:", error);
+          window.location.hash = "";
         }
-      });
-
-      // Cleanup event listener
-      return () => {
-        window.removeEventListener("message", () => { });
-      };
+      } else {
+        console.log("No data received in URL hash.");
+      }
     }
   }, []);
 

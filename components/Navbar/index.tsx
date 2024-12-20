@@ -53,29 +53,29 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   );
 };
 
-export const LOGJAM_URL = "https://logjam-frontend.vercel.app" //"http://localhost:3000"
+export const LOGJAM_URL = "http://localhost:3000" //"https://logjam-frontend.vercel.app" //"http://localhost:3000"
 export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
-
 
 const handleVideoClick = (user) => {
   if (user != null && user.username != undefined) {
-    console.log("User: ", user.username);
 
-    // Define the target URL
-    const redirectUrl = `${LOGJAM_URL}/@${user.username}/host?host=${LOGJAM_BACKEND_URL}`;
+    // Prepare the data to send
+    const dataToSend = {
+      from: "greatape",
+      url: window.location.href,
+      username: user.username,
+    };
 
-    // Open the new app in a new tab or window
-    const newWindow = window.open(redirectUrl);
+    // Serialize the data into a URL hash
+    const hashData = encodeURIComponent(JSON.stringify(dataToSend));
 
-    // Post a message to the new window
-    if (newWindow) {
-      setTimeout(() => {
-        newWindow.postMessage({ from: "greatape", url: window.location.href, username: user.username }, LOGJAM_URL);
-      }, 2000);
-    }
+    // Define the target URL with hash
+    const redirectUrl = `${LOGJAM_URL}/@${user.username}/host#data=${hashData}`;
+
+    // Redirect to the target URL
+    window.location.href = redirectUrl;
   }
 };
-
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
