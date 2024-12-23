@@ -280,7 +280,6 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       //reload page to get user
       fetchUserModel()
     }
-    console.log("User model is: ", userModel)
   }, [walletDataSaved, userModel]);
 
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));

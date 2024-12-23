@@ -1,23 +1,78 @@
 import { Box } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
 import { MightLikeCard } from "components/MightLikeCard";
+import { LOGJAM_BACKEND_URL } from "components/Navbar";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
 import { TrendingTags } from "components/TrendingTags";
+import { USER_COOKIE } from "constants/app";
+import Cookies from "js-cookie";
 import { DashboardLayout } from "layouts/Dashboard";
+import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { FETCH_USER_PROFILE } from "services/api";
 import { useAuthStore } from "store";
 import useSWR from "swr";
-import { ActivityUser } from "types/User";
+import { ActivityUser, User } from "types/User";
 
 export default function UserProfile() {
+  const [postContent, setPostContent] = useState("")
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  useEffect(() => {
+    const userFromCookie = Cookies.get(USER_COOKIE)
+
+    if (userFromCookie != null && userFromCookie != undefined) {
+      const userObj: User = JSON.parse(userFromCookie);
+      setAuth(userObj.email, userObj)
+      checkUserHasBlueSkyLinked(userObj)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+
+      const hashData = window.location.hash.split("#data=")[1];
+
+      if (hashData) {
+        try {
+          // Decode and parse the received data
+          const receivedData = JSON.parse(decodeURIComponent(hashData));
+          setPostContent(null)
+
+          if (receivedData.from == "logjam") {
+
+            var audienceLink = receivedData.audienceLink
+
+            audienceLink = audienceLink.replace(' ', '%20')
+
+            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+
+            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+
+            window.location.hash = "";
+
+          }
+
+        } catch (error) {
+          console.error("Failed to parse hash data:", error);
+          window.location.hash = "";
+        }
+      } else {
+        console.log("No data received in URL hash.");
+      }
+    }
+  }, []);
+
+
+
   const {
     query: { username },
   } = useRouter();
-  
+
   const { data: user } = useSWR<ActivityUser>(FETCH_USER_PROFILE(username));
   const loggedInUser = useAuthStore((state) => state.user);
   const title = `Greatape | @${String(username) || ""}`;
@@ -43,7 +98,7 @@ export default function UserProfile() {
         >
 
           <ProfileHeader username={String(username)} />
-          {user && username == loggedInUser?.username && <NewPostCard />}
+          {user && username == loggedInUser?.username && <NewPostCard defaultValue={postContent} />}
           {user && <Feed username={String(username)} />}
         </Box>
         <Box gridColumn="span 6 / span 6" display={{ base: "none", lg: "block" }}>

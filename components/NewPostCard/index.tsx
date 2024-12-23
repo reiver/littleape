@@ -66,7 +66,6 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
   const toast = useToast();
 
   useEffect(() => {
-    console.log("Default values changes: ", defaultValue)
     // Update bskyPost state when defaultValue changes
     if (defaultValue) {
       setBskyPost(defaultValue);
@@ -91,8 +90,8 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
     const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id.toString())
     const blueSkyApi = BlueSkyApi.getInstance(bskySession.service)
 
-    console.log("Publishing to bSKY: ", bskyPost)
-    console.log("Bsky API for post: ", blueSkyApi)
+    // console.log("Publishing to bSKY: ", bskyPost)
+    // console.log("Bsky API for post: ", blueSkyApi)
 
     if (bskyPost == "" || bskyPost == undefined || bskyPost == null) {
       return
@@ -115,6 +114,9 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
 
   const handlePost = async (e) => {
     e.preventDefault()
+    //reset link hash
+    window.location.hash = "";
+
     const pbManager = PocketBaseManager.getInstance()
     const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id.toString())
     const blueSkyApi = BlueSkyApi.getInstance(bskySession.service)

@@ -11,7 +11,6 @@ export class BlueSkyApi {
 
   // Static method to get the singleton instance
   public static getInstance(serviceUrl: string = ""): BlueSkyApi {
-    console.log("Requesting insatincae: ", serviceUrl)
     if (!BlueSkyApi.instance) {
       if (serviceUrl == "") {
         console.log("Need service url to create new Bluesky Instance")
@@ -139,7 +138,7 @@ export class BlueSkyApi {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const urls = text.match(urlRegex);
 
-      console.log("URLs: ", urls)
+      // console.log("URLs: ", urls)
       // If a URL is found in the text
       if (urls && urls.length > 0) {
         const url = urls[0]; // Take the first URL if there are multiple

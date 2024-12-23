@@ -48,16 +48,20 @@ export default function Home() {
         try {
           // Decode and parse the received data
           const receivedData = JSON.parse(decodeURIComponent(hashData));
-          window.location.hash = "";
           setPostContent(null)
 
           if (receivedData.from == "logjam") {
 
-            const audienceLink = receivedData.audienceLink
+            var audienceLink = receivedData.audienceLink
+
+            audienceLink = audienceLink.replace(' ', '%20')
 
             const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
 
             setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+
+            window.location.hash = "";
+
           }
 
         } catch (error) {
@@ -67,9 +71,10 @@ export default function Home() {
       } else {
         console.log("No data received in URL hash.");
       }
+
+      window.location.hash = "";
     }
   }, []);
-
 
   return (
     <>
