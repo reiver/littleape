@@ -42,6 +42,28 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== "undefined") {
 
+      window.addEventListener("message", (event) => {
+        if (event.origin == (LOGJAM_URL)) {
+          // Process the received data
+
+          const receivedData = event.data;
+
+          if (receivedData.from == "logjam") {
+
+            var audienceLink = receivedData.audienceLink
+
+            audienceLink = audienceLink.replace(' ', '%20')
+
+            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+
+            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+
+          }
+        }
+      });
+
+      return
+
       const hashData = window.location.hash.split("#data=")[1];
 
       if (hashData) {

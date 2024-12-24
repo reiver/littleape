@@ -16,13 +16,14 @@ import {
 } from "@chakra-ui/react";
 import { BellIcon, EnvelopeIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Container } from "components/Container";
+import { LogjamIframeModal } from "components/LogjamIframeModal";
 import { Logo } from "components/Logo";
 import { SearchInput } from "components/SearchInput";
 import { UserAvatar } from "components/UserAvatar";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
@@ -56,33 +57,53 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
 export const LOGJAM_URL = "https://logjam-frontend.vercel.app" //"http://localhost:3000"
 export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
 
-const handleVideoClick = (user) => {
-  if (user != null && user.username != undefined) {
-
-    // Prepare the data to send
-    const dataToSend = {
-      from: "greatape",
-      url: window.location.href,
-      username: user.username,
-    };
-
-    // Serialize the data into a URL hash
-    const hashData = encodeURIComponent(JSON.stringify(dataToSend));
-
-    // Define the target URL with hash
-    const redirectUrl = `${LOGJAM_URL}/@${user.username}/host#data=${hashData}`;
-
-    // Redirect to the target URL
-    window.location.href = redirectUrl;
-  }
-};
-
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const disconnect = useDisconnect();
   const { resetAll } = useWallet()
+
+  const [loadIframeModal, setLoadIframeModal] = useState(false)
+  const [logjamUrl, setLogjamUrl] = useState("")
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("message", (event) => {
+      if (event.origin == (LOGJAM_URL)) {
+        // Process the received data
+        setLoadIframeModal(false)
+      }
+    });
+  }
+
+
+
+  const handleVideoClick = (user) => {
+
+    if (user != null && user.username != undefined) {
+
+      // Prepare the data to send
+      const dataToSend = {
+        from: "greatape",
+        url: window.location.href,
+        username: user.username,
+      };
+
+      // Serialize the data into a URL hash
+      const hashData = encodeURIComponent(JSON.stringify(dataToSend));
+
+      // Define the target URL with hash
+      const redirectUrl = `${LOGJAM_URL}/@${user.username}/host#data=${hashData}`;
+
+      setLoadIframeModal(true)
+      setLogjamUrl(redirectUrl)
+
+      return
+      // Redirect to the target URL
+      window.location.href = redirectUrl;
+
+    }
+  };
 
   const handleLogout = async () => {
 
@@ -180,6 +201,15 @@ export const Navbar: FC<BoxProps> = (props) => {
               </MenuList>
             </Menu>
           )}
+
+          {loadIframeModal &&
+            <LogjamIframeModal
+              url={logjamUrl}
+              onClose={() => {
+                setLoadIframeModal(false)
+              }}
+            />
+          }
         </Box>
       </Container>
     </Box>
