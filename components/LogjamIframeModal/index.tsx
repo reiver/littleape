@@ -5,8 +5,15 @@ export const LogjamIframeModal = ({ url, onClose }: { url: string, onClose: (dat
     const [showModal, setShowModal] = useState(true);
 
     const closeLogjamIframeModal = (data?: any) => {
-        setShowModal(false); // Close the modal
-        onClose(data); // Pass data back to parent
+        //send request to logjam and fetch data, before closing
+        requestDataFromIframe()
+    };
+
+    const requestDataFromIframe = () => {
+        const iframe = document.getElementById("logjamIframe") as HTMLIFrameElement;
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ type: "REQUEST_DATA" }, "*");
+        }
     };
 
     return (

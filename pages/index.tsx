@@ -52,12 +52,13 @@ export default function Home() {
 
             var audienceLink = receivedData.audienceLink
 
-            audienceLink = audienceLink.replace(' ', '%20')
+            if (audienceLink != undefined && audienceLink != "") {
+              audienceLink = audienceLink.replace(' ', '%20')
 
-            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+              const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
 
-            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
-
+              setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+            }
           }
         }
       });

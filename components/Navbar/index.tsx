@@ -93,7 +93,7 @@ export const Navbar: FC<BoxProps> = (props) => {
       const hashData = encodeURIComponent(JSON.stringify(dataToSend));
 
       // Define the target URL with hash
-      const redirectUrl = `${LOGJAM_URL}/@${user.username}/host#data=${hashData}`;
+      const redirectUrl = `${LOGJAM_URL}/@${user.username}/host?host=${LOGJAM_BACKEND_URL}#data=${hashData}`;
 
       setLoadIframeModal(true)
       setLogjamUrl(redirectUrl)
