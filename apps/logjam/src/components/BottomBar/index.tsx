@@ -3,7 +3,8 @@ import Troubleshoot from 'assets/icons/Troubleshoot.svg?react'
 import clsx from 'clsx'
 import { BottomSheet, Container, Controllers, Icon, MoreControllers, Tooltip, attendeesBadge, attendeesCount, isAttendeesOpen, isMoreOptionsOpen, toggleAttendees, toggleMoreOptions } from 'components'
 import { broadcastIsInTheMeeting, isDebugMode, sparkRTC } from 'pages/Meeting'
-import { LinkCopyComponent } from '../../pages/host/index.tsx'
+import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
+import logger from 'lib/logger/logger.js'
 export const BottomBar = () => {
   return (
     <Container class={clsx('transition-all', {})}>
@@ -41,6 +42,12 @@ export const BottomBar = () => {
 }
 
 const generateAudienceUrl = (roomName: string) => {
+  if (isInsideIframe()) {
+    //get iframe URL
+    logger.log("Iframe URL: ", TopWindowURL.value)
+
+    return `${TopWindowURL.value}/log/${roomName}`
+  }
   return `${window.location.origin}/log/${roomName}`
 }
 

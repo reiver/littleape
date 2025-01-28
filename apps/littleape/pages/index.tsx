@@ -72,12 +72,19 @@ export default function Home() {
                   roomname: receivedData.roomName,
                   username: receivedData.displayName,
                   hostLink: receivedData.hostLink,
+                  audienceLink: receivedData.audienceLink,
+                  topWindowUrl: window.location.origin,
                 };
 
                 // Serialize the data into a URL hash
                 const hashData = encodeURIComponent(JSON.stringify(dataToSend));
 
-                window.open(`${window.location.href}/video#start-meeting=${hashData}`, "_blank");
+                //open host page
+                window.open(`${window.location.href}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
+
+                //open audince page
+                window.open(`${window.location.href}/log/${receivedData.roomName}#start-meeting=${hashData}`, "_blank");
+
 
               }
 

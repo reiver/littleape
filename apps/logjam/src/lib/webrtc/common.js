@@ -19,22 +19,19 @@ export function getWsUrl(host = null) {
   let basePath = "/hapi/v1";
 
   if (host) {
-    baseUrl = host;
+    baseUrl = host
   } else {
-    baseUrl = window.location.href.split("//")[1].split("/")[0];
+    baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS
   }
 
-  var protocol =
-    window.location.href.split("//")[0] === "http:" ? "ws" : "wss";
+  var protocol = "wss" //secure for deployed
 
-  //create secure wss with deployed backend
-  if (!baseUrl.includes("localhost")) {
-    protocol = "wss"
+  if (import.meta.env.VITE_APP_LOCAL_ENV) {
+    //local env
+    protocol = "ws"
   }
-
 
   const wsURL = `${protocol}://${baseUrl}${basePath}/ws`;
-  //  console.log("wsURL:", wsURL);
 
   return wsURL;
 }

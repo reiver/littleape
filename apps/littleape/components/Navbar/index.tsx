@@ -55,7 +55,6 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
 };
 
 export const LOGJAM_URL = "http://localhost:3000" //"https://logjam-frontend.vercel.app" 
-export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
 
 export const Navbar: FC<BoxProps> = (props) => {
   const router = useRouter();
@@ -90,8 +89,12 @@ export const Navbar: FC<BoxProps> = (props) => {
       // Serialize the data into a URL hash
       const hashData = encodeURIComponent(JSON.stringify(dataToSend));
 
+      console.log("LOGJAM URL: ",LOGJAM_URL)
+      console.log("LOGJAM URL DIRECT: ",process.env.NEXT_LOGJAM_BASE_URL)
+
       // Define the target URL with hash
-      const redirectUrl = `${LOGJAM_URL}/@${user.username}/host?host=${LOGJAM_BACKEND_URL}#data=${hashData}`;
+      const redirectUrl = `${LOGJAM_URL}/@${user.username}/host#data=${hashData}`;
+      console.log("Redirect URL: ", redirectUrl)
 
       setLoadIframeModal(true)
       setLogjamUrl(redirectUrl)

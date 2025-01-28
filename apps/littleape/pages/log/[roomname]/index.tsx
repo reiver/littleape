@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-export default function LogjamIframe() {
-    const [logjamLink, setLogjamLink] = useState("");
+export default function AudiencePage() {
+    const [logjamLink, setLogjamLink] = useState("")
     const [hashToSend, sethashToSend] = useState(null)
 
     useEffect(() => {
@@ -12,16 +12,16 @@ export default function LogjamIframe() {
                 const receivedData = JSON.parse(decodeURIComponent(hashData));
                 console.log("received Data: ", receivedData);
 
-                setLogjamLink(receivedData.hostLink);
-
                 // Prepare the data to send
                 const dataToSend = {
                     from: receivedData.from,
                     to: receivedData.to,
                     roomname: receivedData.roomname,
                     username: receivedData.username,
-                    hostLink: receivedData.hostLink
+                    audienceLink: receivedData.audienceLink,
                 };
+
+                setLogjamLink(receivedData.audienceLink)
 
                 // Serialize the data into a URL hash
                 const newHash = encodeURIComponent(JSON.stringify(dataToSend));
@@ -56,7 +56,7 @@ export default function LogjamIframe() {
                 zIndex: 9999,
             }}
             id="logjamVideoIframe"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
             allow="camera; microphone"
         ></iframe>
     );

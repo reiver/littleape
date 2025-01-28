@@ -26,6 +26,8 @@ const pbApi = new PocketBaseManager()
 var oldIndex = -1;
 var hostId = null
 const cssList = signal(null);
+export const TopWindowURL = signal(null)
+export const HashDataFromLittleApe = signal(null)
 
 const createNewHost = async (hostData) => {
   var newHost = await pbApi.createHost(hostData)
@@ -63,6 +65,10 @@ const generateAudienceUrl = async (roomName: string) => {
 var customStyles = null;
 
 
+export const isInsideIframe = () => {
+  return window.self !== window.top
+}
+
 export const HostPage = ({ params: { displayName } }: { params?: { displayName?: string } }) => {
   const [started, setStarted] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -73,10 +79,6 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [gaUrl, setGaUrl] = useState("")
 
 
-  const isInsideIframe = () => {
-    return window.self !== window.top
-  }
-
   if (isInsideIframe()) {
     logger.log("This page is loaded inside an iframe.");
   } else {
@@ -84,13 +86,28 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   }
 
   useEffect(() => {
+    /**
+     * const dataToSend = {
+                  to: "iframe",
+                  from: "littleape",
+                  roomname: receivedData.roomName,
+                  username: receivedData.displayName,
+                  hostLink: receivedData.hostLink,
+                  audienceLink: receivedData.audienceLink,
+                  topWindowUrl: window.location.origin,
+                };
+     */
     const hashData = window.location.hash.split("#start-meeting=")[1];
 
+    HashDataFromLittleApe.value = hashData
+
+    console.log("data received: ", hashData)
     if (hashData) {
       try {
         const receivedData = JSON.parse(decodeURIComponent(hashData));
         form.setValue("displayName", receivedData.username)
         form.setValue("room", receivedData.roomname);
+        TopWindowURL.value = receivedData.topWindowUrl;
         setStarted(true)
       } catch (error) {
 

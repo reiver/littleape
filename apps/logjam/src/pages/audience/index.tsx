@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, FormControl, TextField } from '@mui/material'
 import Meeting from 'pages/Meeting'
 import { lazy } from 'preact-iso'
-import { useState } from 'preact/compat'
+import { useEffect, useState } from 'preact/compat'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
 
@@ -21,6 +21,23 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
       name: '',
     },
     resolver: zodResolver(schema),
+  })
+
+
+  useEffect(() => {
+    const hashData = window.location.hash.split("#start-meeting=")[1];
+
+    console.log("data received: ", hashData)
+    if (hashData) {
+      try {
+        const receivedData = JSON.parse(decodeURIComponent(hashData));
+        console.log("Data is: ", receivedData)
+      } catch (error) {
+
+      }
+      window.location.hash = "";
+    }
+
   })
 
   const onSubmit = () => {
