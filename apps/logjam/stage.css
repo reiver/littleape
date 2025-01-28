@@ -1,0 +1,579 @@
+/* ==================================================================================================
+
+   This Style Sheet Contains the Following:
+
+   - Classes for styling the stage with different video configurations.
+   - IDs and classes with combinations for precise targeting.
+   - The IDs have the following format to target specific video elements:
+     - For the host and audience videos, the ID format is "video_displayname".
+       For example, if a user's display name is "Thomas", then its video ID will be "video_Thomas".
+     - The screen share video element has a fixed ID named "video_sc".
+   
+   The stylesheet is organized to provide styles for:
+   
+   - Stages with varying numbers of videos.
+   - Configurations including the host video, screen share video, and multiple audience videos.
+   
+   Each section is structured to apply appropriate styles to the corresponding video elements, 
+   ensuring a cohesive and visually appealing layout for video conferencing interfaces.
+
+   ================================================================================================= */
+
+/* =================================================================================================
+
+    Main Classes for Stage Configurations:
+    - Stage with Host Video Only:                     "greatape-stage-host"
+    - Stage with Host and Screen Share:               "greatape-stage-host-screenshare"
+    - Stage with Host and 2 Audieneces:               "greatape-stage-host-audience-2"
+    - Stage with Host, Screen Share, and 1 Audience:  "greatape-stage-host-screenshare-audience-1"
+    - Stage with Host and 2 Audiences:                "greatape-stage-host-audience-2"
+    - Stage with Host and 3 Audiences:                "greatape-stage-host-audience-3"
+
+  ==================================================================================================*/
+
+
+
+/* =====================================
+   STYLES FOR 1 VIDEO ONLY - Host Video
+   ===================================== */
+
+
+/* Styles for the stage with only the host */
+.greatape-stage-host {
+  background-color: #f96262; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host .greatape-host-video {
+  width: 700px; /* Width of the host video */
+  height: 400px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  background-color: #f96262; /* Background color for the host video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+}
+
+/* Styles for the video name */
+.greatape-stage-host .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #f96262; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host .greatape-attendees-list {
+  background-color: #f96262; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host .greatape-meeting-link {
+  color: #f96262; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
+
+/* ==============================================================
+   STYLES FOR 2 VIDEOS ONLY - Host Video + Screen Share Video
+   ============================================================= */
+
+/* Styles for the stage with host and screen share */
+.greatape-stage-host-screenshare {
+  background-color: #d3f962; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host-screenshare .greatape-host-video {
+  width: 350px; /* Width of the host video */
+  height: 400px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  background-color: #d3f962; /* Background color for the host video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+}
+
+/* Styles for the screen share video */
+.greatape-stage-host-screenshare .greatape-share-screen-video {
+  width: 600px; /* Width of the screen share video */
+  height: 400px; /* Height of the screen share video */
+  border: 4px solid #000000; /* Border for the screen share video */
+  border-radius: 15px; /* Border radius for the screen share video */
+  background-color: #d3f962; /* Background color for the screen share video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means rightmost */
+}
+
+/* Styles for the gap between videos */
+.greatape-stage-host-screenshare .greatape-gap-in-videos {
+  gap: 60px; /* Gap between videos */
+}
+
+/* Styles for the video name */
+.greatape-stage-host-screenshare .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #d3f962; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host-screenshare .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host-screenshare .greatape-attendees-list {
+  background-color: #d3f962be; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host-screenshare .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host-screenshare .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host-screenshare .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host-screenshare .greatape-meeting-link {
+  color: #d3f962be; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host-screenshare .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
+
+
+/* ================================================================================
+   STYLES FOR 3 VIDEOS ONLY - Host Video + Screen Share Video + 1 Audience Video
+   ================================================================================ */
+
+/* Styles for the stage with host, screen share, and one audience */
+.greatape-stage-host-screenshare-audience-1 {
+  background-color: #62f98d; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host-screenshare-audience-1 .greatape-host-video {
+  width: 200px; /* Width of the host video */
+  height: 190px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  margin-top: -210px; /* Margin top for the host video */
+  background-color: #62f98d; /* Background color for the host video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+}
+
+/* Styles for the screen share video */
+.greatape-stage-host-screenshare-audience-1 .greatape-share-screen-video {
+  width: 550px; /* Width of the screen share video */
+  height: 400px; /* Height of the screen share video */
+  border: 4px solid #000000; /* Border for the screen share video */
+  border-radius: 15px; /* Border radius for the screen share video */
+  background-color: #62f98d; /* Background color for the screen share video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means middle */
+}
+
+
+#video_a1.greatape-stage-host-screenshare-audience-1{
+  width:200px;
+  height:190px;
+  border: 4px solid #FFFFFF;
+  border-radius: 15px;
+  margin-top: 210px;
+  margin-left: -260px;
+  background-color: #62f98d;
+  --position:1;
+}
+
+/* Styles for the gap between videos */
+.greatape-stage-host-screenshare-audience-1 .greatape-gap-in-videos {
+  gap: 60px; /* Gap between videos */
+}
+
+/* Styles for the video name */
+.greatape-stage-host-screenshare-audience-1 .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #62f98d; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host-screenshare-audience-1 .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host-screenshare-audience-1 .greatape-attendees-list {
+  background-color: #62f98d; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host-screenshare-audience-1 .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host-screenshare-audience-1 .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host-screenshare-audience-1 .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host-screenshare-audience-1 .greatape-meeting-link {
+  color: #62f98d; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host-screenshare-audience-1 .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
+
+/* ==============================================================
+   STYLES FOR 3 VIDEOS ONLY - Host Video + 2 Audience Videos
+   ============================================================= */
+
+/* Styles for the stage with host and two audiences */
+.greatape-stage-host-audience-2 {
+  background-color: #62abf9; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host-audience-2 .greatape-host-video {
+  width: 400px; /* Width of the host video */
+  height: 400px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  background-color: #62abf9; /* Background color for the host video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+}
+
+/* Styles for the first audience video */
+#video_a1.greatape-stage-host-audience-2 {
+  width: 300px; /* Width of the audience video */
+  height: 190px; /* Height of the audience video */
+  border: 4px dashed #000000; /* Border for the audience video */
+  border-radius: 15px; /* Border radius for the audience video */
+  margin-top: -210px; /* Margin top for the audience video */
+  background-color: #62abf9; /* Background color for the audience video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means rightmost */
+  margin-left: 60px; /* Margin left for the audience video */
+}
+
+/* Styles for the second audience video */
+#video_a2.greatape-stage-host-audience-2 {
+  width: 300px; /* Width of the audience video */
+  height: 190px; /* Height of the audience video */
+  margin-top: 210px; /* Margin top for the audience video */
+  border: 4px dashed #FFFFFF; /* Border for the audience video */
+  border-radius: 15px; /* Border radius for the audience video */
+  background-color: #62abf9; /* Background color for the audience video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means rightmost */
+  margin-left: -360px; /* Margin left for the audience video */
+}
+
+/* Styles for the gap between videos */
+.greatape-stage-host-audience-2 .greatape-gap-in-videos {
+  gap: 60px; /* Gap between videos */
+}
+
+/* Styles for the video name */
+.greatape-stage-host-audience-2 .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #62abf9; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host-audience-2 .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host-audience-2 .greatape-attendees-list {
+  background-color: #62abf9; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host-audience-2 .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host-audience-2 .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host-audience-2 .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host-audience-2 .greatape-meeting-link {
+  color: #62abf9; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host-audience-2 .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
+
+/* ==============================================================
+   STYLES FOR 2 VIDEOS ONLY - Host Video + 1 Audience Video
+   ============================================================= */
+
+/* Styles for the stage with host and one audience */
+.greatape-stage-host-audience-1 {
+  background-color: #bf62f9; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host-audience-1 .greatape-host-video {
+  width: 400px; /* Width of the host video */
+  height: 400px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  background-color: #bf62f9; /* Background color for the host video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means rightmost */
+}
+
+/* Styles for the audience video */
+.greatape-stage-host-audience-1 .greatape-audience-video {
+  width: 300px; /* Width of the audience video */
+  height: 300px; /* Height of the audience video */
+  border: 4px solid #FFFFFF; /* Border for the audience video */
+  border-radius: 15px; /* Border radius for the audience video */
+  background-color: #bf62f9; /* Background color for the audience video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+}
+
+/* Styles for the gap between videos */
+.greatape-stage-host-audience-1 .greatape-gap-in-videos {
+  gap: 60px; /* Gap between videos */
+}
+
+/* Styles for the video name */
+.greatape-stage-host-audience-1 .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #bf62f9; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host-audience-1 .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host-audience-1 .greatape-attendees-list {
+  background-color: #bf62f9; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host-audience-1 .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host-audience-1 .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host-audience-1 .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host-audience-1 .greatape-meeting-link {
+  color: #bf62f9; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host-audience-1 .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
+
+/* ==============================================================
+   STYLES FOR 4 VIDEOS ONLY - Host Video + 3 Audience Videos
+   ============================================================= */
+
+/* Styles for the stage with host and three audiences */
+.greatape-stage-host-audience-3 {
+  background-color: #62abf9; /* Background color for the stage */
+}
+
+/* Styles for the host video */
+.greatape-stage-host-audience-3 .greatape-host-video {
+  width: 400px; /* Width of the host video */
+  height: 400px; /* Height of the host video */
+  border: 4px solid #000000; /* Border for the host video */
+  border-radius: 15px; /* Border radius for the host video */
+  background-color: #62abf9; /* Background color for the host video */
+  --position: 1; /* Variable to Adjust Video Position on Screen 1 means leftmost */
+  margin-left: -60px; /* Margin left for the host video */
+}
+
+/* Styles for the first audience video */
+#video_a1.greatape-stage-host-audience-3 {
+  width: 240px; /* Width of the first audience video */
+  height: 190px; /* Height of the first audience video */
+  border: 4px dashed #000000; /* Border for the first audience video */
+  border-radius: 15px; /* Border radius for the first audience video */
+  margin-top: -210px; /* Margin top for the first audience video */
+  background-color: #62abf9; /* Background color for the first audience video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means middle */
+}
+
+/* Styles for the video name background of the first audience */
+#video_name_a1 {
+  font-size: 24px; /* Font size of the first audience video name */
+  color: #62abf9; /* Color of the first audience video name */
+  background-color: #ffffff; /* Background color of the first audience video name */
+  border-radius: 12px; /* Border radius for the first audience video name */
+}
+
+/* Styles for the video name background of the first audience */
+#video_name_bg_a1 {
+  margin-top: -4px; /* Margin top for the first audience video name background */
+  margin-left: -10px; /* Margin left for the first audience video name background */
+}
+
+/* Styles for the second audience video */
+#video_a2.greatape-stage-host-audience-3 {
+  width: 240px; /* Width of the second audience video */
+  height: 190px; /* Height of the second audience video */
+  margin-top: -210px; /* Margin top for the second audience video */
+  border: 4px dashed #FFFFFF; /* Border for the second audience video */
+  border-radius: 15px; /* Border radius for the second audience video */
+  background-color: #62abf9; /* Background color for the second audience video */
+  --position: 2; /* Variable to Adjust Video Position on Screen 2 means middle */
+}
+
+/* Styles for the third audience video */
+#video_a3.greatape-stage-host-audience-3 {
+  width: 240px; /* Width of the third audience video */
+  height: 190px; /* Height of the third audience video */
+  margin-top: 210px; /* Margin top for the third audience video */
+  border: 4px dashed #FFFFFF; /* Border for the third audience video */
+  border-radius: 15px; /* Border radius for the third audience video */
+  background-color: #62abf9; /* Background color for the third audience video */
+  --position: 3; /* Variable to Adjust Video Position on Screen 3 means rightmost */
+  margin-left: -450px; /* Margin left for the third audience video */
+}
+
+/* Styles for the gap between videos */
+.greatape-stage-host-audience-3 .greatape-gap-in-videos {
+  gap: 60px; /* Gap between videos */
+}
+
+/* Styles for the video name */
+.greatape-stage-host-audience-3 .greatape-video-name {
+  font-size: 24px; /* Font size of the video name */
+  color: #62abf9; /* Color of the video name */
+  background-color: #000000; /* Background color of the video name */
+  border-radius: 12px; /* Border radius for the video name */
+}
+
+/* Styles for the video name background */
+.greatape-stage-host-audience-3 .greatape-video-name-background {
+  margin-top: -4px; /* Margin top for the video name background */
+  margin-left: -10px; /* Margin left for the video name background */
+}
+
+/* Styles for the attendees list */
+.greatape-stage-host-audience-3 .greatape-attendees-list {
+  background-color: #62abf9; /* Background color for the attendees list */
+  border-color: #000000; /* Border color for the attendees list */
+  border: 4px solid #000000; /* Border for the attendees list */
+  border-radius: 15px; /* Border radius for the attendees list */
+  color: #000000; /* Color of the attendees list */
+}
+
+/* Styles for the attendees count */
+.greatape-stage-host-audience-3 .greatape-attendees-count {
+  color: #000000; /* Color of the attendees count */
+}
+
+/* Styles for the attendees item */
+.greatape-stage-host-audience-3 .greatape-attendees-item {
+  color: #000000; /* Color of the attendees item */
+}
+
+/* Styles for the attendees item role */
+.greatape-stage-host-audience-3 .greatape-attendees-item-role {
+  color: #000000aa; /* Color of the attendees item role */
+}
+
+/* Styles for the meeting link */
+.greatape-stage-host-audience-3 .greatape-meeting-link {
+  color: #62abf9; /* Color of the meeting link */
+}
+
+/* Styles for the meeting link background */
+.greatape-stage-host-audience-3 .greatape-meeting-link-background {
+  background-color: #000000; /* Background color for the meeting link */
+}
