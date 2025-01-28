@@ -68,6 +68,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [showModal, setShowModal] = useState(false)
   const [startNewRoomFromIframe, setStartNewRoomFromIframe] = useState(false)
   const [hostLink, setHostLink] = useState("");
+  const [roomName, setRoomName] = useState("");
   const [audienceLink, setAudienceLink] = useState("");
   const [gaUrl, setGaUrl] = useState("")
 
@@ -232,7 +233,8 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
       await generateBothUrls()
 
-      window.open(`${window.location.href}#start-meeting=${hashData}`, "_blank");
+      // window.open(`${window.location.href}#start-meeting=${hashData}`, "_blank");
+
       return
     }
 
@@ -263,11 +265,16 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   }
 
   const handleRedirectBackToGreatApe = async () => {
+    const { room, displayName } = form.getValues(); // Extracting values from the form
 
     // Prepare the data to send
     const dataToSend = {
       from: "logjam",
       audienceLink: audienceLink,
+      hostLink: hostLink,
+      roomName: room,
+      displayName: displayName,
+      startMeeting: true
     };
 
     if (isInsideIframe()) {
