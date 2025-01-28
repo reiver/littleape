@@ -59,6 +59,29 @@ export default function Home() {
 
               setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
             }
+
+            if (receivedData.startMeeting == true) {
+              //start meeting in new tab inside iframe
+              if (window.location.href != undefined && window.location.href != "") {
+                console.log("Received data going to open new window for meeting: ", window.location.href)
+
+                // Prepare the data to send
+                const dataToSend = {
+                  to: "iframe",
+                  from: "littleape",
+                  roomname: receivedData.roomName,
+                  username: receivedData.displayName,
+                  hostLink: receivedData.hostLink,
+                };
+
+                // Serialize the data into a URL hash
+                const hashData = encodeURIComponent(JSON.stringify(dataToSend));
+
+                window.open(`${window.location.href}/video#start-meeting=${hashData}`, "_blank");
+
+              }
+
+            }
           }
         }
       });

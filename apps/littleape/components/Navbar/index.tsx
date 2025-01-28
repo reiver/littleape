@@ -24,7 +24,7 @@ import { BlueSkyApi } from "lib/blueSkyApi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
-import { useAuthStore } from "store";
+import { LoginMode, useAuthStore } from "store";
 import useSWR from "swr";
 import { OrderedCollection } from "types/ActivityPub";
 import { useDisconnect, useWallet } from "web3-wallet-connection";
@@ -54,7 +54,7 @@ const ActionIconButton: FC<Omit<IconButtonProps, "aria-label">> = (props) => {
   );
 };
 
-export const LOGJAM_URL = "https://logjam-frontend.vercel.app" //"http://localhost:3000"
+export const LOGJAM_URL = "http://localhost:3000" //"https://logjam-frontend.vercel.app" 
 export const LOGJAM_BACKEND_URL = "walrus-app-ntao4.ondigitalocean.app"
 
 export const Navbar: FC<BoxProps> = (props) => {
@@ -75,8 +75,6 @@ export const Navbar: FC<BoxProps> = (props) => {
       }
     });
   }
-
-
 
   const handleVideoClick = (user) => {
 
@@ -99,9 +97,6 @@ export const Navbar: FC<BoxProps> = (props) => {
       setLogjamUrl(redirectUrl)
 
       return
-      // Redirect to the target URL
-      window.location.href = redirectUrl;
-
     }
   };
 
