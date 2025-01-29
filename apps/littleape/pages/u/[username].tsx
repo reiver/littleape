@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { Feed } from "components/Feed";
 import { MightLikeCard } from "components/MightLikeCard";
-import { LOGJAM_BACKEND_URL, LOGJAM_URL } from "components/Navbar";
+import { LOGJAM_URL } from "components/Navbar";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileHeader } from "components/ProfileHeader";
 import { TrendingTags } from "components/TrendingTags";
@@ -48,45 +48,40 @@ export default function UserProfile() {
             if (audienceLink != undefined && audienceLink != "") {
               audienceLink = audienceLink.replace(' ', '%20')
 
-              const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+              const url = `${audienceLink}`
 
               setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
+            }
+
+            if (receivedData.startMeeting == true) {
+              //start meeting in new tab inside iframe
+              if (window.location.href != undefined && window.location.href != "") {
+                console.log("Received data going to open new window for meeting: ", window.location.href)
+
+                // Prepare the data to send
+                const dataToSend = {
+                  to: "iframe",
+                  from: "littleape",
+                  roomname: receivedData.roomName,
+                  username: receivedData.displayName,
+                  hostLink: receivedData.hostLink,
+                  audienceLink: receivedData.audienceLink,
+                  topWindowUrl: window.location.origin,
+                };
+
+                // Serialize the data into a URL hash
+                const hashData = encodeURIComponent(JSON.stringify(dataToSend));
+
+                //open host page
+                window.open(`${window.location.origin}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
+              }
+
             }
           }
         }
       });
 
       return
-
-      const hashData = window.location.hash.split("#data=")[1];
-
-      if (hashData) {
-        try {
-          // Decode and parse the received data
-          const receivedData = JSON.parse(decodeURIComponent(hashData));
-          setPostContent(null)
-
-          if (receivedData.from == "logjam") {
-
-            var audienceLink = receivedData.audienceLink
-
-            audienceLink = audienceLink.replace(' ', '%20')
-
-            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
-
-            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
-
-            window.location.hash = "";
-
-          }
-
-        } catch (error) {
-          console.error("Failed to parse hash data:", error);
-          window.location.hash = "";
-        }
-      } else {
-        console.log("No data received in URL hash.");
-      }
     }
   }, []);
 

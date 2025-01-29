@@ -3,7 +3,7 @@ import { Feed } from "components/Feed";
 import { Footer } from "components/Footer";
 import { MainMenu } from "components/MainMenu";
 import { MightLikeCard } from "components/MightLikeCard";
-import { LOGJAM_BACKEND_URL, LOGJAM_URL } from "components/Navbar";
+import { LOGJAM_URL } from "components/Navbar";
 import { NewPostCard } from "components/NewPostCard";
 import { ProfileCard } from "components/ProfileCard";
 import { TrendingTags } from "components/TrendingTags";
@@ -55,7 +55,7 @@ export default function Home() {
             if (audienceLink != undefined && audienceLink != "") {
               audienceLink = audienceLink.replace(' ', '%20')
 
-              const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
+              const url = `${audienceLink}`
 
               setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
             }
@@ -80,12 +80,7 @@ export default function Home() {
                 const hashData = encodeURIComponent(JSON.stringify(dataToSend));
 
                 //open host page
-                window.open(`${window.location.href}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
-
-                //open audince page
-                window.open(`${window.location.href}/log/${receivedData.roomName}#start-meeting=${hashData}`, "_blank");
-
-
+                window.open(`${window.location.origin}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
               }
 
             }
@@ -94,38 +89,6 @@ export default function Home() {
       });
 
       return
-
-      const hashData = window.location.hash.split("#data=")[1];
-
-      if (hashData) {
-        try {
-          // Decode and parse the received data
-          const receivedData = JSON.parse(decodeURIComponent(hashData));
-          setPostContent(null)
-
-          if (receivedData.from == "logjam") {
-
-            var audienceLink = receivedData.audienceLink
-
-            audienceLink = audienceLink.replace(' ', '%20')
-
-            const url = `${audienceLink}/?host=${LOGJAM_BACKEND_URL}`
-
-            setPostContent(`Join the meeting by using following Link\t\n\n${url}`)
-
-            window.location.hash = "";
-
-          }
-
-        } catch (error) {
-          console.error("Failed to parse hash data:", error);
-          window.location.hash = "";
-        }
-      } else {
-        console.log("No data received in URL hash.");
-      }
-
-      window.location.hash = "";
     }
   }, []);
 

@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, FormControl, TextField } from '@mui/material'
+import { signal } from '@preact/signals'
+import { TopWindowURL } from 'pages/host'
 import Meeting from 'pages/Meeting'
 import { lazy } from 'preact-iso'
 import { useEffect, useState } from 'preact/compat'
@@ -23,22 +25,15 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
     resolver: zodResolver(schema),
   })
 
-
+  //handle message from Iframe
   useEffect(() => {
-    const hashData = window.location.hash.split("#start-meeting=")[1];
-
-    console.log("data received: ", hashData)
-    if (hashData) {
-      try {
-        const receivedData = JSON.parse(decodeURIComponent(hashData));
-        console.log("Data is: ", receivedData)
-      } catch (error) {
-
+    window.addEventListener("message", (event) => {
+      if (event.data?.type === "FROMIFRAME") {
+        console.log("TOP Window URL:", event.origin);
+        TopWindowURL.value = event.origin
       }
-      window.location.hash = "";
-    }
-
-  })
+    });
+  }, []);
 
   const onSubmit = () => {
     setStarted(true)

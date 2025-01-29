@@ -13,6 +13,7 @@ import { VideoBackground } from 'lib/videoBackground/videoBackground'
 let displayIdCounter = 2
 import { streamersLength } from '../components/MeetingBody/Stage'
 import logger from 'lib/logger/logger'
+import { isInsideIframe, TopWindowURL } from './host'
 
 const PageNotFound = lazy(() => import('./_404'))
 const styleElement = document.createElement('style');
@@ -830,8 +831,13 @@ const Meeting = ({ params: { room, displayName, name, _customStyles } }: { param
   }, [meetingStatus.value])
 
   const rejoinMeeting = () => {
-    window.location.reload()
-  }
+    if (isInsideIframe()) {
+      // Send a message to the parent window to reload
+      window.parent.postMessage({ type: "RELOAD_PARENT_WINDOW" }, TopWindowURL.value);
+    }
+    window.location.reload();
+  };
+
 
   const leaveMeeting = () => {
     window.parent.postMessage('leave', '*')

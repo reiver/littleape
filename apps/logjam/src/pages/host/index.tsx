@@ -15,6 +15,7 @@ import z from 'zod'
 import { signal } from '@preact/signals'
 import { PocketBaseManager, HostData, RoomData, convertRoomDataToFormData } from 'lib/pocketBase/helperAPI'
 import logger from 'lib/logger/logger'
+import { T } from '../../../dist/assets/index-e6dGdVG9'
 
 const PageNotFound = lazy(() => import('../_404'))
 const selectedImage = signal(null)
@@ -77,7 +78,22 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [roomName, setRoomName] = useState("");
   const [audienceLink, setAudienceLink] = useState("");
   const [gaUrl, setGaUrl] = useState("")
+  const [allowedToStartMeeting, setAllowedToStartMeeting] = useState(false)
 
+  //handle message from Iframe
+  useEffect(() => {
+    window.addEventListener("message", (event) => {
+      logger.log("Got message : ", event)
+      if (event.data?.type === "FROMIFRAME") {
+        console.log("TOP Window URL:", event.origin);
+        if (event.data?.payload == "start") {
+          //let user to start the meeting
+          TopWindowURL.value = event.origin
+          setAllowedToStartMeeting(true)
+        }
+      }
+    });
+  }, []);
 
   if (isInsideIframe()) {
     logger.log("This page is loaded inside an iframe.");
@@ -86,17 +102,6 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   }
 
   useEffect(() => {
-    /**
-     * const dataToSend = {
-                  to: "iframe",
-                  from: "littleape",
-                  roomname: receivedData.roomName,
-                  username: receivedData.displayName,
-                  hostLink: receivedData.hostLink,
-                  audienceLink: receivedData.audienceLink,
-                  topWindowUrl: window.location.origin,
-                };
-     */
     const hashData = window.location.hash.split("#start-meeting=")[1];
 
     HashDataFromLittleApe.value = hashData
@@ -250,7 +255,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
       await generateBothUrls()
 
-      // window.open(`${window.location.href}#start-meeting=${hashData}`, "_blank");
+      //start meeting if allowed, it will be allowed only on new tab
+      if (allowedToStartMeeting) {
+        setStarted(true)
+      }
 
       return
     }

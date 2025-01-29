@@ -6,6 +6,7 @@ import { broadcastIsInTheMeeting, isDebugMode, sparkRTC } from 'pages/Meeting'
 import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
 import logger from 'lib/logger/logger.js'
 export const BottomBar = () => {
+
   return (
     <Container class={clsx('transition-all', {})}>
       <div class="w-full grid grid-cols-12 dark:bg-secondary-1-a py-3 pt-0 dark:text-gray-0 text-gray-2" id="bottom-bar">
@@ -44,12 +45,14 @@ export const BottomBar = () => {
 const generateAudienceUrl = (roomName: string) => {
   if (isInsideIframe()) {
     //get iframe URL
+
     logger.log("Iframe URL: ", TopWindowURL.value)
 
     return `${TopWindowURL.value}/log/${roomName}`
   }
   return `${window.location.origin}/log/${roomName}`
 }
+
 
 export const BottomBarBottomSheet = () => {
   const handleAttendeesOpen = () => {

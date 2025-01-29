@@ -1,63 +1,82 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { LOGJAM_URL } from "components/Navbar";
+
+function getAudienceUrl(roomname: string) {
+    const baseUrl = LOGJAM_URL;
+    return `${baseUrl}/log/${roomname}`;
+}
 
 export default function AudiencePage() {
-    const [logjamLink, setLogjamLink] = useState("")
-    const [hashToSend, sethashToSend] = useState(null)
+    const router = useRouter();
+    const { roomname } = router.query;
+    const iframeRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
-        const hashData = window.location.hash.split("#start-meeting=")[1];
+        const sendMessageToIframe = () => {
+            if (iframeRef.current) {
+                console.log("Sending message to iframe:", iframeRef.current?.contentWindow);
 
-        if (hashData) {
-            try {
-                const receivedData = JSON.parse(decodeURIComponent(hashData));
-                console.log("received Data: ", receivedData);
-
-                // Prepare the data to send
-                const dataToSend = {
-                    from: receivedData.from,
-                    to: receivedData.to,
-                    roomname: receivedData.roomname,
-                    username: receivedData.username,
-                    audienceLink: receivedData.audienceLink,
-                };
-
-                setLogjamLink(receivedData.audienceLink)
-
-                // Serialize the data into a URL hash
-                const newHash = encodeURIComponent(JSON.stringify(dataToSend));
-                sethashToSend(newHash)
-
-                window.location.hash = "";
-
-            } catch (error) {
-                console.error("Error parsing hash data", error);
+                iframeRef.current?.contentWindow?.postMessage(
+                    { type: "FROMIFRAME", payload: "parenturl" },
+                    getAudienceUrl(roomname.toString()) // Use exact external origin, not "*"
+                );
             }
+        };
 
-            window.location.hash = "";
+        if (iframeRef.current) {
+            iframeRef.current.onload = () => {
+                setTimeout(sendMessageToIframe, 1000); // Delay ensures iframe is ready
+            };
         }
-    }, []); // Empty dependency array to run once on mount
 
-    return (
+        return () => {
+            if (iframeRef.current) iframeRef.current.onload = null;
+        };
+    }, [roomname]);
 
-        <iframe
-            src={`${logjamLink}?host=localhost:8080#start-meeting=${hashToSend}`}
-            width="100%"
-            height="100%"
-            title="Logjam Video Iframe"
-            style={{
-                border: "none",
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                margin: 0,
-                padding: 0,
-                zIndex: 9999,
-            }}
-            id="logjamVideoIframe"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-            allow="camera; microphone"
-        ></iframe>
-    );
+    //handle message from Iframe
+    useEffect(() => {
+        const handlePostMessage = (event) => {
+            if (event.data.type === "RELOAD_PARENT_WINDOW") {
+                console.log("Received reload request from iframe, reloading parent window...");
+                window.location.reload();
+            }
+        };
+
+        window.addEventListener("message", handlePostMessage);
+
+        // Cleanup listener when the component unmounts or on re-render
+        return () => {
+            window.removeEventListener("message", handlePostMessage);
+        };
+    }, []);
+
+    if (roomname && roomname.toString().trim() !== "") {
+        return (
+            <iframe
+                ref={iframeRef}
+                src={`${getAudienceUrl(roomname.toString())}`}
+                width="100%"
+                height="100%"
+                title="Logjam Video Iframe"
+                style={{
+                    border: "none",
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    margin: 0,
+                    padding: 0,
+                    zIndex: 9999,
+                }}
+                id="logjamVideoIframe"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+                allow="camera; microphone"
+            ></iframe>
+        );
+    }
+
+    return <div></div>;
 }
