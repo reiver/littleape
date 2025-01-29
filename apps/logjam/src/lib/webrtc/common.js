@@ -1,5 +1,6 @@
 import { SparkRTC } from "../webrtc/spark-rtc";
 import { VideoBackground } from "../videoBackground/videoBackground.js";
+import logger from "lib/logger/logger";
 
 //enum for Roles
 export const Roles = {
@@ -17,22 +18,23 @@ export const isMobile = () => {
 export function getWsUrl(host = null) {
   let baseUrl = "";
   let basePath = "/hapi/v1";
+  var protocol = "wss" //secure for deployed
 
   if (host) {
     baseUrl = host
   } else {
-    baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS
-  }
-
-  var protocol = "wss" //secure for deployed
-
-  if (import.meta.env.VITE_APP_LOCAL_ENV) {
-    //local env
-    protocol = "ws"
+    if (import.meta.env.VITE_APP_LOCAL_ENV == "true") {
+      baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS_LOCAL
+      protocol = "ws"
+    } else {
+      baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS_DEPLOYED
+      protocol = "wss"
+    }
   }
 
   const wsURL = `${protocol}://${baseUrl}${basePath}/ws`;
 
+  logger.log("WS URL TO CONNECT TO: ", wsURL)
   return wsURL;
 }
 
