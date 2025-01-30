@@ -128,7 +128,7 @@ export default function HostPage() {
                 }}
                 id="logjamVideoIframe"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-                allow="camera; microphone"
+                allow="camera; microphone; display-capture"
             ></iframe>
         );
     }
