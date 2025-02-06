@@ -55,11 +55,19 @@ const schema = z.object({
 })
 
 const generateHostUrl = async (displayName: string) => {
-  return `${window.location.origin}/${displayName}/host`
+  var baseUrl = window.location.origin
+  if (isInsideIframe()) {
+    baseUrl = TopWindowURL.value
+  }
+  return `${baseUrl}/${displayName}/host`
 }
 
 const generateAudienceUrl = async (roomName: string) => {
-  return `${window.location.origin}/log/${roomName}`
+  var baseUrl = window.location.origin
+  if (isInsideIframe()) {
+    baseUrl = TopWindowURL.value
+  }
+  return `${baseUrl}/log/${roomName}`
 }
 
 
@@ -321,11 +329,16 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   window.addEventListener("message", async (event) => {
     if (event.data.type === "REQUEST_DATA") {
+      logger.log("REQUEST_DATA: Got request from : ", event.origin)
+      logger.log("handleRedirectBackToGreatApe from message event")
       await handleRedirectBackToGreatApe()
     }
+
+    if (event.data.type === "PARENT_URL") {
+      logger.log("PARENT_URL from: ", event.origin)
+      TopWindowURL.value = event.origin //set top window URL
+    }
   });
-
-
 
 
   const showCssFilesDialog = (cssFiles) => {
@@ -397,6 +410,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   useEffect(() => {
     if (startNewRoomFromIframe && hostLink != "" && audienceLink != "") {
+      logger.log("handleRedirectBackToGreatApe from USE EFECT")
       handleRedirectBackToGreatApe()
     }
   }, [startNewRoomFromIframe, hostLink, audienceLink]);

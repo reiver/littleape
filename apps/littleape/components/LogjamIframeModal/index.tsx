@@ -35,9 +35,21 @@ const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose
 
     const [iframeLoaded, setIframeLoaded] = useState(false);
 
+
+    const sendParentUrlToIframe = () => {
+        const iframe = document.getElementById("logjamIframe") as HTMLIFrameElement;
+        if (iframe && iframe.contentWindow) {
+            console.log("Sending PARENT_URL to Iframe")
+            iframe.contentWindow.postMessage({ type: "PARENT_URL" }, "*");
+        }
+    };
+
     const handleIframeLoad = () => {
         setIframeLoaded(true);
         console.log("Iframe loaded successfully.");
+        setTimeout(() => {
+            sendParentUrlToIframe();
+        }, 2000);
     };
 
     return (
