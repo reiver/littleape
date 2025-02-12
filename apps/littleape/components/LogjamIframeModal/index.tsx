@@ -1,12 +1,20 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay, ModalProps } from "@chakra-ui/react";
 import { FC, useState } from "react";
 
-export const LogjamIframeModal = ({ url, onClose }: { url: string, onClose: (data: any) => void }) => {
+export const LogjamIframeModal = ({ url, onClose }: { url: string, onClose: (userClickedCloseIcon: boolean) => void }) => {
     const [showModal, setShowModal] = useState(true);
 
-    const closeLogjamIframeModal = (data?: any) => {
-        //send request to logjam and fetch data, before closing
-        requestDataFromIframe()
+    const closeLogjamIframeModal = (userClickedCloseIcon?: boolean) => {
+
+        //close the model, if clicks close icon explisitly.. Don't need to start the meeting
+        if (userClickedCloseIcon) {
+            setShowModal(false);
+            onClose(userClickedCloseIcon);
+        } else {
+            //send request to logjam and fetch data, before closing.. and start the meeting
+            requestDataFromIframe()
+        }
+
     };
 
     const requestDataFromIframe = () => {
@@ -27,7 +35,7 @@ export const LogjamIframeModal = ({ url, onClose }: { url: string, onClose: (dat
 
 type ShowLogjamIframeModalProps = {
     url: string;
-    onClose: (response: any) => void;
+    onClose: (userClickedCloseIcon: boolean) => void;
 } & Omit<ModalProps, "children">;
 
 const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose = () => { }, url, ...props }) => {
@@ -53,7 +61,9 @@ const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} {...props} closeOnOverlayClick={false}>
+        <Modal isOpen={isOpen} onClose={() => {
+            onClose(false)
+        }} {...props} closeOnOverlayClick={false}>
             <ModalOverlay />
             <ModalContent
                 mx="3"
@@ -62,7 +72,9 @@ const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose
                 _dark={{ bg: "gray.800" }}
                 boxShadow="lg"
             >
-                <ModalCloseButton />
+                <ModalCloseButton onClick={() => {
+                    onClose(true)
+                }} />
 
                 <iframe
                     src={url}
