@@ -117,14 +117,16 @@ export default function HostPage() {
                 title="Logjam Video Iframe"
                 style={{
                     border: "none",
-                    position: "fixed",
+                    position: "absolute",
                     top: 0,
                     left: 0,
                     width: "100vw",
-                    height: "100vh",
+                    height: "100dvh",
+                    minHeight: "100vh",
                     margin: 0,
                     padding: 0,
                     zIndex: 9999,
+                    overflow: "hidden"
                 }}
                 id="logjamVideoIframe"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
