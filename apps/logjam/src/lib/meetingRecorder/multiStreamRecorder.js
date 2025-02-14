@@ -162,7 +162,17 @@ class MultiStreamRecorder {
                 drawRoundedRect(0, 0, shareWidth, this.canvas.height, 10);
                 ctx.fillStyle = "black";
                 ctx.fill();
-                ctx.drawImage(shareStream, 0, 0, shareWidth, this.canvas.height);
+
+                //fix the video aspect ratio
+                const shareVideoWidth = shareStream.videoWidth;
+                const shareVideoHeight = shareStream.videoHeight;
+                const scale = Math.min(shareWidth / shareVideoWidth, this.canvas.height / shareVideoHeight);
+                const newWidth = shareVideoWidth * scale;
+                const newHeight = shareVideoHeight * scale;
+                const offsetX = (shareWidth - newWidth) / 2;
+                const offsetY = (this.canvas.height - newHeight) / 2;
+                ctx.drawImage(shareStream, offsetX, offsetY, newWidth, newHeight);
+
 
                 // Draw other streams (30% width, stacked vertically on the right)
                 const spacing = 10; // Space between video containers
@@ -241,34 +251,40 @@ class MultiStreamRecorder {
 
             // Draw stream names on the canvas
             this.videos.forEach((video, index) => {
+                const isScreenShare = shareScreenIndex !== -1 && index === shareScreenIndex;
+                if (isScreenShare) return; // Skip drawing name on screen share
+
                 const streamName = `${this.streams[index]?.name || `Stream ${index + 1}`}${this.streams[index]?.role === "broadcast" ? " (Host)" : ""}`;
                 let x, y;
 
-                if (shareScreenIndex !== -1 && index === shareScreenIndex) {
-                    // Position for the screen share stream
-                    x = 10; // Left side margin
-                    y = 30; // Top margin
-                } else if (shareScreenIndex !== -1) {
-                    // Position for other streams on the right
+                if (shareScreenIndex !== -1) {
+                    // Position for other streams when screen share is active
                     const otherIndex = otherStreams.indexOf(video);
                     if (otherStreams.length === 1) {
-                        // Adjust position for a single stream on the right
                         x = this.canvas.width * 0.7 + 10;
-                        y = (this.canvas.height - this.canvas.height / 2) / 2 + 30; // Center vertically + top margin
+                        y = (this.canvas.height - this.canvas.height / 2) / 2 + 30;
                     } else {
-                        // Stacked streams
                         x = this.canvas.width * 0.7 + 10;
                         y = otherIndex * (this.canvas.height / otherStreams.length) + 30;
                     }
                 } else {
-                    // Default position calculation
-                    x = index % 2 === 0 ? 10 : this.canvas.width / 2 + 10; // Position X
-                    y = Math.floor(index / 2) * (this.canvas.height / 2) + 20; // Position Y
+                    // Default positioning for grid layout
+                    x = index % 2 === 0 ? 10 : this.canvas.width / 2 + 10;
+                    y = Math.floor(index / 2) * (this.canvas.height / 2) + 20;
                 }
 
-                ctx.font = "20px Arial";
-                ctx.fillStyle = "white";
+                // Add a shadow for better visibility
+                ctx.font = "20px 'Open Sans', sans-serif";
+                ctx.fillStyle = "white"; // Shadow color
+                ctx.shadowColor = "rgba(0, 0, 0, 0.7)"; // Dark shadow
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+
                 ctx.fillText(streamName, x, y);
+
+                // Reset shadow to avoid affecting other drawings
+                ctx.shadowColor = "transparent";
             });
 
             requestAnimationFrame(drawFrames); // Continuously update canvas
