@@ -99,6 +99,17 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
 
     const res = await blueSkyApi.createPost(bskyPost)
     defaultValue = null
+
+    if (res != null && res.toString().includes("Error")) {
+      toast({
+        title: "Bluesky session expired!",
+        description: `Please Login again via Bluesky to publish posts`,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+
     if (res != null && res.validationStatus != undefined && res.validationStatus == "valid") {
       toast({
         title: "Posted to Bluesky!",

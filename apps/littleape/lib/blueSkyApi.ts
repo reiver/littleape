@@ -179,7 +179,7 @@ export class BlueSkyApi {
       return response;
     } catch (error) {
       console.error("Failed to create post:", error);
-      throw error;
+      return error;
     }
   }
 
