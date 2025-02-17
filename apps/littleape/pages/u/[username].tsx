@@ -21,6 +21,7 @@ import { ActivityUser, User } from "types/User";
 export default function UserProfile() {
   const [postContent, setPostContent] = useState("")
   const setAuth = useAuthStore((state) => state.setAuth);
+  let lastOpenedAt = null;
 
   useEffect(() => {
     const userFromCookie = Cookies.get(USER_COOKIE)
@@ -54,6 +55,17 @@ export default function UserProfile() {
             }
 
             if (receivedData.startMeeting == true) {
+
+              // Check if the window was opened within the last 20 seconds
+
+              // Get the current timestamp
+              const currentTime = Date.now();
+
+              if (lastOpenedAt && currentTime - lastOpenedAt < 20000) {
+                console.log("Meeting window was opened recently. Try again later.");
+                return
+              }
+
               //start meeting in new tab inside iframe
               if (window.location.href != undefined && window.location.href != "") {
                 console.log("Received data going to open new window for meeting: ", window.location.href)
@@ -74,6 +86,9 @@ export default function UserProfile() {
 
                 //open host page
                 window.open(`${window.location.origin}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
+
+                // Get the current timestamp in milliseconds
+                lastOpenedAt = Date.now();
               }
 
             }

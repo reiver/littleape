@@ -39,6 +39,8 @@ export default function Home() {
 
   const [postContent, setPostContent] = useState("")
 
+  let lastOpenedAt = null;
+
   useEffect(() => {
     if (typeof window !== "undefined") {
 
@@ -61,6 +63,17 @@ export default function Home() {
             }
 
             if (receivedData.startMeeting == true) {
+
+              // Check if the window was opened within the last 20 seconds
+
+              // Get the current timestamp
+              const currentTime = Date.now();
+
+              if (lastOpenedAt && currentTime - lastOpenedAt < 20000) {
+                console.log("Meeting window was opened recently. Try again later.");
+                return
+              }
+
               //start meeting in new tab inside iframe
               if (window.location.href != undefined && window.location.href != "") {
                 console.log("Received data going to open new window for meeting: ", window.location.href)
@@ -81,6 +94,9 @@ export default function Home() {
 
                 //open host page
                 window.open(`${window.location.origin}/@${receivedData.displayName}/host#start-meeting=${hashData}`, "_blank");
+
+                // Get the current timestamp in milliseconds
+                lastOpenedAt = Date.now();
               }
 
             }
