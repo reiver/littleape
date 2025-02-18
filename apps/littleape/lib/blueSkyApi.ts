@@ -18,6 +18,7 @@ export class BlueSkyApi {
       }
       console.log("Creating new Bluesky Instance")
       BlueSkyApi.instance = new BlueSkyApi(serviceUrl);
+      console.log("New instance Value: ", BlueSkyApi.instance)
     } else {
       console.log("Returning Old Bluesky Instance")
     }
@@ -185,9 +186,10 @@ export class BlueSkyApi {
 
 
   // Check if the session is expiring soon (within 10 minutes)
-  private sessionIsExpiring(): boolean {
-    if (!this.agent.session) return true; // No session means it's expiring
-    const expiryDate = this.getSessionExpiryDate(this.agent.session);
+  private sessionIsExpiring(bskySession: any): boolean {
+    if (!bskySession) return true; // No session means it's expiring
+    const expiryDate = this.getSessionExpiryDate(bskySession);
+    console.log("expiryDate is:", expiryDate)
     return Date.now() > expiryDate - 10 * 60 * 1000; // Check if session is expiring in less than 10 minutes
   }
 
@@ -201,21 +203,36 @@ export class BlueSkyApi {
         return null;
       }
     };
-    return decodeJWT(session.accessJwt).exp * 1000; // Convert expiry date to milliseconds
+    const decodedJWT = decodeJWT(session.accessJwt);
+    if (decodedJWT != null) {
+      return decodedJWT.exp * 1000; // Convert expiry date to milliseconds
+    }
+
+    return 950846413; //OLD time Fri Feb 18 2000 04:00:13 GMT+0000
   }
 
   // Resume the session manually if expired
   public async resumeSession(bskySession: any) {
 
     if (bskySession != null) {
-      // console.log("Old bsky session: ", bskySession)
-      const sess = await this.refreshSession(bskySession.service, bskySession.refreshJwt)
+      console.log("Old bsky session from PocketBase: ", bskySession)
 
-      //save session data in agent
-      this.agent.sessionManager.session = sess
+      //get user session
+      const expired = this.sessionIsExpiring(bskySession)
+      console.log("Session is expired: ", expired)
 
-      // console.log("Agent Session: ", this.agent.session)
+      if (expired) {
+        const sess = await this.refreshSession(bskySession.service, bskySession.refreshJwt)
+
+        //save session data in agent
+        this.agent.sessionManager.session = sess
+      } else {
+        //get old session
+        this.agent.sessionManager.session = bskySession
+      }
+
       return this.agent.session
+
     }
 
   }
