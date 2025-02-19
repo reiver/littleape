@@ -1,0 +1,44 @@
+{
+  "name": "example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^3.10.0",
+    "@mui/material": "^6.3.1",
+    "@preact/signals": "^2.0.0",
+    "@types/css-tree": "^2.3.10",
+    "clipboard-copy": "^4.0.1",
+    "clsx": "^2.1.1",
+    "css-tree": "^3.1.0",
+    "htm": "^3.1.1",
+    "lodash.throttle": "^4.1.1",
+    "pocketbase": "^0.25.0",
+    "preact": "^10.25.4",
+    "preact-css-styled": "^1.1.9",
+    "preact-iso": "^2.8.1",
+    "preact-render-to-string": "^6.5.12",
+    "react-hook-form": "^7.54.2",
+    "tippy.js": "^6.3.7",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.9.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.18.0",
+    "eslint-config-preact": "^1.5.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vite-plugin-svgr": "^4.3.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+.ProseMirror {
+	h: auto;
+	w: full;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+	color: gray;
+	content: attr(data-placeholder);
+	float: left;
+	height: 0;
+	pointerEvents: none;
+}
+.mention, .hashtag {
+	color: var(--chakra-colors-primary-500);
+} */
