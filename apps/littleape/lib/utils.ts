@@ -18,6 +18,11 @@ export const checkUserHasBlueSkyLinked = async (user: any) => {
 
     if (bskyInstance != undefined && bskyInstance != null) {
         const resumedSession = await bskyInstance.resumeSession(bskySession)
+
+        if (resumedSession == undefined || resumedSession == null) {
+            return false
+        }
+
         const newAccessJWT = resumedSession.accessJwt
 
         if (oldAccessJWT != newAccessJWT) {

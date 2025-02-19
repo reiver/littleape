@@ -97,7 +97,7 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
     const res = await blueSkyApi.createPost(bskyPost)
     var retryResponse = null
 
-    if (res != null && res.status == 401) {
+    if (res == undefined || (res != null && res.status == 401)) {
 
       //resume the session and retry
       const resSessiion = await blueSkyApi.resumeSession(bskySession)
@@ -105,16 +105,6 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
 
       retryResponse = await blueSkyApi.createPost(bskyPost)
 
-    }
-
-    if (retryResponse != null && retryResponse.toString().includes("Error")) {
-      toast({
-        title: "Bluesky session expired!",
-        description: `Please Login again via Bluesky to publish posts`,
-        status: "error",
-        duration: 6000,
-        isClosable: true,
-      });
     }
 
     if ((retryResponse != null && retryResponse.validationStatus != undefined && retryResponse.validationStatus == "valid") || (res != null && res.validationStatus != undefined && res.validationStatus == "valid")) {
@@ -126,6 +116,17 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
         isClosable: true,
       });
     }
+    else if (retryResponse == null || retryResponse == undefined || (retryResponse != null && retryResponse.toString().includes("Error"))) {
+      toast({
+        title: "Bluesky session expired!",
+        description: `Please Login again via Bluesky to publish posts`,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+    }
+
+
 
     defaultValue = null
     setBskyPost("")
