@@ -2,6 +2,7 @@
 import { AppBskyRichtextFacet, AtpAgent, AtpSessionData } from "@atproto/api";
 
 export class BlueSkyApi {
+
   private agent: AtpAgent;
   private session: { identifier: string; password: string } | null;
   private static instance: BlueSkyApi | null = null; // Static instance property
@@ -40,6 +41,11 @@ export class BlueSkyApi {
 
   public getCurrentServiceUrl() {
     return this.currentServiceUrl;
+  }
+
+
+  setSession(bskySession: any) {
+    this.agent.sessionManager.session = bskySession
   }
 
   // Function to authenticate and set up a session
@@ -126,15 +132,9 @@ export class BlueSkyApi {
   // Create a post
   public async createPost(text: string) {
     try {
-      if (!this.agent.session) {
-        throw new Error("Agent is not authenticated. Please create a session first.");
-      }
 
       const repo = this.agent.session?.did; // Ensure the agent is authenticated
-      if (!repo) {
-        throw new Error("No DID found. Ensure session is created.");
-      }
-
+    
       // Regex to detect URLs in the text
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const urls = text.match(urlRegex);
@@ -175,11 +175,13 @@ export class BlueSkyApi {
         collection: "app.bsky.feed.post", // Post collection
         text,
       });
+      console.log("RESPONS from Craete post: ", response)
 
       console.log("Post created successfully without URL");
       return response;
-    } catch (error) {
-      console.error("Failed to create post:", error);
+    }
+    catch (error) {
+      console.error("Failed to create post:", error.status);
       return error;
     }
   }
@@ -221,44 +223,13 @@ export class BlueSkyApi {
       const expired = this.sessionIsExpiring(bskySession)
       console.log("Session is expired: ", expired)
 
+      this.agent.sessionManager.session = bskySession
+
       if (expired) {
-        const sess = await this.refreshSession(bskySession.service, bskySession.refreshJwt)
-
-        //save session data in agent
-        this.agent.sessionManager.session = sess
-      } else {
-        //get old session
-        this.agent.sessionManager.session = bskySession
+        const resumeSess = await this.agent.resumeSession(bskySession)
+        console.log("Resumed Session: ", resumeSess)
       }
-
       return this.agent.session
-
-    }
-
-  }
-
-  private async refreshSession(service: string, authToken: string) {
-    const url = `${service}xrpc/com.atproto.server.refreshSession`;
-
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${authToken}` // Add your auth token here
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        return new Error(`Error: ${response.status} - ${errorData.error || "Unknown error"}`);
-      }
-
-      console.log("Session refreshed successfully.");
-      return await response.json()
-    } catch (error) {
-      console.error("Failed to refresh session:", error);
-      return error
     }
   }
 }

@@ -90,17 +90,24 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
     const bskySession = await pbManager.fetchBlueSkySessionByUserId(user.id.toString())
     const blueSkyApi = BlueSkyApi.getInstance(bskySession.service)
 
-    // console.log("Publishing to bSKY: ", bskyPost)
-    // console.log("Bsky API for post: ", blueSkyApi)
-
     if (bskyPost == "" || bskyPost == undefined || bskyPost == null) {
       return
     }
 
     const res = await blueSkyApi.createPost(bskyPost)
-    defaultValue = null
+    var retryResponse = null
 
-    if (res != null && res.toString().includes("Error")) {
+    if (res != null && res.status == 401) {
+
+      //resume the session and retry
+      const resSessiion = await blueSkyApi.resumeSession(bskySession)
+      console.log("Resumed session: ", resSessiion)
+
+      retryResponse = await blueSkyApi.createPost(bskyPost)
+
+    }
+
+    if (retryResponse != null && retryResponse.toString().includes("Error")) {
       toast({
         title: "Bluesky session expired!",
         description: `Please Login again via Bluesky to publish posts`,
@@ -110,7 +117,7 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
       });
     }
 
-    if (res != null && res.validationStatus != undefined && res.validationStatus == "valid") {
+    if ((retryResponse != null && retryResponse.validationStatus != undefined && retryResponse.validationStatus == "valid") || (res != null && res.validationStatus != undefined && res.validationStatus == "valid")) {
       toast({
         title: "Posted to Bluesky!",
         description: ``,
@@ -120,6 +127,7 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
       });
     }
 
+    defaultValue = null
     setBskyPost("")
   }
 
