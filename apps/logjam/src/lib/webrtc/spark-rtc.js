@@ -509,6 +509,7 @@ export class SparkRTC {
         break;
       case "event-reconnect":
       case "event-broadcaster-disconnected":
+        if (this.role == this.Roles.BROADCAST) return;
         this.updateTheStatus(`broadcaster dc ${msg.type}`);
         this.broadcasterDC = true;
         const broadcasterId = this.broadcasterUserId();
