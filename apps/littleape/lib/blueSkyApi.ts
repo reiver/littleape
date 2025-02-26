@@ -134,7 +134,7 @@ export class BlueSkyApi {
     try {
 
       const repo = this.agent.session?.did; // Ensure the agent is authenticated
-    
+
       // Regex to detect URLs in the text
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const urls = text.match(urlRegex);
@@ -226,8 +226,12 @@ export class BlueSkyApi {
       this.agent.sessionManager.session = bskySession
 
       if (expired) {
-        const resumeSess = await this.agent.resumeSession(bskySession)
-        console.log("Resumed Session: ", resumeSess)
+        try {
+          const resumeSess = await this.agent.resumeSession(bskySession)
+          console.log("Resumed Session: ", resumeSess)
+        } catch (error) {
+          console.error("Error while resuming session: ", error.status)
+        }
       }
       return this.agent.session
     }
