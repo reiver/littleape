@@ -10,6 +10,10 @@ import logger from "../logger/logger";
  *
  */
 export class SparkRTC {
+  /**
+   * @type {Record<string,function(any)>}
+   */
+  RPCResolvers = {};
 
   started = false;
   maxRaisedHands = 6;
@@ -33,7 +37,7 @@ export class SparkRTC {
   /**@type {Date} */
   lastPong = null;
   /** ping timeout in seconds */
-  pingTimeout = 5;
+  pingTimeout = 8;
   broadcastingApproved = false;
   /**@type {{[key:string]:RTCPeerConnection}}*/
   myPeerConnectionArray = {};
@@ -84,8 +88,10 @@ export class SparkRTC {
   /**@type {{[trackId:string]: string}}*/
   trackToStreamMap = {};
   /**@type {"Enabled" | "Disabled"}*/
+  // @ts-ignore
   lastVideoState = this.LastState.ENABLED;
   /**@type {"Enabled" | "Disabled"}*/
+  // @ts-ignore
   lastAudioState = this.LastState.ENABLED;
 
   broadcastersMessage = null;
@@ -295,6 +301,13 @@ export class SparkRTC {
     }
     msg.data = msg.Data && !msg.data ? msg.Data : msg.data;
     msg.type = msg.Type && !msg.type ? msg.Type : msg.type;
+
+    if (msg.type == 'pong' || msg.Type == 'pong') {
+      if (!this.RPCResolvers[msg.type]) {
+        console.log(`not there`, this.RPCResolvers)
+      }
+    }
+    this.RPCResolvers[msg.type ?? msg.Type]?.(msg);
 
     let audiencePeerConnection;
     switch (msg.type) {
@@ -509,6 +522,7 @@ export class SparkRTC {
         break;
       case "event-reconnect":
       case "event-broadcaster-disconnected":
+        if (this.role == this.Roles.BROADCAST) return;
         this.updateTheStatus(`broadcaster dc ${msg.type}`);
         this.broadcasterDC = true;
         const broadcasterId = this.broadcasterUserId();
@@ -768,27 +782,17 @@ export class SparkRTC {
    * Ping function to, request Tree
    */
   ping = async () => {
-    if (await this.checkSocketStatus()) {
-      try {
-        const message = {
-          // type: this.treeCallback ? 'tree' : 'ping',
-          type: "ping",
-        };
-        this.socket.send(JSON.stringify(message));
-      } catch (error) {
-        logger.error("Error sending message:", error);
+    try {
+      let result = await this.WSRPC("ping", "pong", {}, this.pingTimeout * 1000);
+      if (result.error) {
+        throw result.error;
       }
-      if (!!this.lastPong) {
-        let lastResponse = new Date(this.lastPong);
-        lastResponse.setSeconds(lastResponse.getSeconds() + this.pingTimeout);
-        let now = new Date();
-        // logger.log(`lastPong:${this.lastPong} +5sec => is ${lastResponse} before ${now}`);
-        if (lastResponse < now) {
-          this.lastPong = null;
-          logger.log("[timeout] pong timed out, restarting.");
-          this.startProcedure?.(true);
-        }
-      }
+      // console.log("[ping] pong received", result)
+    } catch (e) {
+      console.log("[ping] timeout");
+      this.lastPong = null;
+      logger.log("[timeout] pong timed out, restarting.");
+      this.startProcedure?.(true);
     }
   };
 
@@ -861,7 +865,7 @@ export class SparkRTC {
 
         this.pingInterval = setInterval(
           this.ping,
-          (this.pingTimeout * 1000) / 2
+          (this.pingTimeout * 1000) / 1.1
         );
         this.updateTheStatus(
           `[setupSignalingSocket] socket onopen and sent start`
@@ -1500,7 +1504,7 @@ export class SparkRTC {
     this.updateTheStatus(
       `[newPeerConnectionInstance] target='${target}' theStream='${theStream}' isAudience='${isAudience}'`
     );
-    /** @type {RTCPeerConnection & {_iceIsConnected?: boolean}} */
+    /** @type {RTCPeerConnection & {_iceIsConnected?: boolean,}} */
     const peerConnection = new RTCPeerConnection(this.myPeerConnectionConfig);
 
     peerConnection.isAdience = isAudience;
@@ -3327,6 +3331,48 @@ export class SparkRTC {
     }
 
     // alert("Meeting is being Been Recorded now!")
+  }
+
+  /**
+   * RPC over WS
+   * @todo add requestID binding so we can use it everywhere ( its currently working fine for ping but it may miss some responses for other events )
+   * @param {string} event 
+   * @param {string} responseEvent 
+   * @param {any} body 
+   * @param {number} timeout - rpc timeout in ms
+   * @returns {any}
+   * @throws {Error} - throws error if timeout or any error happen
+   */
+  async WSRPC(event, responseEvent = event, body, timeout = 8000) {
+    /// TODO remove this check after request id binding added.
+    if (event != "ping") {
+      throw new Error("lets go traditional until we assign requestID in rpc handling")
+    }
+    if (timeout < 512) {
+      throw new Error("invalid timeout (min = 512 ms)")
+    }
+    if (await this.checkSocketStatus()) {
+      this.socket.send(
+        JSON.stringify({
+          type: event,
+          ...body,
+        })
+      );
+
+      let ResponseWaiter = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          delete this.RPCResolvers[responseEvent]
+          reject(new Error(`timeout ( rpc took more than ${timeout}ms)`));
+        }, timeout);
+        this.RPCResolvers[responseEvent] = (obj) => {
+          resolve(obj);
+        }
+      });
+      let result = await ResponseWaiter;
+      return result;
+    } else {
+      return { error: new Error("ws disconnected") }
+    }
   }
 
   /**
