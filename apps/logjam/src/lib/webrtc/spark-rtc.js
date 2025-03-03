@@ -15,6 +15,7 @@ export class SparkRTC {
    */
   RPCResolvers = {};
 
+  pingCounter = 1
   started = false;
   maxRaisedHands = 6;
   myPeerConnectionConfig = {
@@ -302,12 +303,9 @@ export class SparkRTC {
     msg.data = msg.Data && !msg.data ? msg.Data : msg.data;
     msg.type = msg.Type && !msg.type ? msg.Type : msg.type;
 
-    if (msg.type == 'pong' || msg.Type == 'pong') {
-      if (!this.RPCResolvers[msg.type]) {
-        console.log(`not there`, this.RPCResolvers)
-      }
+    if ((msg.type ?? msg.Type) == 'pong') {//rpc is not handling reqId properly yet. // TODO: handle reqId on both sides
+      this.RPCResolvers[(msg.type ?? msg.Type) + (msg.reqId ?? msg.Data?.toString())]?.(msg);
     }
-    this.RPCResolvers[msg.type ?? msg.Type]?.(msg);
 
     let audiencePeerConnection;
     switch (msg.type) {
@@ -783,7 +781,8 @@ export class SparkRTC {
    */
   ping = async () => {
     try {
-      let result = await this.WSRPC("ping", "pong", {}, this.pingTimeout * 1000);
+      let pc = this.pingCounter++;
+      let result = await this.WSRPC("ping", "pong", { Data: pc.toString() }, this.pingTimeout * 1000, pc.toString());
       if (result.error) {
         throw result.error;
       }
@@ -3343,7 +3342,7 @@ export class SparkRTC {
    * @returns {any}
    * @throws {Error} - throws error if timeout or any error happen
    */
-  async WSRPC(event, responseEvent = event, body, timeout = 8000) {
+  async WSRPC(event, responseEvent = event, body, timeout = 8000, reqId = '') {
     /// TODO remove this check after request id binding added.
     if (event != "ping") {
       throw new Error("lets go traditional until we assign requestID in rpc handling")
@@ -3355,16 +3354,17 @@ export class SparkRTC {
       this.socket.send(
         JSON.stringify({
           type: event,
+          reqId: reqId,
           ...body,
         })
       );
 
       let ResponseWaiter = new Promise((resolve, reject) => {
         setTimeout(() => {
-          delete this.RPCResolvers[responseEvent]
+          delete this.RPCResolvers[responseEvent + reqId]
           reject(new Error(`timeout ( rpc took more than ${timeout}ms)`));
         }, timeout);
-        this.RPCResolvers[responseEvent] = (obj) => {
+        this.RPCResolvers[responseEvent + reqId] = (obj) => {
           resolve(obj);
         }
       });
