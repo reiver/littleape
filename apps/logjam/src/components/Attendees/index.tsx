@@ -6,12 +6,13 @@ import Check from 'assets/icons/Check.svg?react'
 import Hand from 'assets/icons/Hand.svg?react'
 import Loader from 'assets/icons/Loader.svg?react'
 import clsx from 'clsx'
-import { BottomSheet, Icon, makeDialog } from 'components'
+import { BottomSheet, Icon, isMoreOptionsOpen, makeDialog } from 'components'
 import { currentUser, onInviteToStage, onUserRaisedHand, sparkRTC } from 'pages/Meeting'
 import { DialogTypes, makeInviteDialog } from '../Dialog'
 import { deviceSize } from '../MeetingBody/Stage.js'
 import logger from 'lib/logger/logger'
 import { useEffect } from 'preact/hooks'
+import { moreOptionsWidth } from 'components/MoreOptions'
 
 export const attendees = signal<{
   [userId: string]: { name: string; isHost: boolean; avatar: string; raisedHand: Date; hasCamera: boolean; userId: number; actionLoading?: boolean; acceptRaiseHand?: any, isRecordingTheMeeting: boolean }
@@ -39,8 +40,12 @@ export const toggleAttendees = () => {
 }
 
 export const attendeesWidth = computed(() => {
-  if (!isAttendeesOpen.value || deviceSize.value === 'xs') return 0
-  return 350 + 40
+
+  if (isAttendeesOpen.value || isMoreOptionsOpen.value) {
+    return deviceSize.value === 'xs' ? 0 : 350 + 40;
+  }
+
+  return 0;
 })
 
 export const Participant = ({ participant }) => {

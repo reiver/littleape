@@ -26,9 +26,6 @@ const topBarBottomBarHeight = () => document.getElementById('top-bar').offsetHei
 const windowWidth = signal(window.innerWidth)
 const windowHeight = signal(window.innerHeight)
 const stageWidth = computed(() => windowWidth.value - attendeesWidth.value - (deviceSize.value !== 'xs' ? 140 : 32))
-
-
-
 const itemsWidth = computed(() => {
   let sw = stageWidth.value
   if (deviceSize.value !== 'xs' && hasShareScreenStream.value) {

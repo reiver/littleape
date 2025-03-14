@@ -2,6 +2,7 @@ import { Attendees, AttendeesBottomSheet, BottomBarBottomSheet, Container } from
 import { Stage, streamers } from './Stage.js'
 import { useState, useEffect } from 'preact/compat'
 import logger from 'lib/logger/logger.js'
+import { MoreOptions } from 'components/MoreOptions/index.js'
 
 export { streamers }
 
@@ -26,6 +27,7 @@ export const MeetingBody = ({ customStyles }) => {
       <Container class="relative h-full flex-grow overflow-hidden py-4 flex items-center"  id="meeting-body">
         <Stage customStyles={customStyles} />
         <Attendees />
+        <MoreOptions/>
       </Container>
       <div class="sm:hidden">
         <BottomBarBottomSheet />
