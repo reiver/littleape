@@ -1,6 +1,7 @@
 import { computed, signal } from '@preact/signals'
 import AvatarIcon from 'assets/icons/Avatar.svg?react'
 import Camera from 'assets/icons/Camera.svg?react'
+import CloseIcon from 'assets/icons/Close.svg?react'
 import RecordingAttendeesList from 'assets/icons/RecordingAttendeesList.svg?react'
 import Check from 'assets/icons/Check.svg?react'
 import Hand from 'assets/icons/Hand.svg?react'
@@ -246,6 +247,7 @@ export const Attendees = () => {
         'absolute top-4 bottom-4',
         'transition-all ease-in-out',
         'lg:right-10 right-4',
+        'z-50',
         {
           'translate-x-[100%] lg:-mr-10 -mr-4': !isAttendeesOpen.value,
           'translate-x-[100%]': !isAttendeesOpen.value,
@@ -256,11 +258,19 @@ export const Attendees = () => {
       onClick={() => (attendeesBadge.value = false)}
     >
       <div class="flex flex-col pt-2 gap-2 max-h-full">
-        <div class="flex justify-center items-center w-full gap-2 min-h-[36px] min-w-[36px]">
-          <Icon icon={AvatarIcon} />
-          <span>
-            Attendees List ({attendeesCount} {attendeesCount.value > 1 ? 'people' : 'person'})
-          </span>
+
+        <div class="flex w-full justify-between items-center px-2 min-h-[36px] min-w-[36px]">
+
+          <div class="flex justify-center items-center gap-2">
+            <Icon icon={AvatarIcon} />
+            <span>
+              Attendees List ({attendeesCount} {attendeesCount.value > 1 ? 'people' : 'person'})
+            </span>
+          </div>
+
+          <div class={'cursor-pointer'} onClick={toggleAttendees}>
+            <Icon icon={CloseIcon} />
+          </div>
         </div>
         <div class="flex flex-col gap-2 w-full mt-4 pt-2 overflow-auto">
           {Object.values(attendees.value)

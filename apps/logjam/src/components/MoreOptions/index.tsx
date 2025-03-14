@@ -6,7 +6,7 @@ import RecordStart from 'assets/icons/StartRecording.svg?react'
 import RecordStop from 'assets/icons/StopRecording.svg?react'
 
 import logger from "lib/logger/logger"
-import { toggleAttendees } from "components/Attendees"
+import { attendeesCount, toggleAttendees } from "components/Attendees"
 import { computed } from "@preact/signals"
 import { deviceSize } from "components/MeetingBody/Stage"
 import { currentUser, sparkRTC, updateUser } from "pages/Meeting"
@@ -99,17 +99,17 @@ export const MoreOptions = () => {
         >
             <div class="flex flex-col pt-2 gap-2 max-h-full">
                 <div class="flex w-full gap-2 min-h-[36px] min-w-[36px]">
-                    <span class="text-bold-18">{'Continuous Product Discovery'}</span>
+                    <span class="text-bold-18 text-gray-2 dark:text-white-f-9">{'Welcome to the Fediverse!'}</span>
                 </div>
 
                 <div class="flex flex-col justify-center w-full gap-2 min-h-[36px] min-w-[36px]">
-                    <span class="text-semi-bold-16 text-gray-2">{'About'}</span>
-                    <span class="text-medium-12 text-gray-2">{'This is part of “Product Management Learning Series” show, a series of live streaming events where industry thought leaders share their PM career journeys and lessons learned to inspire aspiring and current PMs to level up their Product career!'}</span>
+                    <span class="text-semi-bold-16 text-gray-2 dark:text-white-f-9">{'About'}</span>
+                    <span class="text-medium-12 text-gray-2 dark:text-white-f-9">{'Welcome to the Fediverse!'}</span>
                 </div>
 
                 <div class="flex flex-col gap-2 w-full mt-4 pt-2 overflow-auto cursor-pointer">
 
-                    <MoreItem icon={AvatarIcon} itemName="Attendees" subCount={153} onClick={() => {
+                    <MoreItem icon={AvatarIcon} itemName="Attendees" subCount={attendeesCount.value} onClick={() => {
                         logger.log("Attendees Clicked")
                         toggleAttendees()
                     }} />
