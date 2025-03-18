@@ -1,7 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, FormControl, TextField } from '@mui/material'
+import { Button, FormControl, TextField, InputAdornment } from '@mui/material'
 import CopyIcon from 'assets/icons/Copy.svg?react'
 import LinkIcon from 'assets/icons/Link.svg?react'
+import CalenderIcon from 'assets/icons/Calendar.svg?react'
+import ClockIcon from 'assets/icons/Clock.svg?react'
+
+
 import LogoIcon from 'assets/images/Greatapelogo.png'
 import copy from 'clipboard-copy'
 import clsx from 'clsx'
@@ -54,6 +58,11 @@ const schema = z.object({
   description: z.string(),
 })
 
+const eventSchema = z.object({
+  date: z.string().min(1, 'This field is required'),
+  time: z.string().min(1, 'This field is required'),
+})
+
 const generateHostUrl = async (displayName: string) => {
   var baseUrl = window.location.origin
   if (isInsideIframe()) {
@@ -81,6 +90,8 @@ export const isInsideIframe = () => {
 export const HostPage = ({ params: { displayName } }: { params?: { displayName?: string } }) => {
   const [started, setStarted] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showEventLinksModal, setShowEventLinksModal] = useState(false)
+  const [showEventScheduleModal, setShowEventScheduleModal] = useState(false)
   const [startNewRoomFromIframe, setStartNewRoomFromIframe] = useState(false)
   const [hostLink, setHostLink] = useState("");
   const [roomName, setRoomName] = useState("");
@@ -162,6 +173,14 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
       description: '',
     },
     resolver: zodResolver(schema),
+  })
+
+  const eventForm = useForm({
+    defaultValues: {
+      date: '',
+      time: ''
+    },
+    resolver: zodResolver(eventSchema)
   })
 
   //fecth Host From DB
@@ -297,6 +316,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     })
   }
 
+  const handleCreateEvent = () => {
+    setShowEventScheduleModal(true)
+  }
+
   const handleRedirectBackToGreatApe = async () => {
     const { room, displayName } = form.getValues(); // Extracting values from the form
 
@@ -417,12 +440,28 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
 
   useEffect(() => {
-    if (showModal) {
+    if (showModal || showEventLinksModal) {
       generateBothUrls()
     }
-  }, [showModal, form])
+  }, [showModal, showEventLinksModal, form])
 
+  const publishEvent = () => {
+    setShowEventScheduleModal(false)
+    setShowEventLinksModal(true)
+  }
+  const handleBack = () => {
+    setShowEventScheduleModal(false)
+  }
 
+  const ShowLinksComponent = () => {
+    return (
+      <div className="p-5 flex flex-col gap-5 pb-6">
+        <span class="text-bold-12 text-gray-2">Copy and use host’s link for yourself, and audience link for sending to others:</span>
+        <LinkCopyComponent title="Host's Link:" link={hostLink} />
+        <LinkCopyComponent title="Audience’s Link:" link={audienceLink} />
+      </div>
+    )
+  }
 
   if (!started)
     return (
@@ -481,6 +520,9 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                 <Button onClick={handleCreateLink} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
                   Create Link
                 </Button>
+                <Button onClick={handleCreateEvent} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
+                  Create Event
+                </Button>
                 <Button type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
                   Start Now
                 </Button>
@@ -493,11 +535,79 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
           <ResponsiveModal open={showModal} onClose={setShowModal.bind(null, false)}>
             <span className="text-bold-12 text-black block text-center pt-5">Room Links</span>
             <hr className="mt-4 mb-1 border-white md:border-gray-0" />
+            <ShowLinksComponent />
+          </ResponsiveModal>
+
+          <ResponsiveModal open={showEventScheduleModal} onClose={setShowEventScheduleModal.bind(null, false)}>
+            <span className="text-bold-12 text-black block text-center pt-5">Schedule The Live Room</span>
+            <hr className="mt-4 mb-1 border-white md:border-gray-0" />
             <div className="p-5 flex flex-col gap-5 pb-6">
-              <span class="text-bold-12 text-gray-2">Copy and use host’s link for yourself, and audience link for sending to others:</span>
-              <LinkCopyComponent title="Host's Link:" link={hostLink} />
-              <LinkCopyComponent title="Audience’s Link:" link={audienceLink} />
+              <span class="text-bold-12 text-gray-2">Please enter your desirable date and time for starting the event:</span>
+
+              <form class="flex flex-col w-full " onSubmit={form.handleSubmit(publishEvent)}>
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-3">
+                    <FormControl className="w-full">
+                      <TextField
+                        label="Date"
+                        variant="outlined"
+                        placeholder="MM/DD/YY"
+                        size="small"
+                        {...eventForm.register('date')}
+                        error={!!eventForm.formState.errors.date}
+                        helperText={eventForm.formState.errors.date?.message}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <CalenderIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </FormControl>
+
+                    <FormControl className="w-full">
+                      <TextField label="Time" variant="outlined"
+                        placeholder="HH:MM:SS"
+                        size="small" {...eventForm.register('time')}
+                        error={!!eventForm.formState.errors.time}
+                        helperText={eventForm.formState.errors.time?.message}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <ClockIcon />
+                            </InputAdornment>
+                          ),
+                        }} />
+                    </FormControl>
+                  </div>
+
+
+                  <div class="flex gap-2 w-full flex-col-reverse md:flex-row">
+                    <Button onClick={handleBack} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
+                      Back
+                    </Button>
+
+                    <Button type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
+                      Publish Event
+                    </Button>
+
+                  </div>
+                </div>
+
+              </form>
             </div>
+          </ResponsiveModal>
+
+          <ResponsiveModal open={showEventLinksModal} onClose={setShowEventLinksModal.bind(null, false)}>
+            <span className="text-bold-12 text-black block text-center pt-5">Room Links</span>
+            <hr className="mt-4 mb-1 border-white md:border-gray-0" />
+            <div className="p-5 pb-0 flex flex-col gap-5">
+              <span class="text-bold-14 text-black">The Event is published on your Bluesky account, You can start your live show at 6pm, on Monday, March 24, 2025</span>
+            </div>
+
+            <ShowLinksComponent />
+
           </ResponsiveModal>
         </div>
 
