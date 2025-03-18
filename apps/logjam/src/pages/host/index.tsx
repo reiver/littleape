@@ -5,6 +5,9 @@ import LinkIcon from 'assets/icons/Link.svg?react'
 import CalenderIcon from 'assets/icons/Calendar.svg?react'
 import ClockIcon from 'assets/icons/Clock.svg?react'
 
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider, renderTimeViewClock, TimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import LogoIcon from 'assets/images/Greatapelogo.png'
 import copy from 'clipboard-copy'
@@ -19,7 +22,7 @@ import z from 'zod'
 import { signal } from '@preact/signals'
 import { PocketBaseManager, HostData, RoomData, convertRoomDataToFormData } from 'lib/pocketBase/helperAPI'
 import logger from 'lib/logger/logger'
-import { T } from '../../../dist/assets/index-e6dGdVG9'
+import dayjs from 'dayjs'
 
 const PageNotFound = lazy(() => import('../_404'))
 const selectedImage = signal(null)
@@ -98,6 +101,8 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [audienceLink, setAudienceLink] = useState("");
   const [gaUrl, setGaUrl] = useState("")
   const [allowedToStartMeeting, setAllowedToStartMeeting] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(dayjs())
+  const [selectedTime, setSelectedTime] = useState(dayjs())
 
   //handle message from Iframe
   useEffect(() => {
@@ -547,39 +552,65 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
               <form class="flex flex-col w-full " onSubmit={form.handleSubmit(publishEvent)}>
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-3">
-                    <FormControl className="w-full">
-                      <TextField
-                        label="Date"
-                        variant="outlined"
-                        placeholder="MM/DD/YY"
-                        size="small"
-                        {...eventForm.register('date')}
-                        error={!!eventForm.formState.errors.date}
-                        helperText={eventForm.formState.errors.date?.message}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <CalenderIcon />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </FormControl>
 
-                    <FormControl className="w-full">
-                      <TextField label="Time" variant="outlined"
-                        placeholder="HH:MM:SS"
-                        size="small" {...eventForm.register('time')}
-                        error={!!eventForm.formState.errors.time}
-                        helperText={eventForm.formState.errors.time?.message}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <ClockIcon />
-                            </InputAdornment>
-                          ),
-                        }} />
-                    </FormControl>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <FormControl className="w-full">
+                        <DatePicker
+                          label="Date"
+                          value={selectedDate}
+                          onChange={(newValue) => setSelectedDate(newValue)}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              placeholder="MM/DD/YY"
+                              error={!!eventForm.formState.errors.date}
+                              helperText={eventForm.formState.errors.date?.message}
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <CalenderIcon />
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
+                      </FormControl>
+
+                      <FormControl className="w-full">
+                        <TimePicker
+                          viewRenderers={{
+                            hours: renderTimeViewClock,
+                            minutes: renderTimeViewClock,
+                            seconds: renderTimeViewClock,
+                          }} 
+                          format="hh:mm A"
+                          label="Time"
+                          value={selectedTime}
+                          onChange={(newValue) => setSelectedTime(newValue)}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              placeholder="HH:MM"
+                              error={!!eventForm.formState.errors.time}
+                              helperText={eventForm.formState.errors.time?.message}
+                              InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <ClockIcon />
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          )}
+                        />
+                      </FormControl>
+                    </LocalizationProvider>
+
                   </div>
 
 
