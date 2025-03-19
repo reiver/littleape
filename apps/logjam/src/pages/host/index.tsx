@@ -103,6 +103,27 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [allowedToStartMeeting, setAllowedToStartMeeting] = useState(false)
   const [selectedDate, setSelectedDate] = useState(dayjs())
   const [selectedTime, setSelectedTime] = useState(dayjs())
+  const [eventTimeInUnix, setEventTimeInUnix] = useState(0)
+  const [dateTimeFromUnix, setDateTimeFromUnix] = useState("")
+
+  useEffect(() => {
+    // Combine date from dateObj and time from timeObj
+    const combinedDateTime = dayjs(`${selectedDate.format("YYYY-MM-DD")} ${selectedTime.format("HH:mm:ss")}`);
+
+    // Convert to UNIX timestamp (seconds)
+    const unixTimestamp = combinedDateTime.unix();
+
+    logger.log("UnixTime: ", unixTimestamp); // Output: UNIX timestamp
+
+    setEventTimeInUnix(unixTimestamp)
+
+    const formattedDate = dayjs.unix(unixTimestamp).format("h:m A, on dddd, MMMM D, YYYY");
+
+    setDateTimeFromUnix(formattedDate)
+
+    logger.log("Formated Date: ", formattedDate); // Output: Formated date
+
+  }, [selectedDate, selectedTime])
 
   //handle message from Iframe
   useEffect(() => {
@@ -451,6 +472,8 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   }, [showModal, showEventLinksModal, form])
 
   const publishEvent = () => {
+    //publish to BSKY
+
     setShowEventScheduleModal(false)
     setShowEventLinksModal(true)
   }
@@ -558,7 +581,11 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                         <DatePicker
                           label="Date"
                           value={selectedDate}
-                          onChange={(newValue) => setSelectedDate(newValue)}
+                          onChange={(newValue) => {
+                            setSelectedDate(newValue)
+                            console.log("Selected date is: ", newValue)
+                          }}
+                          minDate={dayjs()}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -585,11 +612,14 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                             hours: renderTimeViewClock,
                             minutes: renderTimeViewClock,
                             seconds: renderTimeViewClock,
-                          }} 
+                          }}
                           format="hh:mm A"
                           label="Time"
                           value={selectedTime}
-                          onChange={(newValue) => setSelectedTime(newValue)}
+                          onChange={(newValue) => {
+                            setSelectedTime(newValue)
+                            logger.log("Selected time is: ", newValue)
+                          }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -634,7 +664,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <span className="text-bold-12 text-black block text-center pt-5">Room Links</span>
             <hr className="mt-4 mb-1 border-white md:border-gray-0" />
             <div className="p-5 pb-0 flex flex-col gap-5">
-              <span class="text-bold-14 text-black">The Event is published on your Bluesky account, You can start your live show at 6pm, on Monday, March 24, 2025</span>
+              <span class="text-bold-14 text-black">The Event is published on your Bluesky account, You can start your live show at {dateTimeFromUnix}</span>
             </div>
 
             <ShowLinksComponent />
