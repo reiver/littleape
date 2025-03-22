@@ -14,6 +14,9 @@ let displayIdCounter = 2
 import { streamersLength } from '../components/MeetingBody/Stage'
 import logger from 'lib/logger/logger'
 import { isInsideIframe, TopWindowURL } from './host'
+import dayjs from 'dayjs'
+import duration from "dayjs/plugin/duration";
+
 
 const PageNotFound = lazy(() => import('./_404'))
 const styleElement = document.createElement('style');
@@ -25,6 +28,8 @@ export const sparkRTC = signal(null)
 export const meetingStatus = signal(true)
 export const recordingStatus = signal(false)
 export const broadcastIsInTheMeeting = signal(true)
+export const meetingIsNotStarted = signal(false)
+export const meetingStartRemainingTime = signal("")
 export const raisedHandsCount = signal(0)
 export const raiseHandMaxLimitReached = computed(() => {
   return sparkRTC.value && raisedHandsCount.value === sparkRTC.value.maxRaisedHands
@@ -306,10 +311,67 @@ export const isRecordingInProgress = () => {
   return meetingStatus.value && broadcastIsInTheMeeting.value && recordingStatus.value
 }
 
-const Meeting = ({ params: { room, displayName, name, _customStyles } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any } }) => {
+const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any } }) => {
   detectKeyPress(keyPressCallback)
 
   const [customStyles, setCustomStyles] = useState(_customStyles);
+
+
+  function getRemainingTime(timestamp: number): string {
+    const now = Math.floor(Date.now() / 1000); // Get current Unix timestamp in seconds
+    let remainingTime = timestamp - now;
+
+    if (remainingTime <= 0) {
+      return "Time has already passed";
+    }
+
+    const secondsInMinute = 60;
+    const secondsInHour = 60 * secondsInMinute;
+    const secondsInDay = 24 * secondsInHour;
+    const secondsInYear = 365 * secondsInDay;
+
+    const years = Math.floor(remainingTime / secondsInYear);
+    remainingTime %= secondsInYear;
+
+    const days = Math.floor(remainingTime / secondsInDay);
+    remainingTime %= secondsInDay;
+
+    const hours = Math.floor(remainingTime / secondsInHour);
+    remainingTime %= secondsInHour;
+
+    const minutes = Math.floor(remainingTime / secondsInMinute);
+
+    let formattedTime = [];
+
+    if (years > 0) formattedTime.push(`${years} year${years > 1 ? "s" : ""}`);
+    if (days > 0) formattedTime.push(`${days} day${days > 1 ? "s" : ""}`);
+    if (hours > 0) formattedTime.push(`${hours} hour${hours > 1 ? "s" : ""}`);
+    if (minutes > 0) formattedTime.push(`${minutes} minute${minutes > 1 ? "s" : ""}`);
+
+    return formattedTime.length > 0 ? formattedTime.join(", ") : "Less than a minute";
+  }
+
+  useEffect(() => {
+    if (meetingStartTime != null && meetingStartTime != 0) {
+      logger.log("Meeting Start Time is: ", meetingStartTime)
+
+      const currentTime = dayjs().unix()
+
+      if (meetingStartTime > currentTime) {
+        logger.log("Meeting Not Started yet")
+        meetingIsNotStarted.value = true
+
+        const time = getRemainingTime(meetingStartTime)
+        logger.log("Remaining time is: ", time)
+
+        meetingStartRemainingTime.value = time
+
+      } else {
+        logger.log("Meeting is started")
+        meetingIsNotStarted.value = false
+      }
+    }
+  })
 
   if (displayName && room) {
     if (displayName[0] !== '@') return <PageNotFound />
@@ -867,7 +929,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles } }: { param
       {meetingStatus.value ? (
         <>
           <MeetingBody customStyles={customStyles ? customStyles : null} />
-          <BottomBar />
+          {
+            meetingStartRemainingTime.value == "" ? (<BottomBar />) : null
+          }
         </>
       ) : (
         <div class="flex flex-col justify-center items-center sm:p-10 rounded-md gap-4 h-full flex-grow">

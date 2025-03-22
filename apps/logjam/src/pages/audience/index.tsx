@@ -17,12 +17,24 @@ const schema = z.object({
 
 export const AudiencePage = ({ params: { room } }: { params?: { room?: string } }) => {
   const [started, setStarted] = useState(false)
+  const [meetingStartTime, setMeetingStartTime] = useState(0)
   const form = useForm({
     defaultValues: {
       room: room,
       name: '',
     },
     resolver: zodResolver(schema),
+  })
+
+  //fetch meeting scheduled time
+  const fetchMeetingScheduledTime = () => {
+    //fetch from backend
+
+    setMeetingStartTime(1774292356)
+  }
+
+  useEffect(() => {
+    fetchMeetingScheduledTime()
   })
 
   //handle message from Iframe
@@ -76,6 +88,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
         params={{
           ...form.getValues(),
           room: room,
+          meetingStartTime: meetingStartTime
         }}
       />
     )
