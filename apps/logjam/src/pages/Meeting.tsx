@@ -930,7 +930,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         <>
           <MeetingBody customStyles={customStyles ? customStyles : null} />
           {
-            meetingStartRemainingTime.value == "" ? (<BottomBar />) : null
+            meetingStartRemainingTime.value == "" || broadcastIsInTheMeeting.value == true ? (<BottomBar />) : null
           }
         </>
       ) : (

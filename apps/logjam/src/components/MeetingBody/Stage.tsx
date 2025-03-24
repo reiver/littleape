@@ -22,7 +22,11 @@ export const hasFullScreenedStream = computed(() => !!fullScreenedStream.value)
 export const streamers = signal<Record<string, { isHost: boolean; isShareScreen: boolean; isLocalStream: boolean; stream: any; userId: any; muted: boolean; name: string; toggleScreenId: any; displayId: string; position: any }>>({})
 export const streamersLength = computed(() => Object.keys(streamers.value).length)
 export const deviceSize = signal(getDeviceConfig(window.innerWidth))
-const topBarBottomBarHeight = () => document.getElementById('top-bar').offsetHeight + (isRecordingInProgress() ? document.getElementById('recording-bar').offsetHeight : 0) + (bottomBarVisible.value ? document.getElementById('bottom-bar').offsetHeight : 0) + 32
+const topBarBottomBarHeight = () => 
+  (document.getElementById('top-bar')?.offsetHeight || 0) + 
+  (isRecordingInProgress() ? (document.getElementById('recording-bar')?.offsetHeight || 0) : 0) + 
+  (bottomBarVisible.value ? (document.getElementById('bottom-bar')?.offsetHeight || 0) : 0) + 
+  32;
 const windowWidth = signal(window.innerWidth)
 const windowHeight = signal(window.innerHeight)
 const stageWidth = computed(() => windowWidth.value - attendeesWidth.value - (deviceSize.value !== 'xs' ? 140 : 32))
