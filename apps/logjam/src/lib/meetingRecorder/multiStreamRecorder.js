@@ -251,32 +251,90 @@ class MultiStreamRecorder {
 
                 }
                 else if (numStreams === 3) {
-                    // Top row with 2 streams, bottom row with 1 centered
-                    const halfHeight = this.canvas.height / 2;
-                    drawRoundedRect(0, 0, this.canvas.width / 2 - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, this.canvas.width / 2 - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(this.canvas.width / 4, halfHeight + spacing, this.canvas.width / 2, halfHeight - spacing, 10);
+                    // 3 streams with equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 4, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
                     ctx.fillStyle = "black";
                     ctx.fill();
-                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, this.canvas.width / 2 - spacing / 2, halfHeight);
-                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, this.canvas.width / 2 - spacing / 2, halfHeight);
-                    this.drawVideoWithAspectRatio(ctx, this.videos[2], this.canvas.width / 4, halfHeight + spacing, this.canvas.width / 2, halfHeight - spacing);
+
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], this.canvas.width / 4, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
 
                 } else if (numStreams === 4) {
-                    // 2 rows of 2 streams each
-                    const halfWidth = this.canvas.width / 2;
-                    const halfHeight = this.canvas.height / 2;
-                    drawRoundedRect(0, 0, halfWidth - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(halfWidth + spacing / 2, 0, halfWidth - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(0, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing, 10);
-                    drawRoundedRect(halfWidth + spacing / 2, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing, 10);
+                    // 2 rows of 2 streams, all equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
                     ctx.fillStyle = "black";
                     ctx.fill();
-                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, halfWidth - spacing / 2, halfHeight);
-                    this.drawVideoWithAspectRatio(ctx, this.videos[1], halfWidth + spacing / 2, 0, halfWidth - spacing / 2, halfHeight);
-                    this.drawVideoWithAspectRatio(ctx, this.videos[2], 0, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing);
-                    this.drawVideoWithAspectRatio(ctx, this.videos[3], halfWidth + spacing / 2, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing);
+
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], 0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], this.canvas.width / 2 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
                 }
+                else if (numStreams === 5) {
+                    // 2 videos on top, 3 videos on bottom, all with equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2; // Two videos on top
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    // Top row - 2 videos
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+
+                    // Bottom row - 3 videos
+                    const bottomWidth = this.canvas.width / 3 - spacing / 2; // Three videos in bottom row
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    // Draw videos
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], 0, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[4], (this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight);
+                }
+
+                else if (numStreams === 6) {
+                    // 3 videos on top, 3 videos on bottom, all equal sizes
+                    const videoWidth = this.canvas.width / 3 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    // Draw rounded rectangles for each video position
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    // Draw videos in the assigned positions
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 3 + spacing / 2, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], (this.canvas.width / 3) * 2 + spacing, 0, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], 0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[4], this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[5], (this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight);
+                }
+
             }
 
             // Draw stream names on the canvas
