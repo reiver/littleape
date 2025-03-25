@@ -50,6 +50,7 @@ class MultiStreamRecorder {
         this.roomname = null;
         this.audioMixer = null;
         this.audioMixerStreams = [];
+        this.MAX_VIDEOS_ON_CANVAS = 6;
     }
 
     addAudioTrackToMixer() {
@@ -180,7 +181,7 @@ class MultiStreamRecorder {
 
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const numStreams = this.videos.length;
+            var numStreams = this.videos.length;
             const shareScreenIndex = this.streams.findIndex(stream => stream.isShareScreen);
 
             const shareStream = this.videos[shareScreenIndex];
@@ -223,6 +224,11 @@ class MultiStreamRecorder {
                 // Draw other streams (30% width, stacked vertically on the right)
                 const spacing = 10; // Space between video containers
                 const streamHeight = (this.canvas.height - spacing * (otherStreams.length - 1)) / otherStreams.length;
+                //if streams size is more then max, remove the last stream
+                if (otherStreams.length >= this.MAX_VIDEOS_ON_CANVAS) {
+                    // Remove the last stream
+                    otherStreams.splice(-1);
+                }
                 otherStreams.forEach((video, index) => {
                     let yPosition;
                     let height;
@@ -256,6 +262,9 @@ class MultiStreamRecorder {
 
             }
             else {
+                if (numStreams > this.MAX_VIDEOS_ON_CANVAS) {
+                    numStreams = this.MAX_VIDEOS_ON_CANVAS
+                }
                 // Default layout if no screen share is present
                 const spacing = 10; // Space between video containers
                 if (numStreams === 1) {
