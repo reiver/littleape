@@ -340,6 +340,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
     remainingTime %= secondsInHour;
 
     const minutes = Math.floor(remainingTime / secondsInMinute);
+    remainingTime %= secondsInMinute
+
+    const seconds = remainingTime
 
     let formattedTime = [];
 
@@ -348,30 +351,37 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
     if (hours > 0) formattedTime.push(`${hours} hour${hours > 1 ? "s" : ""}`);
     if (minutes > 0) formattedTime.push(`${minutes} minute${minutes > 1 ? "s" : ""}`);
 
-    return formattedTime.length > 0 ? formattedTime.join(", ") : "Less than a minute";
+    if (years === 0 && days === 0 && hours === 0) {
+      // show seconds in last hour
+      formattedTime.push(`${seconds} second${seconds > 1 ? "s" : ""}`);
+    }
+
+    return formattedTime.length > 0 ? formattedTime.join(", ") : "0 second";
   }
 
   useEffect(() => {
     if (meetingStartTime != null && meetingStartTime != 0) {
       logger.log("Meeting Start Time is: ", meetingStartTime)
 
-      const currentTime = dayjs().unix()
+      const interval = setInterval(() => {
+        const currentTime = dayjs().unix();
 
-      if (meetingStartTime > currentTime) {
-        logger.log("Meeting Not Started yet")
-        meetingIsNotStarted.value = true
+        if (meetingStartTime > currentTime) {
 
-        const time = getRemainingTime(meetingStartTime)
-        logger.log("Remaining time is: ", time)
+          const time = getRemainingTime(meetingStartTime);
 
-        meetingStartRemainingTime.value = time
+          meetingStartRemainingTime.value = time;
+          meetingIsNotStarted.value = true;
+        } else {
+          logger.log("Meeting is started");
+          meetingIsNotStarted.value = false;
+          clearInterval(interval); // Stop checking once the meeting starts
+        }
+      }, 100); // Check every second
 
-      } else {
-        logger.log("Meeting is started")
-        meetingIsNotStarted.value = false
-      }
+      return () => clearInterval(interval); // Cleanup on unmount
     }
-  })
+  }, [meetingStartTime])
 
   if (displayName && room) {
     if (displayName[0] !== '@') return <PageNotFound />

@@ -30,7 +30,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
   const fetchMeetingScheduledTime = () => {
     //fetch from backend
 
-    setMeetingStartTime(1774292356)
+    setMeetingStartTime(1742989830)
   }
 
   useEffect(() => {
