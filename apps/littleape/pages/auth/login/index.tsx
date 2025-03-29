@@ -45,6 +45,7 @@ import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
+import { MastodonLoginButton } from "components/SignInWithMastodon";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -76,6 +77,7 @@ const Login: FC = () => {
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
   const loginMode = useAuthStore((state) => state.mode)
   const loggedInUser = useAuthStore((state) => state.user);
+  const [mastodonUser, setMastodonUser] = useState(null)
 
   const toast = useToast();
   const disconnect = useDisconnect();
@@ -116,6 +118,42 @@ const Login: FC = () => {
     }
   }, [onSignMessage])
 
+
+  useEffect(() => {
+    if (router.query.mastodonuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
+        console.log("Mastodon User Data:", userData);
+        setMastodonUser(userData);
+      } catch (error) {
+        console.error("Error parsing Mastodon user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.mastodonuser]);
+
+  useEffect(() => {
+    if (router.query.mastodonerror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.mastodonerror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Mastodon",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Mastodon error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.mastodonerror]);
 
   const checkWalletConnectionWithAccount = async (address) => {
     const wallet = await pbManager.getWallet(address)
@@ -336,6 +374,7 @@ const Login: FC = () => {
               }
 
               <BlueSkyLoginButton
+
                 onClose={(user?: any) => {
 
                   if (user != null && user != undefined) {
@@ -358,6 +397,9 @@ const Login: FC = () => {
                 }}
 
                 existingAccountId="" />
+
+              <MastodonLoginButton />
+
 
               <Box
                 mt="6"
