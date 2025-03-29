@@ -46,6 +46,7 @@ import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { MastodonLoginButton } from "components/SignInWithMastodon";
+import { PixelfedLoginButton } from "components/SignInWithPixelfed";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -78,6 +79,8 @@ const Login: FC = () => {
   const loginMode = useAuthStore((state) => state.mode)
   const loggedInUser = useAuthStore((state) => state.user);
   const [mastodonUser, setMastodonUser] = useState(null)
+  const [pixelfedUser, setPixelfedUser] = useState(null)
+
 
   const toast = useToast();
   const disconnect = useDisconnect();
@@ -119,12 +122,21 @@ const Login: FC = () => {
   }, [onSignMessage])
 
 
+  //mastodon data
   useEffect(() => {
     if (router.query.mastodonuser) {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
         console.log("Mastodon User Data:", userData);
         setMastodonUser(userData);
+
+        toast({
+          title: "Successful Login to Mastodon",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
       } catch (error) {
         console.error("Error parsing Mastodon user data:", error);
       }
@@ -154,6 +166,51 @@ const Login: FC = () => {
       router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.query.mastodonerror]);
+
+  //pixelfed data
+  useEffect(() => {
+    if (router.query.pixelfeduser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.pixelfeduser as string));
+        console.log("PixelFed User Data:", userData);
+        setPixelfedUser(userData);
+
+        toast({
+          title: "Successful Login to Pixelfed",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+      } catch (error) {
+        console.error("Error parsing Pixelfed user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.pixelfeduser]);
+
+  useEffect(() => {
+    if (router.query.pixelfederror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.pixelfederror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Pixelfed",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Pixelfed error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.pixelfederror]);
 
   const checkWalletConnectionWithAccount = async (address) => {
     const wallet = await pbManager.getWallet(address)
@@ -400,6 +457,7 @@ const Login: FC = () => {
 
               <MastodonLoginButton />
 
+              <PixelfedLoginButton />
 
               <Box
                 mt="6"
