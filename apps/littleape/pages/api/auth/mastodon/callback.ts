@@ -5,7 +5,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const instance = "https://mastodon.social"; // Change as needed
   const clientId = process.env.MASTODON_CLIENT_ID;
   const clientSecret = process.env.MASTODON_CLIENT_SECRET;
-  const redirectUri = "http://localhost:3001/api/auth/mastodon/callback";
+  const redirectUri = `${process.env.LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
 
   if (!code) {
     const errorData = { error: "Missing authorization code" };
