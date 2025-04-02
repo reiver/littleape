@@ -1,5 +1,6 @@
 import { LOGJAM_URL } from "components/Navbar";
 import { useRouter } from "next/router";
+import { isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "store";
 
@@ -16,11 +17,13 @@ export default function HostPage() {
     const router = useRouter();
     const { hostname } = router.query; // Extract query params
 
-    console.log("USER IN METTING IS: ", user)
-    if (user == null) {
-        useEffect(() => {
-            router.replace("/auth/login");
-        }, [router]);
+    if (isMvpMode == true) {
+        console.log("USER IN METTING IS: ", user)
+        if (user == null) {
+            useEffect(() => {
+                router.replace("/auth/login");
+            }, [router]);
+        }
     }
 
     console.log("Hostname form QueryParams: ", hostname)

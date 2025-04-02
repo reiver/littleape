@@ -47,6 +47,7 @@ import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { MastodonLoginButton } from "components/SignInWithMastodon";
 import { PixelfedLoginButton } from "components/SignInWithPixelfed";
+export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -286,17 +287,15 @@ const Login: FC = () => {
       setWalletConnected(true)
 
       if (walletIsSigned) {
-        const mappedUser: Partial<User> = {
-          username: address,
-        };
-        setUser(mappedUser)
-        router.push("/")
-
-        //disable the wallet connection check for now
-        /**
-         * checkWalletConnectionWithAccount(address)
-         */
-
+        if (isMvpMode) {
+          const mappedUser: Partial<User> = {
+            username: address,
+          };
+          setUser(mappedUser)
+          router.push("/")
+        } else {
+          checkWalletConnectionWithAccount(address)
+        }
       }
     } else {
       setWalletConnected(false)
@@ -412,26 +411,28 @@ const Login: FC = () => {
             </div>
           ) : (
             <div>
-              <Form
-                onSubmit={handleLoginViaPocketBase}
-                mt="8"
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY={4}
-              >
-                <Input autoFocus {...register("email")} error={errors.email} />
-                {error && (
-                  <Alert status="error">
-                    <AlertIcon />
-                    {error}
-                  </Alert>
-                )}
-                <Box>
-                  <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                    Login
-                  </Button>
-                </Box>
-              </Form>
+              {
+                !isMvpMode && <Form
+                  onSubmit={handleLoginViaPocketBase}
+                  mt="8"
+                  display="flex"
+                  flexDirection="column"
+                  experimental_spaceY={4}
+                >
+                  <Input autoFocus {...register("email")} error={errors.email} />
+                  {error && (
+                    <Alert status="error">
+                      <AlertIcon />
+                      {error}
+                    </Alert>
+                  )}
+                  <Box>
+                    <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                      Login
+                    </Button>
+                  </Box>
+                </Form>
+              }
 
               {
                 !walletConnected && <Box>
@@ -456,17 +457,16 @@ const Login: FC = () => {
                     if (loginMode != LoginMode.FARCASTER) {
                       console.log("Farcaster Login success: ", res)
 
-                      const mappedUser: Partial<User> = {
-                        username: res.data.username,
-                      };
-                      setUser(mappedUser)
-                      router.push("/")
-
-                      //disable login check from DB for now
-                      /**
-                       * loginUsingFarcaster(res.data.username, res.data.fid)
-                       * setLoginMode(LoginMode.FARCASTER);
-                       */
+                      if (isMvpMode) {
+                        const mappedUser: Partial<User> = {
+                          username: res.data.username,
+                        };
+                        setUser(mappedUser)
+                        router.push("/")
+                      } else {
+                        loginUsingFarcaster(res.data.username, res.data.fid)
+                        setLoginMode(LoginMode.FARCASTER);
+                      }
 
                     }
                   }}
@@ -515,32 +515,36 @@ const Login: FC = () => {
 
               <PixelfedLoginButton />
 
-              <Box
-                mt="6"
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY="4"
-                textAlign="center"
-                color="slate.500"
-                _dark={{ color: "slate.400" }}
-              >
-                <span>Don&rsquo;t have an account?</span>
-                <Button className="block w-full" onClick={(() => {
-                  if (walletConnected) {
-                    toast({
-                      title: "Please disconnect the wallet first!",
-                      description: ``,
-                      status: "error",
-                      duration: 3000,
-                      isClosable: true,
-                    });
-                    return
-                  } else {
-                    resetAll()
-                    router.push("/auth/register")
-                  }
-                })}>Register now</Button>
-              </Box>
+              {
+                !isMvpMode && <Box
+                  mt="6"
+                  display="flex"
+                  flexDirection="column"
+                  experimental_spaceY="4"
+                  textAlign="center"
+                  color="slate.500"
+                  _dark={{ color: "slate.400" }}
+                >
+                  <span>Don&rsquo;t have an account?</span>
+                  <Button className="block w-full" onClick={(() => {
+                    if (walletConnected) {
+                      toast({
+                        title: "Please disconnect the wallet first!",
+                        description: ``,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                      });
+                      return
+                    } else {
+                      resetAll()
+                      router.push("/auth/register")
+                    }
+                  })}>Register now</Button>
+                </Box>
+              }
+
+
             </div>
           )
 

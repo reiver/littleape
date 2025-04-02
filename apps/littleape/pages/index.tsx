@@ -18,12 +18,12 @@ import { useAuthStore } from "store";
 import { User } from "types/User";
 import { useAddress } from "web3-wallet-connection";
 import { useRouter } from "next/router";
+import { isMvpMode } from "./auth/login";
 
 const pbManager = PocketBaseManager.getInstance()
 
 export default function Home() {
   const router = useRouter();
-  const redirectToLogin = true
 
   const setAuth = useAuthStore((state) => state.setAuth);
   let user = useAuthStore((state) => state.user);
@@ -36,8 +36,10 @@ export default function Home() {
       setAuth(userObj.email, userObj)
       checkUserHasBlueSkyLinked(userObj)
 
-      //go to meeting page
-      router.push(`/@${userObj.username}/host`)
+      if (isMvpMode == true) {
+        //go to meeting page
+        router.push(`/@${userObj.username}/host`)
+      }
 
     } else {
       //go to login page
@@ -119,7 +121,7 @@ export default function Home() {
   }, []);
 
   return (
-    redirectToLogin ? (<>
+    isMvpMode ? (<>
       <Head>
         <title>Greatape</title>
         <meta
