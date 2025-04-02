@@ -1,9 +1,9 @@
 export default async function handler(req, res) {
     const { code } = req.query;
     const instance = "https://pixelfed.social"; // Change as needed
-    const clientId = process.env.PIXELFED_CLIENT_ID;
-    const clientSecret = process.env.PIXELFED_CLIENT_SECRET;
-    const redirectUri = `${process.env.LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
+    const clientId = process.env.NEXT_PUBLIC_PIXELFED_CLIENT_ID;
+    const clientSecret = process.env.NEXT_PUBLIC_PIXELFED_CLIENT_SECRET;
+    const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
 
     try {
         if (!code) {

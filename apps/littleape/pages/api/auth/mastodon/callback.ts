@@ -3,9 +3,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
   const instance = "https://mastodon.social"; // Change as needed
-  const clientId = process.env.MASTODON_CLIENT_ID;
-  const clientSecret = process.env.MASTODON_CLIENT_SECRET;
-  const redirectUri = `${process.env.LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
+  const clientId = process.env.NEXT_PUBLIC_MASTODON_CLIENT_ID;
+  const clientSecret = process.env.NEXT_PUBLIC_MASTODON_CLIENT_SECRET;
+  const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
 
   if (!code) {
     const errorData = { error: "Missing authorization code" };
