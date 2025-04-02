@@ -107,6 +107,9 @@ const Login: FC = () => {
     setWalletIsSigned,
   } = useWallet();
 
+  const goToMeetingPage = (username: any) => {
+    router.replace(`/@${username}/host`)
+  }
 
   const {
     isOpen: isSignWalletOpen,
@@ -137,11 +140,27 @@ const Login: FC = () => {
           duration: 6000,
           isClosable: true,
         });
+
+        // Mapping to User type
+        const mappedUser: Partial<User> = {
+          id: Number(userData.id), // Converting id from string to number
+          avatar: userData.avatar,
+          banner: userData.header, // Using header as banner
+          bio: userData.note.replace(/<\/?p>/g, ""), // Removing HTML tags from bio
+          name: userData.display_name,
+          username: userData.username,
+          blueskyid: null,
+        };
+
+        console.log("USER IS: ", mappedUser)
+        setUser(mappedUser)
+        router.push("/")
+
       } catch (error) {
         console.error("Error parsing Mastodon user data:", error);
+        router.replace(router.pathname, undefined, { shallow: true });
       }
 
-      router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.query.mastodonuser]);
 
@@ -182,6 +201,22 @@ const Login: FC = () => {
           duration: 6000,
           isClosable: true,
         });
+
+        // Mapping to User type
+        const mappedUser: Partial<User> = {
+          id: Number(userData.id), // Convert ID from string to number
+          avatar: userData.avatar,
+          banner: userData.header, // Using header as banner
+          bio: userData.note.trim(), // Removing extra spaces from bio
+          name: userData.display_name,
+          username: userData.username,
+          blueskyid: null,
+        };
+
+        console.log("USER IS: ", mappedUser)
+        setUser(mappedUser)
+        router.push("/")
+
       } catch (error) {
         console.error("Error parsing Pixelfed user data:", error);
       }
@@ -251,7 +286,17 @@ const Login: FC = () => {
       setWalletConnected(true)
 
       if (walletIsSigned) {
-        checkWalletConnectionWithAccount(address)
+        const mappedUser: Partial<User> = {
+          username: address,
+        };
+        setUser(mappedUser)
+        router.push("/")
+
+        //disable the wallet connection check for now
+        /**
+         * checkWalletConnectionWithAccount(address)
+         */
+
       }
     } else {
       setWalletConnected(false)
@@ -410,8 +455,19 @@ const Login: FC = () => {
                     console.log("Success SignInWithFarcasterButton: ", res)
                     if (loginMode != LoginMode.FARCASTER) {
                       console.log("Farcaster Login success: ", res)
-                      loginUsingFarcaster(res.data.username, res.data.fid)
-                      setLoginMode(LoginMode.FARCASTER);
+
+                      const mappedUser: Partial<User> = {
+                        username: res.data.username,
+                      };
+                      setUser(mappedUser)
+                      router.push("/")
+
+                      //disable login check from DB for now
+                      /**
+                       * loginUsingFarcaster(res.data.username, res.data.fid)
+                       * setLoginMode(LoginMode.FARCASTER);
+                       */
+
                     }
                   }}
                   onError={(err) => {

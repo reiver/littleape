@@ -1,6 +1,7 @@
 import { LOGJAM_URL } from "components/Navbar";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { useAuthStore } from "store";
 
 
 function getHostUrl(hostname: String) {
@@ -11,9 +12,16 @@ function getHostUrl(hostname: String) {
 export default function HostPage() {
     const [hashToSend, sethashToSend] = useState(null)
     const [iframeLoaded, setIframeLoaded] = useState(false);
-
+    let user = useAuthStore((state) => state.user);
     const router = useRouter();
     const { hostname } = router.query; // Extract query params
+
+    console.log("USER IN METTING IS: ", user)
+    if (user == null) {
+        useEffect(() => {
+            router.replace("/auth/login");
+        }, [router]);
+    }
 
     console.log("Hostname form QueryParams: ", hostname)
 
