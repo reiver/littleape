@@ -67,7 +67,7 @@ export default function UserProfile() {
               }
 
               //start meeting in new tab inside iframe
-              if (window.location.href != undefined && window.location.href != "") {
+              if (window.location.href != undefined && window.location.href != "" && !window.location.href.includes("/host")) {
                 console.log("Received data going to open new window for meeting: ", window.location.href)
 
                 // Prepare the data to send
