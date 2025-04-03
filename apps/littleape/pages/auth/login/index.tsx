@@ -47,6 +47,7 @@ import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { MastodonLoginButton } from "components/SignInWithMastodon";
 import { PixelfedLoginButton } from "components/SignInWithPixelfed";
+import { MisskeyLoginButton } from "components/SignInWithMisskey";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
 
 
@@ -81,6 +82,8 @@ const Login: FC = () => {
   const loggedInUser = useAuthStore((state) => state.user);
   const [mastodonUser, setMastodonUser] = useState(null)
   const [pixelfedUser, setPixelfedUser] = useState(null)
+  const [misskeyUser, setMisskeyUser] = useState(null)
+
 
 
   const toast = useToast();
@@ -247,6 +250,69 @@ const Login: FC = () => {
       router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.query.pixelfederror]);
+
+  //misskey data
+  useEffect(() => {
+    if (router.query.misskeyuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.misskeyuser as string));
+        console.log("Misskey User Data:", userData);
+        setMisskeyUser(userData);
+
+        toast({
+          title: "Successful Login to Misskey",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mapMisskeyUserToUser = (misskeyUser: any): User => ({
+          id: Number(misskeyUser.id) || undefined,
+          avatar: misskeyUser.avatarUrl ?? "",
+          banner: misskeyUser.bannerUrl ?? "",
+          bio: misskeyUser.description ?? "",
+          name: misskeyUser.name ?? "",
+          username: misskeyUser.username ?? "",
+        });
+        
+       const mappedUser = mapMisskeyUserToUser(userData)
+
+        console.log("USER IS: ", mappedUser)
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Misskey user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.misskeyuser]);
+
+  useEffect(() => {
+    if (router.query.misskeyerror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.misskeyerror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Misskey",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Misskey error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.misskeyerror]);
+
 
   const checkWalletConnectionWithAccount = async (address) => {
     const wallet = await pbManager.getWallet(address)
@@ -514,6 +580,8 @@ const Login: FC = () => {
               <MastodonLoginButton />
 
               <PixelfedLoginButton />
+
+              <MisskeyLoginButton />
 
               {
                 !isMvpMode && <Box

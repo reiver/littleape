@@ -1,0 +1,87 @@
+.connectButtonLight {
+  background-color: #ffffff !important;
+  height: 40px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+.connectButtonAfter {
+  height: 50px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  border-radius: 4px !important;
+  border: 1px solid #1a1a1a !important;
+}
+
+.connectedButton {
+  background: transparent !important;
+}
+
+.signInWithFarcasterButton {
+  margin-top: 8px !important;
+}
+
+.largeText {
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
+
+.smallText {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #7e7e7e !important;
+}
+
+.textHeading {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+.QRCode {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  border-radius: 8px;
+}
+
+.modelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.centerDiv {
+  text-align: center !important;
+  justify-content: center !important;
+  margin-left: 20px !important;
+  margin-right: 20px !important;
+}
+
+.linkBackground {
+  width: 300px !important;
+  height: 36px;
+  background-color: #EBEBEB !important;
+  border-radius: 20px !important;
+  display: flex;
+  align-items: center; /* Vertically center items */
+  justify-content: space-between; /* Distribute space between items */
+  padding: 0 12px; /* Optional: Add padding to ensure items don't touch the edges */
+}
+
+.linkText {
+  margin: 0 8px !important;
+  color: #7E7E7E !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+.iconButton {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
