@@ -6,6 +6,7 @@ import {
   Heading,
   PinInput,
   PinInputField,
+  Spinner,
   Text,
   VStack,
   useDisclosure,
@@ -16,7 +17,8 @@ import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
-import { Logo } from "components/Logo";
+import GreatApeLogo from "../../../public/logo.svg";
+
 import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -48,6 +50,7 @@ import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { MastodonLoginButton } from "components/SignInWithMastodon";
 import { PixelfedLoginButton } from "components/SignInWithPixelfed";
 import { MisskeyLoginButton } from "components/SignInWithMisskey";
+import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
 
 
@@ -276,8 +279,8 @@ const Login: FC = () => {
           name: misskeyUser.name ?? "",
           username: misskeyUser.username ?? "",
         });
-        
-       const mappedUser = mapMisskeyUserToUser(userData)
+
+        const mappedUser = mapMisskeyUserToUser(userData)
 
         console.log("USER IS: ", mappedUser)
         setUser(mappedUser)
@@ -449,26 +452,40 @@ const Login: FC = () => {
 
   }
 
+
+
   return (
     <MainLayout>
       <Head>
-        <title>GreatApe | Login</title>
+        <title>GreatApe - Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"xs"}>
+      <Box mx="auto" mt="10" w="full" maxW={"md"}>
         <Box
           display="flex"
-          alignItems="center"
-          experimental_spaceX={"2"}
+          flexDirection="column"
+          alignItems="flex-start"
           textColor="slate.900"
-          _dark={{
-            textColor: "slate.200",
-          }}
+          _dark={{ textColor: "slate.200" }}
         >
-          <Logo maxW="8" strokeWidth={2} />
-          <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
-            Login
-          </Heading>
+          <Box display="flex" justifyContent="center" width="100%">
+            <GreatApeLogo />
+          </Box>
+          <Text fontSize="32px" fontWeight="semibold" mt={2} color={"#1A1A1A"}>
+            Welcome!
+          </Text>
+          <Text fontSize="16px" fontWeight="400" mt={2} color={"#1A1A1A"}>
+            Please enter your info. to continue
+          </Text>
         </Box>
+
+
+        {
+          isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
+            setUser(user)
+            router.push("/")
+          }} existingAccountId="" />
+        }
+
 
         {!email ? (
           walletIsSigned ? (
@@ -552,30 +569,33 @@ const Login: FC = () => {
                 </Box>
               }
 
-              <BlueSkyLoginButton
+              {/* Show blue sky login modal only if not mvp */}
+              {
+                !isMvpMode && <BlueSkyLoginButton
 
-                onClose={(user?: any) => {
+                  onClose={(user?: any) => {
 
-                  if (user != null && user != undefined) {
-                    if (user.record == null || user.record == undefined) {
-                      toast({
-                        title: user,
-                        description: ``,
-                        status: "error",
-                        duration: 3000,
-                        isClosable: true,
-                      });
-                    } else {
-                      const _user = user.record
-                      console.log("Login successfull with Blue Sky: ", _user)
-                      setAuth(_user.email, _user);
-                      setLoginMode(LoginMode.BLUESKY)
-                      router.push("/")
+                    if (user != null && user != undefined) {
+                      if (user.record == null || user.record == undefined) {
+                        toast({
+                          title: user,
+                          description: ``,
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                        });
+                      } else {
+                        const _user = user.record
+                        console.log("Login successfull with Blue Sky: ", _user)
+                        setAuth(_user.email, _user);
+                        setLoginMode(LoginMode.BLUESKY)
+                        router.push("/")
+                      }
                     }
-                  }
-                }}
+                  }}
 
-                existingAccountId="" />
+                  existingAccountId="" />
+              }
 
               <MastodonLoginButton />
 
