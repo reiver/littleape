@@ -112,7 +112,7 @@ export default function UserProfile() {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>GreatApe</title>
       </Head>
       <DashboardLayout
         display="grid"

@@ -20,21 +20,28 @@ import { useAddress } from "web3-wallet-connection";
 import { useRouter } from "next/router";
 import { isMvpMode } from "./auth/login";
 
-export const getDeviceConfig = (width) => {
-  if (width < 640) {
-    return 'xs'
-  } else if (width >= 640 && width < 768) {
-    return 'sm'
-  } else if (width >= 768 && width < 1024) {
-    return 'md'
-  } else if (width >= 1024 && width < 1280) {
-    return 'lg'
-  } else if (width >= 1280) {
-    return '2xl'
+export const getDeviceConfig = () => {
+  if (typeof window === 'undefined') {
+    return;
   }
-}
 
-export const deviceSize = getDeviceConfig(window.innerWidth)
+  const width = window.innerWidth;
+
+  if (width < 640) {
+    return 'xs';
+  } else if (width < 768) {
+    return 'sm';
+  } else if (width < 1024) {
+    return 'md';
+  } else if (width < 1280) {
+    return 'lg';
+  } else {
+    return '2xl';
+  }
+};
+
+
+export const deviceSize = getDeviceConfig()
 
 const pbManager = PocketBaseManager.getInstance()
 

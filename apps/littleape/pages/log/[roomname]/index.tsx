@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { LOGJAM_URL } from "components/Navbar";
+import Head from "next/head";
 
 function getAudienceUrl(roomname: string) {
     const baseUrl = LOGJAM_URL;
@@ -54,27 +55,33 @@ export default function AudiencePage() {
 
     if (roomname && roomname.toString().trim() !== "") {
         return (
-            <iframe
-                ref={iframeRef}
-                src={`${getAudienceUrl(roomname.toString())}`}
-                width="100%"
-                height="100%"
-                title="Logjam Video Iframe"
-                style={{
-                    border: "none",
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: "100vh",
-                    margin: 0,
-                    padding: 0,
-                    zIndex: 9999,
-                }}
-                id="logjamVideoIframe"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-                allow="camera; microphone; display-capture"
-            ></iframe>
+            <>
+                <Head>
+                    <title>GreatApe - Audience</title>
+                </Head>
+                <iframe
+                    ref={iframeRef}
+                    src={`${getAudienceUrl(roomname.toString())}`}
+                    width="100%"
+                    height="100%"
+                    title="Logjam Video Iframe"
+                    style={{
+                        border: "none",
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        margin: 0,
+                        padding: 0,
+                        zIndex: 9999,
+                    }}
+                    id="logjamVideoIframe"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+                    allow="camera; microphone; display-capture"
+                ></iframe>
+            </>
+
         );
     }
 

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "store";
+import Head from "next/head";
 
 
 function getHostUrl(hostname: String) {
@@ -116,33 +117,39 @@ export default function HostPage() {
         console.log(`YOYOYO: ${generateIframeUrlForHost()}`)
 
         return (
-            <iframe
-                ref={iframeRef}
-                src={`${generateIframeUrlForHost()}`}
-                onLoad={() => {
-                    console.log("I FRAME IS LOADED...")
-                    setIframeLoaded(true)
-                }}
-                width="100%"
-                height="100%"
-                title="Logjam Video Iframe"
-                style={{
-                    border: "none",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: "100dvh",
-                    minHeight: "100vh",
-                    margin: 0,
-                    padding: 0,
-                    zIndex: 9999,
-                    overflow: "hidden"
-                }}
-                id="logjamVideoIframe"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-                allow="camera; microphone; display-capture"
-            ></iframe>
+            <>
+                <Head>
+                    <title>GreatApe - Host</title>
+                </Head>
+
+                <iframe
+                    ref={iframeRef}
+                    src={`${generateIframeUrlForHost()}`}
+                    onLoad={() => {
+                        console.log("I FRAME IS LOADED...")
+                        setIframeLoaded(true)
+                    }}
+                    width="100%"
+                    height="100%"
+                    title="Logjam Video Iframe"
+                    style={{
+                        border: "none",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100dvh",
+                        minHeight: "100vh",
+                        margin: 0,
+                        padding: 0,
+                        zIndex: 9999,
+                        overflow: "hidden"
+                    }}
+                    id="logjamVideoIframe"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+                    allow="camera; microphone; display-capture"
+                ></iframe>
+            </>
         );
     }
 
