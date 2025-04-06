@@ -2,18 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-.ProseMirror {
-	h: auto;
-	w: full;
+
+/* Big Titles */
+.text-black-18 {
+	font-size: 1.125rem;
+	font-family: "Inter";
+	font-weight: 900;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
 }
-.ProseMirror p.is-editor-empty:first-child::before {
-	color: gray;
-	content: attr(data-placeholder);
-	float: left;
-	height: 0;
-	pointerEvents: none;
+
+/* bottom navigation - Chips */
+.text-bold-11 {
+	font-size: 0.688rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
 }
-.mention, .hashtag {
-	color: var(--chakra-colors-primary-500);
-} */
+
+.text-bold-12 {
+	font-size: 0.75rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Main Text Styling */
+.text-bold-14 {
+	font-size: 0.875rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Title */
+.text-bold-16 {
+	font-size: 1rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Text Buttons */
+.text-bold-16 {
+	font-size: 1rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: underline;
+	text-transform: none;
+}
+
+/* Text Buttons */
+.text-bold-18 {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 900;
+	font-size: 18px;
+}
+
+
+/* Names - Titles - 40h Buttons' text */
+.text-semi-bold-16 {
+	font-size: 1rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Onboarding Titles */
+.text-semi-bold-32 {
+	font-size: 2rem;
+	font-family: "Inter";
+	font-weight: 700;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Description */
+.text-medium-12 {
+	font-size: 0.75rem;
+	font-family: "Inter";
+	font-weight: 500;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* less important SubTitles */
+.text-regular-12 {
+	font-size: 0.75rem;
+	font-family: "Inter";
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Main Paragraph Texts */
+.text-regular-14 {
+	font-size: 0.875rem;
+	font-family: "Inter";
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}
+
+/* Onboarding Texts */
+.text-regular-16 {
+	font-size: 1rem;
+	font-family: "Inter";
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	text-transform: none;
+}

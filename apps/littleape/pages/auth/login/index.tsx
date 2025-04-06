@@ -459,201 +459,203 @@ const Login: FC = () => {
       <Head>
         <title>GreatApe - Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"md"}>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          textColor="slate.900"
-          _dark={{ textColor: "slate.200" }}
-        >
-          <Box display="flex" justifyContent="center" width="100%">
-            <GreatApeLogo />
+      <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 border rounded-md border-gray-300 bg-white pb-10">
+        <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
+
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            textColor="slate.900"
+            _dark={{ textColor: "slate.200" }}
+          >
+            <Box display="flex" justifyContent="center" width="100%">
+              <GreatApeLogo />
+            </Box>
+            <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
+              Welcome!
+            </Text>
+            <Text className="text-gray-2 text-regular-16 mt-2">
+              Please enter your info. to continue
+            </Text>
           </Box>
-          <Text fontSize="32px" fontWeight="semibold" mt={2} color={"#1A1A1A"}>
-            Welcome!
-          </Text>
-          <Text fontSize="16px" fontWeight="400" mt={2} color={"#1A1A1A"}>
-            Please enter your info. to continue
-          </Text>
-        </Box>
+
+          {
+            isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
+              setUser(user)
+              router.push("/")
+            }} existingAccountId="" />
+          }
 
 
-        {
-          isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
-            setUser(user)
-            router.push("/")
-          }} existingAccountId="" />
-        }
+          {!email ? (
+            walletIsSigned ? (
+              <div>
+                <Text>Loading...</Text>
+              </div>
+            ) : (
+              <div>
+                {
+                  !isMvpMode && <Form
+                    onSubmit={handleLoginViaPocketBase}
+                    mt="8"
+                    display="flex"
+                    flexDirection="column"
+                    experimental_spaceY={4}
+                  >
+                    <Input autoFocus {...register("email")} error={errors.email} />
+                    {error && (
+                      <Alert status="error">
+                        <AlertIcon />
+                        {error}
+                      </Alert>
+                    )}
+                    <Box>
+                      <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                        Login
+                      </Button>
+                    </Box>
+                  </Form>
+                }
 
+                {
+                  !walletConnected && <Box>
+                    <ConnectWallet
+                      theme={walletConnected ? "light" : "dark"}
+                      className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                      auth={{ loginOptional: false }}
+                      btnTitle="Continue With Your Wallet"
+                      showThirdwebBranding={false}
+                      onConnect={async (wallet) => {
+                        setWalletConnected(true);
+                        onSignWalletOpen()
+                      }}
+                    />
+                  </Box>
+                }
 
-        {!email ? (
-          walletIsSigned ? (
-            <div>
-              <Text>Loading...</Text>
-            </div>
-          ) : (
-            <div>
-              {
-                !isMvpMode && <Form
-                  onSubmit={handleLoginViaPocketBase}
-                  mt="8"
-                  display="flex"
-                  flexDirection="column"
-                  experimental_spaceY={4}
-                >
-                  <Input autoFocus {...register("email")} error={errors.email} />
-                  {error && (
-                    <Alert status="error">
-                      <AlertIcon />
-                      {error}
-                    </Alert>
-                  )}
-                  <Box>
-                    <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                      Login
+                <div>
+                  <SignInWithFarcasterButton
+                    onSuccess={(res) => {
+                      console.log("Success SignInWithFarcasterButton: ", res)
+                      if (loginMode != LoginMode.FARCASTER) {
+                        console.log("Farcaster Login success: ", res)
+
+                        if (isMvpMode) {
+                          const mappedUser: Partial<User> = {
+                            username: res.data.username,
+                          };
+                          setUser(mappedUser)
+                          router.push("/")
+                        } else {
+                          loginUsingFarcaster(res.data.username, res.data.fid)
+                          setLoginMode(LoginMode.FARCASTER);
+                        }
+
+                      }
+                    }}
+                    onError={(err) => {
+                      console.log("Error SIWF: ", err)
+                    }} />
+                </div>
+
+                {
+                  walletConnected && <Box>
+                    <Button w="full" mt={error ? 0 : 3} onClick={() => {
+                      resetAll()
+                      disconnect()
+                    }}>
+                      Disconnect Wallet
                     </Button>
                   </Box>
-                </Form>
-              }
+                }
 
-              {
-                !walletConnected && <Box>
-                  <ConnectWallet
-                    theme={walletConnected ? "light" : "dark"}
-                    className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-                    auth={{ loginOptional: false }}
-                    btnTitle="Continue With Your Wallet"
-                    showThirdwebBranding={false}
-                    onConnect={async (wallet) => {
-                      setWalletConnected(true);
-                      onSignWalletOpen()
-                    }}
-                  />
-                </Box>
-              }
+                {/* Show blue sky login modal only if not mvp */}
+                {
+                  !isMvpMode && <BlueSkyLoginButton
 
-              <div>
-                <SignInWithFarcasterButton
-                  onSuccess={(res) => {
-                    console.log("Success SignInWithFarcasterButton: ", res)
-                    if (loginMode != LoginMode.FARCASTER) {
-                      console.log("Farcaster Login success: ", res)
+                    onClose={(user?: any) => {
 
-                      if (isMvpMode) {
-                        const mappedUser: Partial<User> = {
-                          username: res.data.username,
-                        };
-                        setUser(mappedUser)
-                        router.push("/")
-                      } else {
-                        loginUsingFarcaster(res.data.username, res.data.fid)
-                        setLoginMode(LoginMode.FARCASTER);
+                      if (user != null && user != undefined) {
+                        if (user.record == null || user.record == undefined) {
+                          toast({
+                            title: user,
+                            description: ``,
+                            status: "error",
+                            duration: 3000,
+                            isClosable: true,
+                          });
+                        } else {
+                          const _user = user.record
+                          console.log("Login successfull with Blue Sky: ", _user)
+                          setAuth(_user.email, _user);
+                          setLoginMode(LoginMode.BLUESKY)
+                          router.push("/")
+                        }
                       }
+                    }}
 
-                    }
-                  }}
-                  onError={(err) => {
-                    console.log("Error SIWF: ", err)
-                  }} />
-              </div>
+                    existingAccountId="" />
+                }
 
-              {
-                walletConnected && <Box>
-                  <Button w="full" mt={error ? 0 : 3} onClick={() => {
-                    resetAll()
-                    disconnect()
-                  }}>
-                    Disconnect Wallet
-                  </Button>
-                </Box>
-              }
+                <MastodonLoginButton />
 
-              {/* Show blue sky login modal only if not mvp */}
-              {
-                !isMvpMode && <BlueSkyLoginButton
+                <PixelfedLoginButton />
 
-                  onClose={(user?: any) => {
+                <MisskeyLoginButton />
 
-                    if (user != null && user != undefined) {
-                      if (user.record == null || user.record == undefined) {
+                {
+                  !isMvpMode && <Box
+                    mt="6"
+                    display="flex"
+                    flexDirection="column"
+                    experimental_spaceY="4"
+                    textAlign="center"
+                    color="slate.500"
+                    _dark={{ color: "slate.400" }}
+                  >
+                    <span>Don&rsquo;t have an account?</span>
+                    <Button className="block w-full" onClick={(() => {
+                      if (walletConnected) {
                         toast({
-                          title: user,
+                          title: "Please disconnect the wallet first!",
                           description: ``,
                           status: "error",
                           duration: 3000,
                           isClosable: true,
                         });
+                        return
                       } else {
-                        const _user = user.record
-                        console.log("Login successfull with Blue Sky: ", _user)
-                        setAuth(_user.email, _user);
-                        setLoginMode(LoginMode.BLUESKY)
-                        router.push("/")
+                        resetAll()
+                        router.push("/auth/register")
                       }
-                    }
-                  }}
-
-                  existingAccountId="" />
-              }
-
-              <MastodonLoginButton />
-
-              <PixelfedLoginButton />
-
-              <MisskeyLoginButton />
-
-              {
-                !isMvpMode && <Box
-                  mt="6"
-                  display="flex"
-                  flexDirection="column"
-                  experimental_spaceY="4"
-                  textAlign="center"
-                  color="slate.500"
-                  _dark={{ color: "slate.400" }}
-                >
-                  <span>Don&rsquo;t have an account?</span>
-                  <Button className="block w-full" onClick={(() => {
-                    if (walletConnected) {
-                      toast({
-                        title: "Please disconnect the wallet first!",
-                        description: ``,
-                        status: "error",
-                        duration: 3000,
-                        isClosable: true,
-                      });
-                      return
-                    } else {
-                      resetAll()
-                      router.push("/auth/register")
-                    }
-                  })}>Register now</Button>
-                </Box>
-              }
+                    })}>Register now</Button>
+                  </Box>
+                }
 
 
-            </div>
-          )
+              </div>
+            )
 
-        ) : (
-          <VerifyRegistration email={email} backToRegistration={backToRegistration} />
-        )}
+          ) : (
+            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
+          )}
 
-        <SignWalletModal
-          user={loggedInUser}
-          isOpen={isSignWalletOpen}
-          onClose={(() => {
-            onSignWalletClose()
-            setShowConnectedWallets(false)
-          })}
-          onSignMessage={(value) => {
-            return setOnSignMessage(value);
-          }}
-          forceSign={true}
-        />
+          <SignWalletModal
+            user={loggedInUser}
+            isOpen={isSignWalletOpen}
+            onClose={(() => {
+              onSignWalletClose()
+              setShowConnectedWallets(false)
+            })}
+            onSignMessage={(value) => {
+              return setOnSignMessage(value);
+            }}
+            forceSign={true}
+          />
 
-      </Box>
+        </Box>
+      </div>
     </MainLayout>
   );
 };

@@ -94,32 +94,11 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
 
     return (
         <>
-
             {/* Form */}
-            <div style={{ padding: "16px 0" }}>
+            <div className="py-4">
                 {/* Server Info Section */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "12px",
-                        border: "2px solid #000000",
-                        borderRadius: "8px",
-                        padding: "16px"
-                    }}
-                >
-                    <span
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "24px",
-                            height: "24px",
-                            marginRight: "8px",
-                            background: "#F5F5F5",
-                            borderRadius: "4px",
-                        }}
-                    >
+                <div className="flex items-center mb-4 border-2 border-black rounded-lg p-4">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
                         <ServerIcon />
                     </span>
                     <input
@@ -127,38 +106,13 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
                         placeholder="Bsky.Social"
                         value={serviceProvider}
                         onChange={(e) => setServiceProriver(e.target.value)}
-                        style={{
-                            width: "100%",
-                            border: "none",
-                            outline: "none",
-                            background:"none",
-                        }}
+                        className="w-full border-none outline-none bg-transparent"
                     />
                 </div>
 
                 {/* Username/Email Input */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        border: "2px solid #000000",
-                        borderRadius: "8px",
-                        padding: "16px",
-                        marginBottom: "12px",
-                    }}
-                >
-                    <span
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "24px",
-                            height: "24px",
-                            marginRight: "8px",
-                            background: "#F5F5F5",
-                            borderRadius: "4px",
-                        }}
-                    >
+                <div className="flex items-center mb-4 border-2 border-black rounded-lg p-4">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
                         <AtIcon />
                     </span>
                     <input
@@ -166,38 +120,13 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
                         placeholder="Username or email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{
-                            width: "100%",
-                            border: "none",
-                            outline: "none",
-                            background:"none",
-                        }}
+                        className="w-full border-none outline-none bg-transparent"
                     />
                 </div>
 
                 {/* Password Input */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        border: "2px solid #000000",
-                        borderRadius: "8px",
-                        padding: "16px",
-                        position: "relative",
-                    }}
-                >
-                    <span
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "24px",
-                            height: "24px",
-                            marginRight: "8px",
-                            background: "#F5F5F5",
-                            borderRadius: "4px",
-                        }}
-                    >
+                <div className="flex items-center border-2 border-black rounded-lg p-4 relative">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
                         <LockIcon />
                     </span>
                     <input
@@ -205,61 +134,33 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
                         placeholder="App password"
-                        style={{
-                            width: "100%",
-                            border: "none",
-                            outline: "none",
-                            background:"none",
-                        }}
+                        className="w-full border-none outline-none bg-transparent"
                     />
-                    <button
-                        style={{
-                            position: "absolute",
-                            right: "8px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            border: "none",
-                            background: "none",
-                            cursor: "pointer",
-                        }}
-                    >
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 border-none bg-transparent cursor-pointer">
                         <LinkIcon />
                     </button>
                 </div>
             </div>
 
-            <Button
-                width="100%"
-                bg="#FFCC00"
-                color="#1A1A1A"
-                borderRadius="6px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="12px"
-                gap="8px" // Space between the icon and text
-                _hover={{ bg: "#FFCC00" }}
-                onClick={() => {
-                    handleLoginBlueSkyAccount()
-
-                }}
+            {/* Submit Button */}
+            <button
+                className="mt-2 w-full h-12 border-2 border-black bg-[#FFCC00] text-[#1A1A1A] text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2 hover:bg-[#FFCC00]"
+                onClick={() => handleLoginBlueSkyAccount()}
             >
                 {isLoading ? (
                     <>
-                        <Spinner size="sm" color="#1A1A1A" /> {/* Show spinner while loading */}
+                        <Spinner size="sm" color="#1A1A1A" />
                         Loading...
                     </>
                 ) : (
                     <>
-                        <BlueSkyIcon /> {/* Icon */}
+                        <BlueSkyIcon />
                         Login With Bluesky
                     </>
                 )}
-            </Button>
-
-
+            </button>
         </>
-    )
+    );
 }
 
 
