@@ -98,7 +98,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
             <div className="py-4">
                 {/* Server Info Section */}
                 <div className="flex items-center mb-4 border-2 border-black rounded-lg p-4">
-                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 rounded">
                         <ServerIcon />
                     </span>
                     <input
@@ -112,7 +112,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
 
                 {/* Username/Email Input */}
                 <div className="flex items-center mb-4 border-2 border-black rounded-lg p-4">
-                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 rounded">
                         <AtIcon />
                     </span>
                     <input
@@ -126,7 +126,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
 
                 {/* Password Input */}
                 <div className="flex items-center border-2 border-black rounded-lg p-4 relative">
-                    <span className="flex items-center justify-center w-6 h-6 mr-2 bg-gray-100 rounded">
+                    <span className="flex items-center justify-center w-6 h-6 mr-2 rounded">
                         <LockIcon />
                     </span>
                     <input

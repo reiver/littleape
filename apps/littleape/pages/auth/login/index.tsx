@@ -459,7 +459,7 @@ const Login: FC = () => {
       <Head>
         <title>GreatApe - Login</title>
       </Head>
-      <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 md:border md:rounded-md md:border-gray-300 bg-white pb-10">
+      <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 md:border md:rounded-2xl bg-white pb-10">
         <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
 
           <Box
@@ -488,9 +488,9 @@ const Login: FC = () => {
           }
 
           <div className="flex items-center gap-4 mt-6 mb-6">
-            <div className="flex-1 h-px bg-gray-0" />
+            <div className="flex-1 h-[2px] bg-gray-0" />
             <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
-            <div className="flex-1 h-px bg-gray-0" />
+            <div className="flex-1 h-[2px] bg-gray-0" />
           </div>
 
           <div className="flex items-center gap-4 justify-center">
