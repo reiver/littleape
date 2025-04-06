@@ -4,6 +4,7 @@ import { FC, useState } from "react";
 import CopyIcon from '../../public/Copy.svg';
 import LinkIcon from '../../public/Link.svg';
 import styles from "./MyComponent.module.css";
+import FarcasterLogo from "../../public/Farcaster.svg";
 
 
 import { createAppClient, viemConnector } from '@farcaster/auth-client';
@@ -94,11 +95,12 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
         <div>
 
             {
-                !url && <Button className={styles.connectButtonLight} w="full" mt={error ? 0 : 3} onClick={() => {
+                <div className="w-14 h-14 rounded-full bg-gray-0 flex items-center justify-center cursor-pointer" onClick={() => {
                     createChannel()
                 }}>
-                    Continue With Farcaster
-                </Button>
+                    <FarcasterLogo />
+                </div>
+
             }
             {url && (
 

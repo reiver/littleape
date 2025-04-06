@@ -51,8 +51,8 @@ import { MastodonLoginButton } from "components/SignInWithMastodon";
 import { PixelfedLoginButton } from "components/SignInWithPixelfed";
 import { MisskeyLoginButton } from "components/SignInWithMisskey";
 import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
+import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
-
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -487,7 +487,45 @@ const Login: FC = () => {
             }} existingAccountId="" />
           }
 
+          <div className="flex items-center gap-4 mt-6 mb-6">
+            <div className="flex-1 h-px bg-gray-0" />
+            <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
+            <div className="flex-1 h-px bg-gray-0" />
+          </div>
 
+          <div className="flex items-center gap-4 justify-center">
+            <MastodonLoginButton />
+
+            <PixelfedLoginButton />
+
+            <MisskeyLoginButton />
+
+            <PeerTubeLoginButton />
+
+            <SignInWithFarcasterButton
+              onSuccess={(res) => {
+                console.log("Success SignInWithFarcasterButton: ", res)
+                if (loginMode != LoginMode.FARCASTER) {
+                  console.log("Farcaster Login success: ", res)
+
+                  if (isMvpMode) {
+                    const mappedUser: Partial<User> = {
+                      username: res.data.username,
+                    };
+                    setUser(mappedUser)
+                    router.push("/")
+                  } else {
+                    loginUsingFarcaster(res.data.username, res.data.fid)
+                    setLoginMode(LoginMode.FARCASTER);
+                  }
+
+                }
+              }}
+              onError={(err) => {
+                console.log("Error SIWF: ", err)
+              }} />
+
+          </div>
           {!email ? (
             walletIsSigned ? (
               <div>
@@ -519,7 +557,7 @@ const Login: FC = () => {
                 }
 
                 {
-                  !walletConnected && <Box>
+                  !isMvpMode && !walletConnected && <Box>
                     <ConnectWallet
                       theme={walletConnected ? "light" : "dark"}
                       className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
@@ -534,30 +572,6 @@ const Login: FC = () => {
                   </Box>
                 }
 
-                <div>
-                  <SignInWithFarcasterButton
-                    onSuccess={(res) => {
-                      console.log("Success SignInWithFarcasterButton: ", res)
-                      if (loginMode != LoginMode.FARCASTER) {
-                        console.log("Farcaster Login success: ", res)
-
-                        if (isMvpMode) {
-                          const mappedUser: Partial<User> = {
-                            username: res.data.username,
-                          };
-                          setUser(mappedUser)
-                          router.push("/")
-                        } else {
-                          loginUsingFarcaster(res.data.username, res.data.fid)
-                          setLoginMode(LoginMode.FARCASTER);
-                        }
-
-                      }
-                    }}
-                    onError={(err) => {
-                      console.log("Error SIWF: ", err)
-                    }} />
-                </div>
 
                 {
                   walletConnected && <Box>
@@ -598,11 +612,6 @@ const Login: FC = () => {
                     existingAccountId="" />
                 }
 
-                <MastodonLoginButton />
-
-                <PixelfedLoginButton />
-
-                <MisskeyLoginButton />
 
                 {
                   !isMvpMode && <Box

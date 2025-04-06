@@ -22,11 +22,7 @@ export const Footer: FC<FooterProps> = (props) => {
       {...rest}
     >
       <Box display="flex" alignItems="center">
-        <Logo w={3.5} strokeWidth={1.8} />
         <Text ml={2}>© 2022-Present GreatApe.</Text>
-      </Box>
-      <Box display="flex" experimental_spaceX={2}>
-        <ThemeSwitcher button={compact} />
       </Box>
     </Box>
   );

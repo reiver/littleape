@@ -1,12 +1,10 @@
-import { Button } from "@chakra-ui/react";
-import styles from "./MyComponent.module.css";
-import error from "next/error";
+import MisskeyLogo from "../../public/MissKey.svg";
 
 
 export const MisskeyLoginButton = () => {
     return (
-        <Button className={styles.connectButtonLight} w="full" mt={error ? 0 : 3} onClick={() => (window.location.href = "/api/auth/misskey")}>
-            Continue With Misskey
-        </Button>
+        <div className="w-14 h-14 rounded-full bg-gray-0 flex items-center justify-center cursor-pointer" onClick={() => (window.location.href = "/api/auth/misskey")}>
+            <MisskeyLogo />
+        </div>
     );
 }
