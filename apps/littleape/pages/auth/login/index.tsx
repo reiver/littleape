@@ -459,7 +459,7 @@ const Login: FC = () => {
       <Head>
         <title>GreatApe - Login</title>
       </Head>
-      <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 border rounded-md border-gray-300 bg-white pb-10">
+      <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 md:border md:rounded-md md:border-gray-300 bg-white pb-10">
         <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
 
           <Box
