@@ -18,6 +18,11 @@ import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
 import GreatApeLogo from "../../../public/logo.svg";
+import MastodonLogoColor from "../../../public/Mastodon-color.svg";
+import PixelfedLogoColor from "../../../public/Pixelfed-color.svg";
+import MisskeyLogoColor from "../../../public/Misskey-color.svg";
+import PeertubeLogoColor from "../../../public/PeerTube-color.svg";
+
 
 import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { API_VERIFY_SIGN_UP } from "constants/API";
@@ -52,6 +57,7 @@ import { PixelfedLoginButton } from "components/SignInWithPixelfed";
 import { MisskeyLoginButton } from "components/SignInWithMisskey";
 import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
+import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
 
 const pbManager = PocketBaseManager.getInstance();
@@ -64,6 +70,13 @@ const verifySchema = z.object({
   code: z.string().min(6),
   email: z.string().min(1),
 });
+
+export enum SocialPlatform {
+  MASTODON = "Mastodon",
+  PIXELFED = "Pixelfed",
+  PEERTUBE = "PeerTube",
+  MISSKEY = "Misskey"
+}
 
 
 const Login: FC = () => {
@@ -454,6 +467,46 @@ const Login: FC = () => {
 
 
 
+
+  const [showSocialInsatncesList, setShowSocialInsatncesList] = useState(false)
+  const [loginPlatform, setLoginPlatform] = useState("")
+  const handleMastodonButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.MASTODON)
+  }
+
+  const handlePixelfedButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.PIXELFED)
+  }
+
+  const handleMisskeyButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.MISSKEY)
+  }
+
+  const handlePeertubeButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.PEERTUBE)
+  }
+
+  const handleBackToLogin = () => {
+    setShowSocialInsatncesList(false)
+    setLoginPlatform("")
+  }
+
+  const getSocialLogo = () => {
+    if (loginPlatform == SocialPlatform.MASTODON) {
+      return <MastodonLogoColor />
+    } else if (loginPlatform == SocialPlatform.PIXELFED) {
+      return <PixelfedLogoColor />
+    } else if (loginPlatform == SocialPlatform.MISSKEY) {
+      return <MisskeyLogoColor />
+    } else if (loginPlatform == SocialPlatform.PEERTUBE) {
+      return <PeertubeLogoColor />
+    }
+    return <></>
+  }
   return (
     <MainLayout>
       <Head>
@@ -462,70 +515,81 @@ const Login: FC = () => {
       <div className="w-full max-w-[632px] max-h-[703px] mx-auto mt-10 md:border md:rounded-2xl bg-white pb-10">
         <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
 
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            textColor="slate.900"
-            _dark={{ textColor: "slate.200" }}
-          >
-            <Box display="flex" justifyContent="center" width="100%">
-              <GreatApeLogo />
-            </Box>
-            <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
-              Welcome!
-            </Text>
-            <Text className="text-gray-2 text-regular-16 mt-2">
-              Please enter your info. to continue
-            </Text>
-          </Box>
-
           {
-            isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
-              setUser(user)
-              router.push("/")
-            }} existingAccountId="" />
+            !showSocialInsatncesList && <>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="flex-start"
+                textColor="slate.900"
+                _dark={{ textColor: "slate.200" }}
+              >
+                <Box display="flex" justifyContent="center" width="100%">
+                  <GreatApeLogo />
+                </Box>
+                <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
+                  Welcome!
+                </Text>
+                <Text className="text-gray-2 text-regular-16 mt-2">
+                  Please enter your info. to continue
+                </Text>
+              </Box>
+
+              {
+                isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
+                  setUser(user)
+                  router.push("/")
+                }} existingAccountId="" />
+              }
+
+              <div className="flex items-center gap-4 mt-6 mb-6">
+                <div className="flex-1 h-[2px] bg-gray-0" />
+                <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
+                <div className="flex-1 h-[2px] bg-gray-0" />
+              </div>
+
+              <div className="flex items-center gap-4 justify-center">
+                <MastodonLoginButton onButtonClick={handleMastodonButtonClick} />
+
+                <PixelfedLoginButton onButtonClick={handlePixelfedButtonClick} />
+
+                <MisskeyLoginButton onButtonClick={handleMisskeyButtonClick} />
+
+                <PeerTubeLoginButton onButtonClick={handlePeertubeButtonClick} />
+
+                <SignInWithFarcasterButton
+                  onSuccess={(res) => {
+                    console.log("Success SignInWithFarcasterButton: ", res)
+                    if (loginMode != LoginMode.FARCASTER) {
+                      console.log("Farcaster Login success: ", res)
+
+                      if (isMvpMode) {
+                        const mappedUser: Partial<User> = {
+                          username: res.data.username,
+                        };
+                        setUser(mappedUser)
+                        router.push("/")
+                      } else {
+                        loginUsingFarcaster(res.data.username, res.data.fid)
+                        setLoginMode(LoginMode.FARCASTER);
+                      }
+
+                    }
+                  }}
+                  onError={(err) => {
+                    console.log("Error SIWF: ", err)
+                  }} />
+
+              </div>
+            </>
           }
 
-          <div className="flex items-center gap-4 mt-6 mb-6">
-            <div className="flex-1 h-[2px] bg-gray-0" />
-            <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
-            <div className="flex-1 h-[2px] bg-gray-0" />
-          </div>
 
-          <div className="flex items-center gap-4 justify-center">
-            <MastodonLoginButton />
+          {
+            showSocialInsatncesList &&
+            <SocialInstancesListComponent logo={getSocialLogo()} title={loginPlatform} goBack={handleBackToLogin} />
+          }
 
-            <PixelfedLoginButton />
-
-            <MisskeyLoginButton />
-
-            <PeerTubeLoginButton />
-
-            <SignInWithFarcasterButton
-              onSuccess={(res) => {
-                console.log("Success SignInWithFarcasterButton: ", res)
-                if (loginMode != LoginMode.FARCASTER) {
-                  console.log("Farcaster Login success: ", res)
-
-                  if (isMvpMode) {
-                    const mappedUser: Partial<User> = {
-                      username: res.data.username,
-                    };
-                    setUser(mappedUser)
-                    router.push("/")
-                  } else {
-                    loginUsingFarcaster(res.data.username, res.data.fid)
-                    setLoginMode(LoginMode.FARCASTER);
-                  }
-
-                }
-              }}
-              onError={(err) => {
-                console.log("Error SIWF: ", err)
-              }} />
-
-          </div>
           {!email ? (
             walletIsSigned ? (
               <div>
