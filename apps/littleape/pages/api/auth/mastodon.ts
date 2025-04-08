@@ -31,11 +31,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { client_id, client_secret } = await registerRes.json();
 
         const stateObj = { instance, client_id, client_secret };
-        const state = Buffer.from(JSON.stringify(stateObj)).toString("base64url"); // or encodeURIComponent
 
         const authUrl = `${instance}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
-            redirectUri + `?state=${state}`
+            redirectUri
         )}&response_type=code&scope=read&force_login=true`;
+
+        // Set cookie with state data
+        res.setHeader(
+            "Set-Cookie",
+            `mastodon_state=${JSON.stringify(stateObj)}; Path=/; HttpOnly; Secure; Max-Age=3600`
+        );
+
 
         return res.redirect(authUrl);
     } catch (err) {

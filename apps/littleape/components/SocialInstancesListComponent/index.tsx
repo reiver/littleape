@@ -31,7 +31,8 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
             setHref(`/api/auth/mastodon?instance=${encodeURIComponent(instance)}`)
             setBaseLink("Mastodon.social")
         } else if (title == SocialPlatform.PIXELFED) {
-            setHref("/api/auth/pixelfed")
+            const instance = "https://pixelfed.de";
+            setHref(`/api/auth/pixelfed?instance=${encodeURIComponent(instance)}`)
             setBaseLink("Pixelfed.social")
         } else if (title == SocialPlatform.MISSKEY) {
             setHref("/api/auth/misskey")

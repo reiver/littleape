@@ -1,23 +1,28 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import cookie from "cookie";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { code, state } = req.query;
+  const { code } = req.query;
+
+  // Parse cookies
+  const cookies = cookie.parse(req.headers.cookie || "");
+
+  // Retrieve the state object from the cookie
+  const state = cookies.mastodon_state ? JSON.parse(cookies.mastodon_state) : null;
+
+  if (!state) {
+    return res.status(400).json({ error: "State object not found in cookies" });
+  }
+
+  console.log("State is: ", state)
 
   if (!code || !state) {
     const errorData = { error: "Missing code or state" };
     return res.redirect(`/auth/login?mastodonerror=${encodeURIComponent(JSON.stringify(errorData))}`);
   }
 
-  const decodedState = JSON.parse(Buffer.from(state, "base64url").toString());
-
-  console.log("Decoded Data: ", decodedState)
-
-  if (!decodedState) {
-    return res.status(400).json({ error: "Invalid or expired session" });
-  }
-
-  const { client_id, client_secret, instance } = decodedState;
-  const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback?state=${state}`;
+  const { client_id, client_secret, instance } = state;
+  const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
 
   try {
     // Exchange auth code for access token
