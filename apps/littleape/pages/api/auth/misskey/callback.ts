@@ -1,8 +1,21 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import cookie from "cookie";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { session } = req.query; // Retrieve session ID from the query params
-    const instance = "https://mk.godspeed.moe"
+
+    // Parse cookies
+    const cookies = cookie.parse(req.headers.cookie || "");
+
+    // Retrieve the state object from the cookie
+    const state = cookies.misskey_state
+
+    if (!state) {
+        return res.status(400).json({ error: "State object not found in cookies" });
+    }
+    console.log("State is: ", state)
+
+    const instance = state
 
     if (!session || typeof session !== "string") {
         return res.redirect(`/auth/login?misskeyerror=${encodeURIComponent("Missing session ID")}`);
@@ -33,8 +46,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const userData = await userResponse.json();
         console.log("Misskey User Data:", userData);
 
+        const dataToSend = {
+            id: userData.id,
+            name: userData.name,
+            username: userData.username,
+            avatarUrl: userData.avatarUrl,
+            onlineStatus: userData.onlineStatus,
+            createdAt: userData.createdAt
+        }
         // Redirect user to frontend with user data
-        res.redirect(`/auth/login?misskeyuser=${encodeURIComponent(JSON.stringify(userData))}`);
+        res.redirect(`/auth/login?misskeyuser=${encodeURIComponent(JSON.stringify(dataToSend))}`);
     } catch (error) {
         console.error("Misskey MIAUTH Error:", error);
         res.redirect(`/auth/login?misskeyerror=${encodeURIComponent("Internal Server Error")}`);

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const instance = "https://mk.godspeed.moe";
+    const instance = req.query.instance as string;
     const baseUrl = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL;
 
     if (!instance || !baseUrl) {
@@ -14,6 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Construct the MIAUTH URL
     const authUrl = `${instance}/miauth/${sessionId}?name=littleape&callback=${encodeURIComponent(`${baseUrl}/api/auth/misskey/callback`)}&permission=read:account`;
+
+    // Set cookie with state data
+    res.setHeader(
+        "Set-Cookie",
+        `misskey_state=${instance}; Path=/; HttpOnly; Secure; Max-Age=3600`
+    );
 
     // Redirect the user to Misskey
     res.redirect(authUrl);

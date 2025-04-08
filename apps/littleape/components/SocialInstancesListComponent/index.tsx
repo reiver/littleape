@@ -35,7 +35,8 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
             setHref(`/api/auth/pixelfed?instance=${encodeURIComponent(instance)}`)
             setBaseLink("Pixelfed.social")
         } else if (title == SocialPlatform.MISSKEY) {
-            setHref("/api/auth/misskey")
+            const instance = "https://mk.godspeed.moe"; //"https://mk.godspeed.moe";
+            setHref(`/api/auth/misskey?instance=${encodeURIComponent(instance)}`)
             setBaseLink("Misskey.io")
         } else if (title == SocialPlatform.PEERTUBE) {
             setHref("/api/auth/peertube")
