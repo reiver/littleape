@@ -27,7 +27,8 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
 
     useEffect(() => {
         if (title == SocialPlatform.MASTODON) {
-            setHref("/api/auth/mastodon")
+            const instance = "https://mas.to";
+            setHref(`/api/auth/mastodon?instance=${encodeURIComponent(instance)}`)
             setBaseLink("Mastodon.social")
         } else if (title == SocialPlatform.PIXELFED) {
             setHref("/api/auth/pixelfed")
