@@ -26,12 +26,20 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
     resolver: zodResolver(schema),
   })
 
-  //fetch meeting scheduled time
   const fetchMeetingScheduledTime = () => {
-    //fetch from backend
+    // Get query param 'st' from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const startTime = urlParams.get('st');
 
-    setMeetingStartTime(1742989830)
-  }
+    if (startTime) {
+      setMeetingStartTime(Number(startTime)); // convert to number before setting
+    } else {
+      // fallback or error handling
+      console.warn('No "st" query param found. Using default time.');
+      setMeetingStartTime(0);
+    }
+  };
+
 
   useEffect(() => {
     fetchMeetingScheduledTime()

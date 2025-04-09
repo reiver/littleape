@@ -150,7 +150,6 @@ const Login: FC = () => {
     if (router.query.mastodonuser) {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
-        console.log("Mastodon User Data:", userData);
         setMastodonUser(userData);
 
         toast({
@@ -172,7 +171,6 @@ const Login: FC = () => {
           blueskyid: null,
         };
 
-        console.log("USER IS: ", mappedUser)
         setUser(mappedUser)
         router.push("/")
 
@@ -211,7 +209,6 @@ const Login: FC = () => {
     if (router.query.pixelfeduser) {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.pixelfeduser as string));
-        console.log("PixelFed User Data:", userData);
         setPixelfedUser(userData);
 
         toast({
@@ -233,7 +230,6 @@ const Login: FC = () => {
           blueskyid: null,
         };
 
-        console.log("USER IS: ", mappedUser)
         setUser(mappedUser)
         router.push("/")
 
@@ -272,7 +268,6 @@ const Login: FC = () => {
     if (router.query.misskeyuser) {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.misskeyuser as string));
-        console.log("Misskey User Data:", userData);
         setMisskeyUser(userData);
 
         toast({
@@ -295,7 +290,6 @@ const Login: FC = () => {
 
         const mappedUser = mapMisskeyUserToUser(userData)
 
-        console.log("USER IS: ", mappedUser)
         setUser(mappedUser)
         router.push("/")
 

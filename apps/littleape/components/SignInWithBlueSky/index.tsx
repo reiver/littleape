@@ -25,7 +25,6 @@ export const BlueSkyLoginButton = ({ onClose, existingAccountId = "" }: { onClos
         setShowModal(false);
 
         if (user != null) {
-            console.log("User is: ", user)
             if (user != undefined && user.record == null) {
                 onClose(user)
                 return

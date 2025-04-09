@@ -4,8 +4,17 @@ import { LOGJAM_URL } from "components/Navbar";
 import Head from "next/head";
 
 function getAudienceUrl(roomname: string) {
+
+    // Get query param 'st' from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const startTime = urlParams.get('st');
+    var meetingSt = 0
+    if (startTime) {
+        meetingSt = Number(startTime); // convert to number before setting
+    }
+
     const baseUrl = LOGJAM_URL;
-    return `${baseUrl}/log/${roomname}`;
+    return `${baseUrl}/log/${roomname}?st=${meetingSt}`;
 }
 
 export default function AudiencePage() {

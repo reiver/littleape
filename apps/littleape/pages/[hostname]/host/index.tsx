@@ -19,15 +19,12 @@ export default function HostPage() {
     const { hostname } = router.query; // Extract query params
 
     if (isMvpMode == true) {
-        console.log("USER IN METTING IS: ", user)
         if (user == null) {
             useEffect(() => {
                 router.replace("/auth/login");
             }, [router]);
         }
     }
-
-    console.log("Hostname form QueryParams: ", hostname)
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -44,7 +41,6 @@ export default function HostPage() {
             }
         };
 
-        console.log("Iframe curret is: ", iframeRef)
         if (iframeRef.current) {
             setTimeout(sendMessageToIframe, 1000); // Delay ensures iframe is ready
         }
@@ -114,8 +110,6 @@ export default function HostPage() {
 
     if (hostname != undefined && hostname.toString() != undefined && hostname.toString() != "") {
 
-        console.log(`YOYOYO: ${generateIframeUrlForHost()}`)
-
         return (
             <>
                 <Head>
@@ -126,7 +120,6 @@ export default function HostPage() {
                     ref={iframeRef}
                     src={`${generateIframeUrlForHost()}`}
                     onLoad={() => {
-                        console.log("I FRAME IS LOADED...")
                         setIframeLoaded(true)
                     }}
                     width="100%"

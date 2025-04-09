@@ -74,12 +74,12 @@ const generateHostUrl = async (displayName: string) => {
   return `${baseUrl}/${displayName}/host`
 }
 
-const generateAudienceUrl = async (roomName: string) => {
+const generateAudienceUrl = async (roomName: string, unixTimestamp: number) => {
   var baseUrl = window.location.origin
   if (isInsideIframe()) {
     baseUrl = TopWindowURL.value
   }
-  return `${baseUrl}/log/${roomName}`
+  return `${baseUrl}/log/${roomName}?st=${unixTimestamp}`
 }
 
 
@@ -452,7 +452,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   const generateBothUrls = async () => {
     const host = await generateHostUrl('@' + form.getValues('displayName'));
-    const audience = await generateAudienceUrl(form.getValues('room'));
+    const audience = await generateAudienceUrl(form.getValues('room'), eventTimeInUnix);
     setHostLink(host);
     setAudienceLink(audience);
   }
