@@ -99,6 +99,7 @@ const Login: FC = () => {
   const [mastodonUser, setMastodonUser] = useState(null)
   const [pixelfedUser, setPixelfedUser] = useState(null)
   const [misskeyUser, setMisskeyUser] = useState(null)
+  const [peerTubeUser, setPeerTubeUser] = useState(null)
 
 
 
@@ -322,6 +323,55 @@ const Login: FC = () => {
       router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.query.misskeyerror]);
+
+  //peer tube
+  useEffect(() => {
+    if (router.query.peertubeuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.peertubeuser as string));
+        setPeerTubeUser(userData);
+
+        toast({
+          title: "Successful Login to Peertube",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mapPeertubeUserToUser = (peerTubeUser: any): User => ({
+          id: Number(peerTubeUser.id) || undefined,
+          bio: peerTubeUser.description ?? "",
+          name: peerTubeUser.displayName ?? "",
+          username: peerTubeUser.name ?? "",
+        });
+
+        const mappedUser = mapPeertubeUserToUser(userData)
+
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Peertube user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.peertubeuser]);
+
+  useEffect(() => {
+    if (router.query.peertubeerror) {
+      toast({
+        title: "Failed to Authenticate with Peertube",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.peertubeerror]);
 
 
   const checkWalletConnectionWithAccount = async (address) => {

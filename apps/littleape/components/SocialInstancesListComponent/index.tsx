@@ -29,7 +29,7 @@ const getInstanceList = (title) => {
     } else if (title == SocialPlatform.MISSKEY) {
         return [new SocialPlatformInsatnce("Misskey.io", "5K"), new SocialPlatformInsatnce("Misskey.Social", "1.1K"), new SocialPlatformInsatnce("Mk.Godspeed.moe", "61"), new SocialPlatformInsatnce("Misskey.id", "1.7K")]
     } else if (title == SocialPlatform.PEERTUBE) {
-        return [new SocialPlatformInsatnce("Video.Voiceover.bar", "5K"), new SocialPlatformInsatnce("Peertube.Laas.fr", "6K"), new SocialPlatformInsatnce("Fair.Tube", "13K"), new SocialPlatformInsatnce("Clip.Place", "10K")]
+        return [new SocialPlatformInsatnce("v.basspistol.org", "5K"), new SocialPlatformInsatnce("skeptikon.fr", "6K"), new SocialPlatformInsatnce("Fair.Tube", "13K"), new SocialPlatformInsatnce("Clip.Place", "10K")]
     }
     return []
 }
@@ -68,7 +68,7 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
                 setBaseLink(`${list[selectedIndex].title}`)
             } else if (title == SocialPlatform.PEERTUBE) {
                 const instance = `https://${list[selectedIndex].title}`;
-                setHref("/api/auth/peertube")
+                setHref(`/api/auth/peertube?instance=${encodeURIComponent(instance)}`)
                 setBaseLink(`${list[selectedIndex].title}`)
             }
         }

@@ -29,8 +29,8 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
 
     const createChannel = async () => {
         const { data } = await appClient.createChannel({
-            siweUri: "https://littleape-swart.vercel.app/auth/login",
-            domain: "littleape-swart.vercel.app"
+            siweUri: `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/auth/login`,
+            domain: process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN
         });
 
         console.log("Client data: ", data)

@@ -1,41 +1,105 @@
-// pages/api/auth/peertube.ts
-import type { NextApiRequest, NextApiResponse } from 'next'
-import axios from 'axios'
+import { NextApiRequest, NextApiResponse } from "next";
 
-const PEERTUBE_INSTANCE = 'https://tube.gayfr.online' // Change if using another instance
-const PEERTUBE_USERNAME = process.env.NEXT_PUBLIC_PEERTUBE_USERNAME as string
-const PEERTUBE_PASSWORD = process.env.NEXT_PUBLIC_PEERTUBE_PASSWORD as string
+
+async function getAccessToken(api: string, client_id: string, client_secret: string, username: string, password: string) {
+    const response = await fetch(`${api}/users/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            client_id,
+            client_secret,
+            grant_type: 'password',
+            username,
+            password, // automatically URL-encoded
+        }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        return (`Error fetching access token: ${JSON.stringify(data)}`);
+    }
+
+    return data.access_token;
+}
+
+
+async function getUserAccount(api: string, username: string, access_token: string) {
+    const response = await fetch(`${api}/accounts/${username}`, {
+        headers: {
+            'Authorization': `Bearer ${access_token}`
+        }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        return `Error fetching user account: ${JSON.stringify(data)}`;
+    }
+
+    return data;
+}
+
+
+function isPeerTubeUser(obj: any): obj is {
+    url: string;
+    name: string;
+    host: string;
+    id: number;
+    createdAt: string;
+    displayName: string;
+    updatedAt: string;
+    userId: number;
+} {
+    return (
+        obj &&
+        typeof obj === 'object' &&
+        typeof obj.url === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.host === 'string' &&
+        typeof obj.id === 'number' &&
+        typeof obj.createdAt === 'string' &&
+        typeof obj.displayName === 'string' &&
+        typeof obj.updatedAt === 'string' &&
+        typeof obj.userId === 'number'
+    );
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const instance = req.query.instance as string;
+
+    if (!instance || !/^https?:\/\/[a-zA-Z0-9.-]+$/.test(instance)) {
+        return res.status(400).json({ error: "Invalid or missing instance URL" });
+    }
+
     try {
-        // 1. Get client_id and client_secret
-        const clientRes = await axios.get(`${PEERTUBE_INSTANCE}/api/v1/oauth-clients/local`)
-        const { client_id, client_secret } = clientRes.data
 
-        // 2. Request access token using username/password
-        const tokenRes = await axios.post(
-            `${PEERTUBE_INSTANCE}/api/v1/users/token`,
-            new URLSearchParams({
-                client_id,
-                client_secret,
-                grant_type: 'password',
-                response_type: 'code',
-                username: PEERTUBE_USERNAME,
-                password: PEERTUBE_PASSWORD,
-            }),
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            }
-        )
+        // Register app dynamically
+        const registerRes = await fetch(`${instance}/api/v1/oauth-clients/local`);
 
-        console.log("Token Response is: ", tokenRes)
+        if (!registerRes.ok) {
+            res.redirect(`/auth/login?peertubeerror=${encodeURIComponent("App registration failed")}`);
+        }
 
-        // 3. Return token response
-        return res.status(200).json(tokenRes.data)
-    } catch (error: any) {
-        console.error('OAuth error:', error.response?.data || error.message)
-        return res.status(500).json({ error: 'Failed to authenticate with PeerTube' })
+        const { client_id, client_secret } = await registerRes.json();
+
+        const accessToken = await getAccessToken(`${instance}/api/v1`, client_id, client_secret, process.env.NEXT_PUBLIC_PEERTUBE_USERNAME, process.env.NEXT_PUBLIC_PEERTUBE_PASSWORD)
+
+        if (accessToken.includes("error")) {
+            res.redirect(`/auth/login?peertubeerror=${encodeURIComponent("Failed to get access token")}`);
+        }
+
+        const account = await getUserAccount(`${instance}/api/v1`, process.env.NEXT_PUBLIC_PEERTUBE_USERNAME, accessToken)
+
+        if (isPeerTubeUser(account) === true) {
+            res.redirect(`/auth/login?peertubeuser=${encodeURIComponent(JSON.stringify(account))}`);
+        } else {
+            res.redirect(`/auth/login?peertubeerror=${encodeURIComponent("Failed to get user account")}`);
+        }
+
+    } catch (err) {
+        return res.status(500).json({ error: "Unexpected error", detail: (err as Error).message });
     }
 }
