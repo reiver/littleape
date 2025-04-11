@@ -1,9 +1,6 @@
-import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, Text, useDisclosure } from "@chakra-ui/react";
+import { ModalProps, useDisclosure } from "@chakra-ui/react";
 import { QRCode, useSignIn } from '@farcaster/auth-kit';
 import { FC, useState } from "react";
-import CopyIcon from '../../public/Copy.svg';
-import LinkIcon from '../../public/Link.svg';
-import styles from "./MyComponent.module.css";
 import FarcasterLogo from "../../public/Farcaster.svg";
 import Close from '../../public/Close.svg'
 

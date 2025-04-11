@@ -299,7 +299,7 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
             {showPeerTubeLoginForm && <PeerTubeLoginForm
                 instance={baseLink}
                 isOpen={isPeerTubeLoginFormOpen}
-                onClose={onPeerTubeLoginFormClose}
+                onClose={() => { onPeerTubeLoginFormClose() }}
             />}
         </>
 
@@ -311,6 +311,8 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
 type PeerTubeLoginFormProps = { instance: string } & Omit<ModalProps, "children">;
 
 const PeerTubeLoginForm: FC<PeerTubeLoginFormProps> = ({ isOpen, onClose, instance, ...props }) => {
+    if (!isOpen) return null;
+
     const [serviceProvider, setServiceProriver] = useState(instance)
     const [pass, setPass] = useState("")
     const [userName, setUserName] = useState("")
