@@ -405,13 +405,13 @@ const PeerTubeLoginForm: FC<PeerTubeLoginFormProps> = ({ isOpen, onClose, instan
 
             const { client_id, client_secret } = await registerRes.json();
 
-            const accessToken = await getAccessToken(`${instance}/api/v1`, client_id, client_secret, process.env.NEXT_PUBLIC_PEERTUBE_USERNAME, process.env.NEXT_PUBLIC_PEERTUBE_PASSWORD)
+            const accessToken = await getAccessToken(`${instance}/api/v1`, client_id, client_secret, userName, pass)
 
             if (accessToken.includes("error")) {
                 handleRedirect(`/auth/login?peertubeerror=${encodeURIComponent("Failed to get access token")}`);
             }
 
-            const account = await getUserAccount(`${instance}/api/v1`, process.env.NEXT_PUBLIC_PEERTUBE_USERNAME, accessToken)
+            const account = await getUserAccount(`${instance}/api/v1`, userName, accessToken)
 
             if (isPeerTubeUser(account) === true) {
                 handleRedirect(`/auth/login?peertubeuser=${encodeURIComponent(JSON.stringify(account))}`);
