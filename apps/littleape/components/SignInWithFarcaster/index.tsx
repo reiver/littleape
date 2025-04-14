@@ -163,7 +163,10 @@ const ShowQRCodeModal: FC<ShowQRCodeModalProps> = ({ isOpen, onClose, url, ...pr
                 <hr className="border-gray-0 sm:block hidden" />
                 <div className="mx-4 my-4 flex flex-col items-center justify-center">
                     <div className="flex justify-center items-center">
-                        <QRCode uri={url} size={230} />
+                        <div className="relative w-[238px] max-h-[250px]">
+                            <div className="absolute top-0 left-0 w-full h-full border border-gray-0 rounded-[13px] z-10 pointer-events-none" />
+                            <QRCode uri={url} size={230} />
+                        </div>
                     </div>
                     <span className="text-gray-2 text-bold-12 mt-4 text-center">
                         {"Scan the QR code with your phone or enter the link on your browser"}

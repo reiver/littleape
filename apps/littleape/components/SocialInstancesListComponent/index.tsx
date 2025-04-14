@@ -172,7 +172,7 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
                     </div>
                     <hr className="border-gray-0 sm:block hidden mb-8" />
                     <span className="text-bold-12 text-gray-2 mx-4 items-center">Please enter the instance server URL:</span>
-                    <div className="mx-4 my-4 flex flex-col items-center justify-center border-2 border-black rounded-md py-3 pl-4">
+                    <div className="mx-4 my-4 flex flex-col items-center justify-center border border-black rounded-md py-3 pl-4">
 
                         <input
                             type="text"
@@ -186,14 +186,14 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
 
                     <div className="flex flex-col-reverse sm:flex-row gap-2 mt-8 mx-4 mb-4">
                         <button
-                            className="h-12 w-full sm:w-1/2 border-2 border-secondary-1-a bg-white-f text-secondary-1-a text-[14px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
+                            className="h-12 w-full sm:w-1/2 border border-secondary-1-a bg-white-f text-secondary-1-a text-[14px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
                             onClick={onCanel}
                         >
                             Not now
                         </button>
 
                         <button
-                            className={`h-12 w-full sm:w-1/2 border-2 ${newUrl == "" ? "bg-gray-1 border-gray-1" : "bg-secondary-1-a border-black"} text-white-f text-[14px] font-bold rounded-md flex items-center justify-center gap-2 py-2`}
+                            className={`h-12 w-full sm:w-1/2 border ${newUrl == "" ? "bg-gray-1 border-gray-1" : "bg-secondary-1-a border-black"} text-white-f text-[14px] font-bold rounded-md flex items-center justify-center gap-2 py-2`}
                             onClick={() => onOk(newUrl)}
                             disabled={newUrl == "" ? true : false}
                         >
@@ -266,14 +266,14 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
                 </div>
                 <div className="flex gap-2 w-full flex-col-reverse md:flex-row mt-6">
                     <button
-                        className="mt-2 w-full h-12 border-2 border-black bg-white-f text-secondary-1-a text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
+                        className="mt-2 w-full h-12 border border-black bg-white-f text-secondary-1-a text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
                         onClick={goBack}
                     >
                         Back
                     </button>
 
                     <button
-                        className="mt-2 w-full h-12 border-2 border-black bg-primary text-secondary-1-a text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
+                        className="mt-2 w-full h-12 border border-black bg-primary text-secondary-1-a text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
                         onClick={handleLogin}
                     >
                         Next
@@ -447,6 +447,12 @@ const PeerTubeLoginForm: FC<PeerTubeLoginFormProps> = ({ isOpen, onClose, instan
         handleLogin()
     }
 
+    const goToPeerTubeForRegistration = () => {
+        const instance = `https://${serviceProvider}/signup`;
+
+        window.location.href = instance
+    }
+
     return (
         <div className="absolute top-0 left-0 w-full h-full">
             <div className="z-10 absolute w-full h-full bg-black bg-opacity-60" />
@@ -505,9 +511,14 @@ const PeerTubeLoginForm: FC<PeerTubeLoginFormProps> = ({ isOpen, onClose, instan
                         </div>
                     </div>
 
+                    <div className="flex items-center my-4 justify-center">
+                        <span className="text-black text-medium-12 mr-1">{"Don't have an account yet?"}</span>
+                        <span className="text-bold-14 text-[#F1680D] cursor-pointer" onClick={goToPeerTubeForRegistration}>{"Register!"}</span>
+                    </div>
+
                     {/* Submit Button */}
                     <button
-                        className="mt-2 w-full h-12 border-2 border-black bg-[#F1680D] text-white-f text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
+                        className="mt-2 w-full h-12 border border-black bg-[#F1680D] text-white-f text-[12px] font-bold rounded-md flex items-center justify-center gap-2 py-2"
                         onClick={() => handleLoginPeerTubeAccount()}
                     >
                         {isLoading ? (
