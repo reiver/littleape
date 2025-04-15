@@ -58,7 +58,8 @@ import { MisskeyLoginButton } from "components/SignInWithMisskey";
 import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
-export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE == "true"
+export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
+export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -574,9 +575,16 @@ const Login: FC = () => {
                 <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
                   Welcome!
                 </Text>
-                <Text className="text-gray-2 text-regular-16 mt-2">
-                  Please enter your info. to continue
-                </Text>
+                {
+                  isMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                    Please enter your info. to continue
+                  </Text>
+                }
+                {
+                  isFediverseMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                    Please choose a login option:
+                  </Text>
+                }
               </Box>
 
               {
@@ -586,13 +594,16 @@ const Login: FC = () => {
                 }} existingAccountId="" />
               }
 
-              <div className="flex items-center gap-4 mt-6 mb-6">
-                <div className="flex-1 h-[2px] bg-gray-0" />
-                <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
-                <div className="flex-1 h-[2px] bg-gray-0" />
-              </div>
+              {
+                isMvpMode == true && <div className="flex items-center gap-4 mt-6 mb-6">
+                  <div className="flex-1 h-[2px] bg-gray-0" />
+                  <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
+                  <div className="flex-1 h-[2px] bg-gray-0" />
+                </div>
+              }
 
-              <div className="flex items-center gap-4 justify-center">
+
+              <div className={`${isMvpMode ? 'flex' : ''} items-center gap-4 justify-center ${isFediverseMvpMode ? 'mt-4' : ''}`}>
                 <MastodonLoginButton onButtonClick={handleMastodonButtonClick} />
 
                 <PixelfedLoginButton onButtonClick={handlePixelfedButtonClick} />
@@ -601,28 +612,30 @@ const Login: FC = () => {
 
                 <PeerTubeLoginButton onButtonClick={handlePeertubeButtonClick} />
 
-                <SignInWithFarcasterButton
-                  onSuccess={(res) => {
-                    console.log("Success SignInWithFarcasterButton: ", res)
-                    if (loginMode != LoginMode.FARCASTER) {
-                      console.log("Farcaster Login success: ", res)
+                {
+                  isMvpMode == true && <SignInWithFarcasterButton
+                    onSuccess={(res) => {
+                      console.log("Success SignInWithFarcasterButton: ", res)
+                      if (loginMode != LoginMode.FARCASTER) {
+                        console.log("Farcaster Login success: ", res)
 
-                      if (isMvpMode) {
-                        const mappedUser: Partial<User> = {
-                          username: res.data.username,
-                        };
-                        setUser(mappedUser)
-                        router.push("/")
-                      } else {
-                        loginUsingFarcaster(res.data.username, res.data.fid)
-                        setLoginMode(LoginMode.FARCASTER);
+                        if (isMvpMode) {
+                          const mappedUser: Partial<User> = {
+                            username: res.data.username,
+                          };
+                          setUser(mappedUser)
+                          router.push("/")
+                        } else {
+                          loginUsingFarcaster(res.data.username, res.data.fid)
+                          setLoginMode(LoginMode.FARCASTER);
+                        }
+
                       }
-
-                    }
-                  }}
-                  onError={(err) => {
-                    console.log("Error SIWF: ", err)
-                  }} />
+                    }}
+                    onError={(err) => {
+                      console.log("Error SIWF: ", err)
+                    }} />
+                }
 
               </div>
             </>
@@ -642,7 +655,7 @@ const Login: FC = () => {
             ) : (
               <div>
                 {
-                  !isMvpMode && <Form
+                  isMvpMode == false && isFediverseMvpMode == false && <Form
                     onSubmit={handleLoginViaPocketBase}
                     mt="8"
                     display="flex"
@@ -665,7 +678,7 @@ const Login: FC = () => {
                 }
 
                 {
-                  !isMvpMode && !walletConnected && <Box>
+                  isMvpMode == false && isFediverseMvpMode == false && !walletConnected && <Box>
                     <ConnectWallet
                       theme={walletConnected ? "light" : "dark"}
                       className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
@@ -694,7 +707,7 @@ const Login: FC = () => {
 
                 {/* Show blue sky login modal only if not mvp */}
                 {
-                  !isMvpMode && <BlueSkyLoginButton
+                  isMvpMode == false && isFediverseMvpMode == false && <BlueSkyLoginButton
 
                     onClose={(user?: any) => {
 
@@ -722,7 +735,7 @@ const Login: FC = () => {
 
 
                 {
-                  !isMvpMode && <Box
+                  isMvpMode == false && isFediverseMvpMode == false && <Box
                     mt="6"
                     display="flex"
                     flexDirection="column"
