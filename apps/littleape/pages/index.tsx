@@ -18,7 +18,7 @@ import { useAuthStore } from "store";
 import { User } from "types/User";
 import { useAddress } from "web3-wallet-connection";
 import { useRouter } from "next/router";
-import { isMvpMode } from "./auth/login";
+import { isFediverseMvpMode, isMvpMode } from "./auth/login";
 
 export const getDeviceConfig = () => {
   if (typeof window === 'undefined') {
@@ -59,7 +59,7 @@ export default function Home() {
       setAuth(userObj.email, userObj)
       checkUserHasBlueSkyLinked(userObj)
 
-      if (isMvpMode == true) {
+      if (isMvpMode == true || isFediverseMvpMode == true) {
         //go to meeting page
         router.push(`/@${userObj.username}/host`)
       }
@@ -144,7 +144,7 @@ export default function Home() {
   }, []);
 
   return (
-    isMvpMode ? (<>
+    isMvpMode || isFediverseMvpMode ? (<>
       <Head>
         <title>Greatape</title>
         <meta

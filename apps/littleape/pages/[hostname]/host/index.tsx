@@ -1,6 +1,6 @@
 import { LOGJAM_URL } from "components/Navbar";
 import { useRouter } from "next/router";
-import { isMvpMode } from "pages/auth/login";
+import { isFediverseMvpMode, isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "store";
 import Head from "next/head";
@@ -18,7 +18,7 @@ export default function HostPage() {
     const router = useRouter();
     const { hostname } = router.query; // Extract query params
 
-    if (isMvpMode == true) {
+    if (isMvpMode == true || isFediverseMvpMode == true) {
         if (user == null) {
             useEffect(() => {
                 router.replace("/auth/login");
