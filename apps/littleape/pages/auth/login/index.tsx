@@ -45,6 +45,7 @@ import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
+import NeynarLoginButton from "components/NeynarLoginButton";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -322,6 +323,10 @@ const Login: FC = () => {
                   onError={(err) => {
                     console.log("Error SIWF: ", err)
                   }} />
+              </div>
+
+              <div>
+                <NeynarLoginButton/>
               </div>
 
               {
