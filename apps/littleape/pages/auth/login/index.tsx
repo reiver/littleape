@@ -266,6 +266,7 @@ const Login: FC = () => {
           </Heading>
         </Box>
 
+
         {!email ? (
           walletIsSigned ? (
             <div>
@@ -325,9 +326,6 @@ const Login: FC = () => {
                   }} />
               </div>
 
-              <div>
-                <NeynarLoginButton/>
-              </div>
 
               {
                 walletConnected && <Box>
@@ -363,6 +361,8 @@ const Login: FC = () => {
                 }}
 
                 existingAccountId="" />
+
+              <NeynarLoginButton />
 
               <Box
                 mt="6"

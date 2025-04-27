@@ -36,10 +36,8 @@ function App({ Component, pageProps }) {
   return (
 
     <AuthKitProvider config={config}>
-
       <WalletProvider>
         <NeynarProviderWrapper>
-
           <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
             <SWRConfig
               value={{
@@ -59,11 +57,8 @@ function App({ Component, pageProps }) {
             </SWRConfig>
           </ThirdwebProvider>
         </NeynarProviderWrapper>
-
       </WalletProvider>
     </AuthKitProvider>
-
-
   );
 }
 
@@ -88,6 +83,5 @@ export const NeynarProviderWrapper: React.FC<NeynarProviderWrapperProps> = ({ ch
     },
   };
 
-  console.log("CHILDERN IS: ", children)
   return <NeynarContextProvider settings={neynarSettings}>{children}</NeynarContextProvider>;
 };
