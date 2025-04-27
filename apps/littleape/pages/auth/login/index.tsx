@@ -45,6 +45,7 @@ import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
+import NeynarLoginButton from "components/NeynarLoginButton";
 
 
 const pbManager = PocketBaseManager.getInstance();
@@ -265,6 +266,7 @@ const Login: FC = () => {
           </Heading>
         </Box>
 
+
         {!email ? (
           walletIsSigned ? (
             <div>
@@ -324,6 +326,7 @@ const Login: FC = () => {
                   }} />
               </div>
 
+
               {
                 walletConnected && <Box>
                   <Button w="full" mt={error ? 0 : 3} onClick={() => {
@@ -358,6 +361,8 @@ const Login: FC = () => {
                 }}
 
                 existingAccountId="" />
+
+              <NeynarLoginButton />
 
               <Box
                 mt="6"

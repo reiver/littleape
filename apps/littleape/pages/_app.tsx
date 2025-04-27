@@ -16,6 +16,8 @@ import { useAuthStore } from "store";
 import { SWRConfig } from "swr";
 import "../styles/global.css";
 import "../styles/styles.css";
+import { NeynarContextProvider, Theme } from "@neynar/react";
+import { ReactNode } from "react";
 
 const config = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -32,30 +34,54 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
+
     <AuthKitProvider config={config}>
       <WalletProvider>
-        <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
-          <SWRConfig
-            value={{
-              provider: () => new Map(),
-              fetcher,
-              revalidateOnFocus: false,
-              revalidateIfStale: false,
-              fallback: {
-                [API_PROFILE]: pageProps.user,
-                ...pageProps.swrFallback,
-              },
-            }}
-          >
-            <ChakraProvider theme={theme}>
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </SWRConfig>
-        </ThirdwebProvider>
+        <NeynarProviderWrapper>
+          <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
+            <SWRConfig
+              value={{
+                provider: () => new Map(),
+                fetcher,
+                revalidateOnFocus: false,
+                revalidateIfStale: false,
+                fallback: {
+                  [API_PROFILE]: pageProps.user,
+                  ...pageProps.swrFallback,
+                },
+              }}
+            >
+              <ChakraProvider theme={theme}>
+                <Component {...pageProps} />
+              </ChakraProvider>
+            </SWRConfig>
+          </ThirdwebProvider>
+        </NeynarProviderWrapper>
       </WalletProvider>
     </AuthKitProvider>
-
   );
 }
 
 export default App;
+
+
+interface NeynarProviderWrapperProps {
+  children: ReactNode;
+}
+
+export const NeynarProviderWrapper: React.FC<NeynarProviderWrapperProps> = ({ children }) => {
+  const neynarSettings = {
+    clientId: process.env.NEXT_PUBLIC_NEYNAR_CLIENT_ID || "",
+    defaultTheme: Theme.Light,
+    eventsCallbacks: {
+      onAuthSuccess: ({ user }) => {
+        console.log("Auth success: ", user);
+      },
+      onSignout: () => {
+        console.log("Sign out success");
+      },
+    },
+  };
+
+  return <NeynarContextProvider settings={neynarSettings}>{children}</NeynarContextProvider>;
+};

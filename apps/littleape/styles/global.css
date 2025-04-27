@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.no-icon svg {
+	display: none !important;
+}
+
 /* 
 .ProseMirror {
 	h: auto;
