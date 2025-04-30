@@ -804,7 +804,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   };
 
   const lookUpEnsAddress = async (address) => {
-    const resolvedName = await lookUpENS(address, process.env.ALCHAMEY_API_KEY);
+    const resolvedName = await lookUpENS(address, process.env.NEXT_PUBLIC_ALCHAMEY_API_KEY);
     console.log("resolvedName: ", resolvedName)
     if (resolvedName != null) {
       setEns(resolvedName);

@@ -50,6 +50,7 @@ class MultiStreamRecorder {
         this.roomname = null;
         this.audioMixer = null;
         this.audioMixerStreams = [];
+        this.MAX_VIDEOS_ON_CANVAS = 6;
     }
 
     addAudioTrackToMixer() {
@@ -116,6 +117,53 @@ class MultiStreamRecorder {
         return this.canvas;
     }
 
+
+    async drawVideoWithAspectRatio(ctx, video, x, y, targetWidth, targetHeight, stream = null) {
+        if (!video || !video.videoWidth || !video.videoHeight) return;
+
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+
+        // Calculate scale to fit while maintaining aspect ratio within the target area
+        const scale = Math.min(targetWidth / videoWidth, targetHeight / videoHeight);
+        const newWidth = videoWidth * scale;
+        const newHeight = videoHeight * scale;
+        const offsetX = x + (targetWidth - newWidth) / 2;
+        const offsetY = y + (targetHeight - newHeight) / 2;
+
+        ctx.drawImage(video, offsetX, offsetY, newWidth, newHeight);
+
+        // Draw the name in the top-right corner of the video container
+        if (stream != null) {
+            logger.log("Stream is: ", stream)
+
+            var streamName = stream.name
+
+            const isHost = stream?.role === "broadcast";
+            if (isHost) {
+                streamName += " (Host)";
+            }
+
+            if (streamName != undefined) {
+                // Add a shadow for better visibility
+                ctx.font = "20px 'Open Sans', sans-serif";
+                ctx.fillStyle = "white"; // Text color
+                ctx.shadowColor = "rgba(0, 0, 0, 1.0)"; // Fully dark shadow
+                ctx.shadowBlur = 6; // Increase blur for a stronger effect
+                ctx.shadowOffsetX = 3; // Slightly increase shadow offset
+                ctx.shadowOffsetY = 3;
+
+                ctx.fillText(streamName, offsetX + 20, offsetY + 25);
+
+                // Reset shadow to avoid affecting other drawings
+                ctx.shadowColor = "transparent";
+            }
+        }
+
+    }
+
+
+
     // Start Recording
     async startRecording(roomname, streams) {
         this.roomname = roomname;
@@ -133,7 +181,7 @@ class MultiStreamRecorder {
 
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            const numStreams = this.videos.length;
+            var numStreams = this.videos.length;
             const shareScreenIndex = this.streams.findIndex(stream => stream.isShareScreen);
 
             const shareStream = this.videos[shareScreenIndex];
@@ -173,10 +221,14 @@ class MultiStreamRecorder {
                 const offsetY = (this.canvas.height - newHeight) / 2;
                 ctx.drawImage(shareStream, offsetX, offsetY, newWidth, newHeight);
 
-
                 // Draw other streams (30% width, stacked vertically on the right)
                 const spacing = 10; // Space between video containers
                 const streamHeight = (this.canvas.height - spacing * (otherStreams.length - 1)) / otherStreams.length;
+                //if streams size is more then max, remove the last stream
+                if (otherStreams.length >= this.MAX_VIDEOS_ON_CANVAS) {
+                    // Remove the last stream
+                    otherStreams.splice(-1);
+                }
                 otherStreams.forEach((video, index) => {
                     let yPosition;
                     let height;
@@ -198,12 +250,21 @@ class MultiStreamRecorder {
                     ctx.fillStyle = "black";
                     ctx.fill();
 
+                    // Get the corresponding stream
+                    const originalIndex = this.videos.indexOf(video);
+                    const stream = this.streams[originalIndex] || null; // Handle cases where the stream may not exist
+
+
                     // Draw video
-                    ctx.drawImage(video, xPosition, yPosition, this.canvas.width * 0.3, height);
+                    this.drawVideoWithAspectRatio(ctx, video, xPosition, yPosition, this.canvas.width * 0.3, height, stream);
+
                 });
 
             }
             else {
+                if (numStreams > this.MAX_VIDEOS_ON_CANVAS) {
+                    numStreams = this.MAX_VIDEOS_ON_CANVAS
+                }
                 // Default layout if no screen share is present
                 const spacing = 10; // Space between video containers
                 if (numStreams === 1) {
@@ -211,81 +272,150 @@ class MultiStreamRecorder {
                     drawRoundedRect(0, 0, this.canvas.width, this.canvas.height, 10);
                     ctx.fillStyle = "black";
                     ctx.fill();
-                    ctx.drawImage(this.videos[0], 0, 0, this.canvas.width, this.canvas.height);
+
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, this.canvas.width, this.canvas.height, this.streams[0])
                 } else if (numStreams === 2) {
                     // Split screen for 2 streams
                     const halfWidth = this.canvas.width / 2;
-                    drawRoundedRect(0, 0, halfWidth - spacing / 2, this.canvas.height, 10);
-                    drawRoundedRect(halfWidth + spacing / 2, 0, halfWidth - spacing / 2, this.canvas.height, 10);
+                    const spacing = 10; // Adjust spacing if needed
+                    const targetWidth = halfWidth - spacing / 2;
+                    const targetHeight = this.canvas.height;
+
+                    // Draw rounded rectangles
+                    drawRoundedRect(0, 0, targetWidth, targetHeight, 10);
+                    drawRoundedRect(halfWidth + spacing / 2, 0, targetWidth, targetHeight, 10);
                     ctx.fillStyle = "black";
                     ctx.fill();
-                    ctx.drawImage(this.videos[0], 0, 0, halfWidth - spacing / 2, this.canvas.height);
-                    ctx.drawImage(this.videos[1], halfWidth + spacing / 2, 0, halfWidth - spacing / 2, this.canvas.height);
-                } else if (numStreams === 3) {
-                    // Top row with 2 streams, bottom row with 1 centered
-                    const halfHeight = this.canvas.height / 2;
-                    drawRoundedRect(0, 0, this.canvas.width / 2 - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, this.canvas.width / 2 - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(this.canvas.width / 4, halfHeight + spacing, this.canvas.width / 2, halfHeight - spacing, 10);
-                    ctx.fillStyle = "black";
-                    ctx.fill();
-                    ctx.drawImage(this.videos[0], 0, 0, this.canvas.width / 2 - spacing / 2, halfHeight);
-                    ctx.drawImage(this.videos[1], this.canvas.width / 2 + spacing / 2, 0, this.canvas.width / 2 - spacing / 2, halfHeight);
-                    ctx.drawImage(this.videos[2], this.canvas.width / 4, halfHeight + spacing, this.canvas.width / 2, halfHeight - spacing);
-                } else if (numStreams === 4) {
-                    // 2 rows of 2 streams each
-                    const halfWidth = this.canvas.width / 2;
-                    const halfHeight = this.canvas.height / 2;
-                    drawRoundedRect(0, 0, halfWidth - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(halfWidth + spacing / 2, 0, halfWidth - spacing / 2, halfHeight, 10);
-                    drawRoundedRect(0, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing, 10);
-                    drawRoundedRect(halfWidth + spacing / 2, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing, 10);
-                    ctx.fillStyle = "black";
-                    ctx.fill();
-                    ctx.drawImage(this.videos[0], 0, 0, halfWidth - spacing / 2, halfHeight);
-                    ctx.drawImage(this.videos[1], halfWidth + spacing / 2, 0, halfWidth - spacing / 2, halfHeight);
-                    ctx.drawImage(this.videos[2], 0, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing);
-                    ctx.drawImage(this.videos[3], halfWidth + spacing / 2, halfHeight + spacing, halfWidth - spacing / 2, halfHeight - spacing);
+
+                    // Draw videos while maintaining aspect ratio
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, targetWidth, targetHeight, this.streams[0]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], halfWidth + spacing / 2, 0, targetWidth, targetHeight, this.streams[1]);
+
                 }
+                else if (numStreams === 3) {
+                    // 3 streams with equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 4, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight, this.streams[0]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, this.streams[1]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], this.canvas.width / 4, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[2]);
+
+                } else if (numStreams === 4) {
+                    // 2 rows of 2 streams, all equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight, this.streams[0]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, this.streams[1]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], 0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[2]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], this.canvas.width / 2 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[3]);
+                }
+                else if (numStreams === 5) {
+                    // 2 videos on top, 3 videos on bottom, all with equal sizes
+                    const videoWidth = this.canvas.width / 2 - spacing / 2; // Two videos on top
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    // Top row - 2 videos
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, 10);
+
+                    // Bottom row - 3 videos
+                    const bottomWidth = this.canvas.width / 3 - spacing / 2; // Three videos in bottom row
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    // Draw videos
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight, this.streams[0]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 2 + spacing / 2, 0, videoWidth, videoHeight, this.streams[1]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], 0, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, this.streams[2]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, this.streams[3]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[4], (this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, bottomWidth, videoHeight, this.streams[4]);
+                }
+
+                else if (numStreams === 6) {
+                    // 3 videos on top, 3 videos on bottom, all equal sizes
+                    const videoWidth = this.canvas.width / 3 - spacing / 2;
+                    const videoHeight = this.canvas.height / 2 - spacing / 2;
+
+                    // Draw rounded rectangles for each video position
+                    drawRoundedRect(0, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, 0, videoWidth, videoHeight, 10);
+                    drawRoundedRect(0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect(this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+                    drawRoundedRect((this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, 10);
+
+                    ctx.fillStyle = "black";
+                    ctx.fill();
+
+                    // Draw videos in the assigned positions
+                    this.drawVideoWithAspectRatio(ctx, this.videos[0], 0, 0, videoWidth, videoHeight, this.streams[0]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[1], this.canvas.width / 3 + spacing / 2, 0, videoWidth, videoHeight, this.streams[1]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[2], (this.canvas.width / 3) * 2 + spacing, 0, videoWidth, videoHeight, this.streams[2]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[3], 0, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[3]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[4], this.canvas.width / 3 + spacing / 2, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[4]);
+                    this.drawVideoWithAspectRatio(ctx, this.videos[5], (this.canvas.width / 3) * 2 + spacing, this.canvas.height / 2 + spacing / 2, videoWidth, videoHeight, this.streams[5]);
+                }
+
             }
 
             // Draw stream names on the canvas
-            this.videos.forEach((video, index) => {
-                const isScreenShare = shareScreenIndex !== -1 && index === shareScreenIndex;
-                if (isScreenShare) return; // Skip drawing name on screen share
+            // this.videos.forEach((video, index) => {
+            //     const isScreenShare = shareScreenIndex !== -1 && index === shareScreenIndex;
+            //     if (isScreenShare) return; // Skip drawing name on screen share
 
-                const streamName = `${this.streams[index]?.name || `Stream ${index + 1}`}${this.streams[index]?.role === "broadcast" ? " (Host)" : ""}`;
-                let x, y;
+            //     const streamName = `${this.streams[index]?.name || `Stream ${index + 1}`}${this.streams[index]?.role === "broadcast" ? " (Host)" : ""}`;
+            //     let x, y;
 
-                if (shareScreenIndex !== -1) {
-                    // Position for other streams when screen share is active
-                    const otherIndex = otherStreams.indexOf(video);
-                    if (otherStreams.length === 1) {
-                        x = this.canvas.width * 0.7 + 10;
-                        y = (this.canvas.height - this.canvas.height / 2) / 2 + 30;
-                    } else {
-                        x = this.canvas.width * 0.7 + 10;
-                        y = otherIndex * (this.canvas.height / otherStreams.length) + 30;
-                    }
-                } else {
-                    // Default positioning for grid layout
-                    x = index % 2 === 0 ? 10 : this.canvas.width / 2 + 10;
-                    y = Math.floor(index / 2) * (this.canvas.height / 2) + 20;
-                }
+            //     if (shareScreenIndex !== -1) {
+            //         // Position for other streams when screen share is active
+            //         const otherIndex = otherStreams.indexOf(video);
+            //         if (otherStreams.length === 1) {
+            //             x = this.canvas.width * 0.7 + 10;
+            //             y = (this.canvas.height - this.canvas.height / 2) / 2 + 30;
+            //         } else {
+            //             x = this.canvas.width * 0.7 + 10;
+            //             y = otherIndex * (this.canvas.height / otherStreams.length) + 30;
+            //         }
+            //     } else {
+            //         // Default positioning for grid layout
+            //         x = index % 2 === 0 ? 10 : this.canvas.width / 2 + 10;
+            //         y = Math.floor(index / 2) * (this.canvas.height / 2) + 20;
+            //     }
 
-                // Add a shadow for better visibility
-                ctx.font = "20px 'Open Sans', sans-serif";
-                ctx.fillStyle = "white"; // Shadow color
-                ctx.shadowColor = "rgba(0, 0, 0, 0.7)"; // Dark shadow
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
+            //     // Add a shadow for better visibility
+            //     ctx.font = "20px 'Open Sans', sans-serif";
+            //     ctx.fillStyle = "white"; // Shadow color
+            //     ctx.shadowColor = "rgba(0, 0, 0, 0.7)"; // Dark shadow
+            //     ctx.shadowBlur = 4;
+            //     ctx.shadowOffsetX = 2;
+            //     ctx.shadowOffsetY = 2;
 
-                ctx.fillText(streamName, x, y);
+            //     ctx.fillText(streamName, x, y);
 
-                // Reset shadow to avoid affecting other drawings
-                ctx.shadowColor = "transparent";
-            });
+            //     // Reset shadow to avoid affecting other drawings
+            //     ctx.shadowColor = "transparent";
+            // });
 
             requestAnimationFrame(drawFrames); // Continuously update canvas
         };

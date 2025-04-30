@@ -17,12 +17,32 @@ const schema = z.object({
 
 export const AudiencePage = ({ params: { room } }: { params?: { room?: string } }) => {
   const [started, setStarted] = useState(false)
+  const [meetingStartTime, setMeetingStartTime] = useState(0)
   const form = useForm({
     defaultValues: {
       room: room,
       name: '',
     },
     resolver: zodResolver(schema),
+  })
+
+  const fetchMeetingScheduledTime = () => {
+    // Get query param 'st' from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const startTime = urlParams.get('st');
+
+    if (startTime) {
+      setMeetingStartTime(Number(startTime)); // convert to number before setting
+    } else {
+      // fallback or error handling
+      console.warn('No "st" query param found. Using default time.');
+      setMeetingStartTime(0);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchMeetingScheduledTime()
   })
 
   //handle message from Iframe
@@ -76,6 +96,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
         params={{
           ...form.getValues(),
           room: room,
+          meetingStartTime: meetingStartTime
         }}
       />
     )

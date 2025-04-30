@@ -6,6 +6,7 @@ import {
   Heading,
   PinInput,
   PinInputField,
+  Spinner,
   Text,
   VStack,
   useDisclosure,
@@ -16,7 +17,13 @@ import { Alert } from "components/Alert";
 import { Button } from "components/Button";
 import { Form } from "components/Form";
 import { Input } from "components/Input";
-import { Logo } from "components/Logo";
+import GreatApeLogo from "../../../public/logo.svg";
+import MastodonLogoColor from "../../../public/Mastodon-color.svg";
+import PixelfedLogoColor from "../../../public/Pixelfed-color.svg";
+import MisskeyLogoColor from "../../../public/Misskey-color.svg";
+import PeertubeLogoColor from "../../../public/PeerTube-color.svg";
+
+
 import { SignWalletModal } from "components/Modals/SignWalletModal";
 import { API_VERIFY_SIGN_UP } from "constants/API";
 import { useForm } from "hooks/useForm";
@@ -45,7 +52,14 @@ import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
-
+import { MastodonLoginButton } from "components/SignInWithMastodon";
+import { PixelfedLoginButton } from "components/SignInWithPixelfed";
+import { MisskeyLoginButton } from "components/SignInWithMisskey";
+import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
+import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
+import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
+export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
+export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -57,6 +71,13 @@ const verifySchema = z.object({
   code: z.string().min(6),
   email: z.string().min(1),
 });
+
+export enum SocialPlatform {
+  MASTODON = "Mastodon",
+  PIXELFED = "Pixelfed",
+  PEERTUBE = "PeerTube",
+  MISSKEY = "Misskey"
+}
 
 
 const Login: FC = () => {
@@ -76,6 +97,12 @@ const Login: FC = () => {
   const setLoginMode = useAuthStore((state) => state.setLoginMode);
   const loginMode = useAuthStore((state) => state.mode)
   const loggedInUser = useAuthStore((state) => state.user);
+  const [mastodonUser, setMastodonUser] = useState(null)
+  const [pixelfedUser, setPixelfedUser] = useState(null)
+  const [misskeyUser, setMisskeyUser] = useState(null)
+  const [peerTubeUser, setPeerTubeUser] = useState(null)
+
+
 
   const toast = useToast();
   const disconnect = useDisconnect();
@@ -102,6 +129,9 @@ const Login: FC = () => {
     setWalletIsSigned,
   } = useWallet();
 
+  const goToMeetingPage = (username: any) => {
+    router.replace(`/@${username}/host`)
+  }
 
   const {
     isOpen: isSignWalletOpen,
@@ -115,6 +145,234 @@ const Login: FC = () => {
       createMessageAndSign()
     }
   }, [onSignMessage])
+
+
+  //mastodon data
+  useEffect(() => {
+    if (router.query.mastodonuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
+        setMastodonUser(userData);
+
+        toast({
+          title: "Successful Login to Mastodon",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mappedUser: Partial<User> = {
+          id: Number(userData.id), // Converting id from string to number
+          avatar: userData.avatar,
+          banner: userData.header, // Using header as banner
+          bio: userData.note.replace(/<\/?p>/g, ""), // Removing HTML tags from bio
+          name: userData.display_name,
+          username: userData.username,
+          blueskyid: null,
+        };
+
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Mastodon user data:", error);
+        router.replace(router.pathname, undefined, { shallow: true });
+      }
+
+    }
+  }, [router.query.mastodonuser]);
+
+  useEffect(() => {
+    if (router.query.mastodonerror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.mastodonerror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Mastodon",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Mastodon error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.mastodonerror]);
+
+  //pixelfed data
+  useEffect(() => {
+    if (router.query.pixelfeduser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.pixelfeduser as string));
+        setPixelfedUser(userData);
+
+        toast({
+          title: "Successful Login to Pixelfed",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mappedUser: Partial<User> = {
+          id: Number(userData.id), // Convert ID from string to number
+          avatar: userData.avatar,
+          banner: userData.header, // Using header as banner
+          bio: userData.note.trim(), // Removing extra spaces from bio
+          name: userData.display_name,
+          username: userData.username,
+          blueskyid: null,
+        };
+
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Pixelfed user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.pixelfeduser]);
+
+  useEffect(() => {
+    if (router.query.pixelfederror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.pixelfederror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Pixelfed",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Pixelfed error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.pixelfederror]);
+
+  //misskey data
+  useEffect(() => {
+    if (router.query.misskeyuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.misskeyuser as string));
+        setMisskeyUser(userData);
+
+        toast({
+          title: "Successful Login to Misskey",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mapMisskeyUserToUser = (misskeyUser: any): User => ({
+          id: Number(misskeyUser.id) || undefined,
+          avatar: misskeyUser.avatarUrl ?? "",
+          banner: misskeyUser.bannerUrl ?? "",
+          bio: misskeyUser.description ?? "",
+          name: misskeyUser.name ?? "",
+          username: misskeyUser.username ?? "",
+        });
+
+        const mappedUser = mapMisskeyUserToUser(userData)
+
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Misskey user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.misskeyuser]);
+
+  useEffect(() => {
+    if (router.query.misskeyerror) {
+      try {
+        const errorData = JSON.parse(decodeURIComponent(router.query.misskeyerror as string));
+        console.log("Error Data:", errorData);
+
+        toast({
+          title: "Failed to Authenticate with Misskey",
+          description: ``,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+
+      } catch (error) {
+        console.error("Error parsing Misskey error data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.misskeyerror]);
+
+  //peer tube
+  useEffect(() => {
+    if (router.query.peertubeuser) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(router.query.peertubeuser as string));
+        setPeerTubeUser(userData);
+
+        toast({
+          title: "Successful Login to Peertube",
+          description: ``,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
+
+        // Mapping to User type
+        const mapPeertubeUserToUser = (peerTubeUser: any): User => ({
+          id: Number(peerTubeUser.id) || undefined,
+          bio: peerTubeUser.description ?? "",
+          name: peerTubeUser.displayName ?? "",
+          username: peerTubeUser.name ?? "",
+        });
+
+        const mappedUser = mapPeertubeUserToUser(userData)
+
+        setUser(mappedUser)
+        router.push("/")
+
+      } catch (error) {
+        console.error("Error parsing Peertube user data:", error);
+      }
+
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.peertubeuser]);
+
+  useEffect(() => {
+    if (router.query.peertubeerror) {
+      toast({
+        title: "Failed to Authenticate with Peertube",
+        description: ``,
+        status: "error",
+        duration: 6000,
+        isClosable: true,
+      });
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router.query.peertubeerror]);
 
 
   const checkWalletConnectionWithAccount = async (address) => {
@@ -156,7 +414,15 @@ const Login: FC = () => {
       setWalletConnected(true)
 
       if (walletIsSigned) {
-        checkWalletConnectionWithAccount(address)
+        if (isMvpMode) {
+          const mappedUser: Partial<User> = {
+            username: address,
+          };
+          setUser(mappedUser)
+          router.push("/")
+        } else {
+          checkWalletConnectionWithAccount(address)
+        }
       }
     } else {
       setWalletConnected(false)
@@ -244,168 +510,282 @@ const Login: FC = () => {
 
   }
 
+
+
+
+  const [showSocialInsatncesList, setShowSocialInsatncesList] = useState(false)
+  const [loginPlatform, setLoginPlatform] = useState("")
+  const handleMastodonButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.MASTODON)
+  }
+
+  const handlePixelfedButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.PIXELFED)
+  }
+
+  const handleMisskeyButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.MISSKEY)
+  }
+
+  const handlePeertubeButtonClick = () => {
+    setShowSocialInsatncesList(true)
+    setLoginPlatform(SocialPlatform.PEERTUBE)
+  }
+
+  const handleBackToLogin = () => {
+    setShowSocialInsatncesList(false)
+    setLoginPlatform("")
+  }
+
+  const getSocialLogo = () => {
+    if (loginPlatform == SocialPlatform.MASTODON) {
+      return <MastodonLogoColor />
+    } else if (loginPlatform == SocialPlatform.PIXELFED) {
+      return <PixelfedLogoColor />
+    } else if (loginPlatform == SocialPlatform.MISSKEY) {
+      return <MisskeyLogoColor />
+    } else if (loginPlatform == SocialPlatform.PEERTUBE) {
+      return <PeertubeLogoColor />
+    }
+    return <></>
+  }
   return (
     <MainLayout>
       <Head>
-        <title>GreatApe | Login</title>
+        <title>GreatApe - Login</title>
       </Head>
-      <Box mx="auto" mt="10" w="full" maxW={"xs"}>
-        <Box
-          display="flex"
-          alignItems="center"
-          experimental_spaceX={"2"}
-          textColor="slate.900"
-          _dark={{
-            textColor: "slate.200",
-          }}
-        >
-          <Logo maxW="8" strokeWidth={2} />
-          <Heading as="h1" display="block" textAlign="center" fontSize="3xl" fontWeight="semibold">
-            Login
-          </Heading>
-        </Box>
+      <div className={`w-full max-w-[632px] ${showSocialInsatncesList ? `max-h-[752px]` : `max-h-[703px]`} mx-auto mt-6 pb-8 md:border md:rounded-2xl bg-white`}>
+        <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
 
-        {!email ? (
-          walletIsSigned ? (
-            <div>
-              <Text>Loading...</Text>
-            </div>
-          ) : (
-            <div>
-              <Form
-                onSubmit={handleLoginViaPocketBase}
-                mt="8"
-                display="flex"
-                flexDirection="column"
-                experimental_spaceY={4}
-              >
-                <Input autoFocus {...register("email")} error={errors.email} />
-                {error && (
-                  <Alert status="error">
-                    <AlertIcon />
-                    {error}
-                  </Alert>
-                )}
-                <Box>
-                  <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                    Login
-                  </Button>
-                </Box>
-              </Form>
-
-              {
-                !walletConnected && <Box>
-                  <ConnectWallet
-                    theme={walletConnected ? "light" : "dark"}
-                    className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-                    auth={{ loginOptional: false }}
-                    btnTitle="Continue With Your Wallet"
-                    showThirdwebBranding={false}
-                    onConnect={async (wallet) => {
-                      setWalletConnected(true);
-                      onSignWalletOpen()
-                    }}
-                  />
-                </Box>
-              }
-
-              <div>
-                <SignInWithFarcasterButton
-                  onSuccess={(res) => {
-                    console.log("Success SignInWithFarcasterButton: ", res)
-                    if (loginMode != LoginMode.FARCASTER) {
-                      console.log("Farcaster Login success: ", res)
-                      loginUsingFarcaster(res.data.username, res.data.fid)
-                      setLoginMode(LoginMode.FARCASTER);
-                    }
-                  }}
-                  onError={(err) => {
-                    console.log("Error SIWF: ", err)
-                  }} />
-              </div>
-
-              {
-                walletConnected && <Box>
-                  <Button w="full" mt={error ? 0 : 3} onClick={() => {
-                    resetAll()
-                    disconnect()
-                  }}>
-                    Disconnect Wallet
-                  </Button>
-                </Box>
-              }
-
-              <BlueSkyLoginButton
-                onClose={(user?: any) => {
-
-                  if (user != null && user != undefined) {
-                    if (user.record == null || user.record == undefined) {
-                      toast({
-                        title: user,
-                        description: ``,
-                        status: "error",
-                        duration: 3000,
-                        isClosable: true,
-                      });
-                    } else {
-                      const _user = user.record
-                      console.log("Login successfull with Blue Sky: ", _user)
-                      setAuth(_user.email, _user);
-                      setLoginMode(LoginMode.BLUESKY)
-                      router.push("/")
-                    }
-                  }
-                }}
-
-                existingAccountId="" />
-
+          {
+            !showSocialInsatncesList && <>
               <Box
-                mt="6"
                 display="flex"
                 flexDirection="column"
-                experimental_spaceY="4"
-                textAlign="center"
-                color="slate.500"
-                _dark={{ color: "slate.400" }}
+                alignItems="flex-start"
+                textColor="slate.900"
+                _dark={{ textColor: "slate.200" }}
               >
-                <span>Don&rsquo;t have an account?</span>
-                <Button className="block w-full" onClick={(() => {
-                  if (walletConnected) {
-                    toast({
-                      title: "Please disconnect the wallet first!",
-                      description: ``,
-                      status: "error",
-                      duration: 3000,
-                      isClosable: true,
-                    });
-                    return
-                  } else {
-                    resetAll()
-                    router.push("/auth/register")
-                  }
-                })}>Register now</Button>
+                <Box display="flex" justifyContent="center" width="100%">
+                  <GreatApeLogo />
+                </Box>
+                <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
+                  Welcome!
+                </Text>
+                {
+                  isMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                    Please enter your info. to continue
+                  </Text>
+                }
+                {
+                  isFediverseMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                    Please choose a login option:
+                  </Text>
+                }
               </Box>
-            </div>
-          )
 
-        ) : (
-          <VerifyRegistration email={email} backToRegistration={backToRegistration} />
-        )}
+              {
+                isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
+                  setUser(user)
+                  router.push("/")
+                }} existingAccountId="" />
+              }
 
-        <SignWalletModal
-          user={loggedInUser}
-          isOpen={isSignWalletOpen}
-          onClose={(() => {
-            onSignWalletClose()
-            setShowConnectedWallets(false)
-          })}
-          onSignMessage={(value) => {
-            return setOnSignMessage(value);
-          }}
-          forceSign={true}
-        />
+              {
+                isMvpMode == true && <div className="flex items-center gap-4 mt-6 mb-6">
+                  <div className="flex-1 h-[2px] bg-gray-0" />
+                  <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
+                  <div className="flex-1 h-[2px] bg-gray-0" />
+                </div>
+              }
 
-      </Box>
+
+              <div className={`${isMvpMode ? 'flex' : ''} items-center gap-4 justify-center ${isFediverseMvpMode ? 'mt-4' : ''}`}>
+                <MastodonLoginButton onButtonClick={handleMastodonButtonClick} />
+
+                <PixelfedLoginButton onButtonClick={handlePixelfedButtonClick} />
+
+                <MisskeyLoginButton onButtonClick={handleMisskeyButtonClick} />
+
+                <PeerTubeLoginButton onButtonClick={handlePeertubeButtonClick} />
+
+                {
+                  isMvpMode == true && <SignInWithFarcasterButton
+                    onSuccess={(res) => {
+                      console.log("Success SignInWithFarcasterButton: ", res)
+                      if (loginMode != LoginMode.FARCASTER) {
+                        console.log("Farcaster Login success: ", res)
+
+                        if (isMvpMode) {
+                          const mappedUser: Partial<User> = {
+                            username: res.data.username,
+                          };
+                          setUser(mappedUser)
+                          router.push("/")
+                        } else {
+                          loginUsingFarcaster(res.data.username, res.data.fid)
+                          setLoginMode(LoginMode.FARCASTER);
+                        }
+
+                      }
+                    }}
+                    onError={(err) => {
+                      console.log("Error SIWF: ", err)
+                    }} />
+                }
+
+              </div>
+            </>
+          }
+
+
+          {
+            showSocialInsatncesList &&
+            <SocialInstancesListComponent logo={getSocialLogo()} title={loginPlatform} goBack={handleBackToLogin} />
+          }
+
+          {!email ? (
+            walletIsSigned ? (
+              <div>
+                <Text>Loading...</Text>
+              </div>
+            ) : (
+              <div>
+                {
+                  isMvpMode == false && isFediverseMvpMode == false && <Form
+                    onSubmit={handleLoginViaPocketBase}
+                    mt="8"
+                    display="flex"
+                    flexDirection="column"
+                    experimental_spaceY={4}
+                  >
+                    <Input autoFocus {...register("email")} error={errors.email} />
+                    {error && (
+                      <Alert status="error">
+                        <AlertIcon />
+                        {error}
+                      </Alert>
+                    )}
+                    <Box>
+                      <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                        Login
+                      </Button>
+                    </Box>
+                  </Form>
+                }
+
+                {
+                  isMvpMode == false && isFediverseMvpMode == false && !walletConnected && <Box>
+                    <ConnectWallet
+                      theme={walletConnected ? "light" : "dark"}
+                      className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                      auth={{ loginOptional: false }}
+                      btnTitle="Continue With Your Wallet"
+                      showThirdwebBranding={false}
+                      onConnect={async (wallet) => {
+                        setWalletConnected(true);
+                        onSignWalletOpen()
+                      }}
+                    />
+                  </Box>
+                }
+
+
+                {
+                  walletConnected && <Box>
+                    <Button w="full" mt={error ? 0 : 3} onClick={() => {
+                      resetAll()
+                      disconnect()
+                    }}>
+                      Disconnect Wallet
+                    </Button>
+                  </Box>
+                }
+
+                {/* Show blue sky login modal only if not mvp */}
+                {
+                  isMvpMode == false && isFediverseMvpMode == false && <BlueSkyLoginButton
+
+                    onClose={(user?: any) => {
+
+                      if (user != null && user != undefined) {
+                        if (user.record == null || user.record == undefined) {
+                          toast({
+                            title: user,
+                            description: ``,
+                            status: "error",
+                            duration: 3000,
+                            isClosable: true,
+                          });
+                        } else {
+                          const _user = user.record
+                          console.log("Login successfull with Blue Sky: ", _user)
+                          setAuth(_user.email, _user);
+                          setLoginMode(LoginMode.BLUESKY)
+                          router.push("/")
+                        }
+                      }
+                    }}
+
+                    existingAccountId="" />
+                }
+
+
+                {
+                  isMvpMode == false && isFediverseMvpMode == false && <Box
+                    mt="6"
+                    display="flex"
+                    flexDirection="column"
+                    experimental_spaceY="4"
+                    textAlign="center"
+                    color="slate.500"
+                    _dark={{ color: "slate.400" }}
+                  >
+                    <span>Don&rsquo;t have an account?</span>
+                    <Button className="block w-full" onClick={(() => {
+                      if (walletConnected) {
+                        toast({
+                          title: "Please disconnect the wallet first!",
+                          description: ``,
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                        });
+                        return
+                      } else {
+                        resetAll()
+                        router.push("/auth/register")
+                      }
+                    })}>Register now</Button>
+                  </Box>
+                }
+
+
+              </div>
+            )
+
+          ) : (
+            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
+          )}
+
+          <SignWalletModal
+            user={loggedInUser}
+            isOpen={isSignWalletOpen}
+            onClose={(() => {
+              onSignWalletClose()
+              setShowConnectedWallets(false)
+            })}
+            onSignMessage={(value) => {
+              return setOnSignMessage(value);
+            }}
+            forceSign={true}
+          />
+
+        </Box>
+      </div>
     </MainLayout>
   );
 };

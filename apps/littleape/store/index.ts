@@ -37,6 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }));
   },
   setUser: (user) => {
+    Cookies.set(USER_COOKIE, JSON.stringify(user))
     set(() => ({
       user,
     }));

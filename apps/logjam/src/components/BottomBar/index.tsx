@@ -2,7 +2,7 @@ import AvatarIcon from 'assets/icons/Avatar.svg?react'
 import Troubleshoot from 'assets/icons/Troubleshoot.svg?react'
 import clsx from 'clsx'
 import { BottomSheet, Container, Controllers, Icon, MoreControllers, Tooltip, attendeesBadge, attendeesCount, isAttendeesOpen, isMoreOptionsOpen, toggleAttendees, toggleMoreOptions } from 'components'
-import { broadcastIsInTheMeeting, isDebugMode, sparkRTC } from 'pages/Meeting'
+import { broadcastIsInTheMeeting, isDebugMode, meetingIsNotStarted, meetingStartRemainingTime, sparkRTC } from 'pages/Meeting'
 import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
 import logger from 'lib/logger/logger.js'
 export const BottomBar = () => {

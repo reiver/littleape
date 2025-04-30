@@ -11,7 +11,7 @@ import { DialogTypes, isIphone } from 'components/Dialog/index'
 import { userInteractedWithDom } from '../..'
 import { getDeviceConfig } from '../../hooks/use-breakpoint.js'
 import { IODevices } from '../../lib/ioDevices/io-devices.js'
-import { broadcastIsInTheMeeting, currentUser, isRecordingInProgress, sparkRTC } from '../../pages/Meeting'
+import { broadcastIsInTheMeeting, currentUser, isRecordingInProgress, meetingIsNotStarted, meetingStartRemainingTime, sparkRTC } from '../../pages/Meeting'
 import logger from 'lib/logger/logger'
 let timeOut
 export const bottomBarVisible = signal(true)
@@ -22,13 +22,14 @@ export const hasFullScreenedStream = computed(() => !!fullScreenedStream.value)
 export const streamers = signal<Record<string, { isHost: boolean; isShareScreen: boolean; isLocalStream: boolean; stream: any; userId: any; muted: boolean; name: string; toggleScreenId: any; displayId: string; position: any }>>({})
 export const streamersLength = computed(() => Object.keys(streamers.value).length)
 export const deviceSize = signal(getDeviceConfig(window.innerWidth))
-const topBarBottomBarHeight = () => document.getElementById('top-bar').offsetHeight + (isRecordingInProgress() ? document.getElementById('recording-bar').offsetHeight : 0) + (bottomBarVisible.value ? document.getElementById('bottom-bar').offsetHeight : 0) + 32
+const topBarBottomBarHeight = () => 
+  (document.getElementById('top-bar')?.offsetHeight || 0) + 
+  (isRecordingInProgress() ? (document.getElementById('recording-bar')?.offsetHeight || 0) : 0) + 
+  (bottomBarVisible.value ? (document.getElementById('bottom-bar')?.offsetHeight || 0) : 0) + 
+  32;
 const windowWidth = signal(window.innerWidth)
 const windowHeight = signal(window.innerHeight)
 const stageWidth = computed(() => windowWidth.value - attendeesWidth.value - (deviceSize.value !== 'xs' ? 140 : 32))
-
-
-
 const itemsWidth = computed(() => {
   let sw = stageWidth.value
   if (deviceSize.value !== 'xs' && hasShareScreenStream.value) {
@@ -402,7 +403,15 @@ export const Stage = ({ customStyles }) => {
           </div>
         </div>
       ) : (
-        <span class="inline-block w-full text-center">The host has not arrived yet. Please stand by.</span>
+        meetingIsNotStarted.value && meetingStartRemainingTime.value !== "" ? (
+          <div>
+            <span class="inline-block w-full text-center text-bold-18">The Live Show is not Started yet</span>
+            <span class="inline-block w-full text-center text-bold-14 mt-3">{meetingStartRemainingTime.value} left</span>
+          </div>
+
+        ) : (
+          <span class="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>
+        )
       )
       }
     </div >

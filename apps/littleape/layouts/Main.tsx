@@ -6,10 +6,9 @@ import { FC, PropsWithChildren } from "react";
 export const MainLayout: FC<PropsWithChildren<BoxProps>> = (props) => {
   const { children, ...rest } = props;
   return (
-    <Box
+    <Box className="md:bg-white-f-9 white-f"
       {...rest}
       p={0}
-      bg="slate.50"
       textColor="gray.900"
       _dark={{
         bg: "dark.700",

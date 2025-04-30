@@ -123,58 +123,6 @@ export const Controllers = () => {
     }
   }
 
-  const showNotAbleToStartRecordingDialog = () => {
-
-    makeDialog(DialogTypes.RECORDING_NOT_STARTED, {
-      message: `Your current browser does not support meeting recording. Please use a supported browser such as Chrome or Safari.`,
-      title: `Screen Recording`
-    },
-      () => {
-        //on ok
-      }, () => {
-        // on close
-      }, false);
-
-  }
-
-  const showStartRecordingDialog = () => {
-
-    makeDialog(DialogTypes.START_RECORDING,
-      {
-        message: `Are you sure you want to start recording the screen?`,
-        title: 'Screen Recording',
-      },
-      async () => {
-        //on ok
-        const res = await sparkRTC.value.startRecording()
-        if (res === true) {
-          updateUser({
-            isRecordingStarted: !isRecordingStarted
-          })
-        } else {
-          //not able to start recording
-          showNotAbleToStartRecordingDialog()
-        }
-      },
-      () => {
-        //on close
-      },
-      false
-    )
-  }
-
-  const handleRecording = () => {
-    logger.log("Handle Recording: isRecordingStarted: ", isRecordingStarted)
-
-    if (isRecordingStarted) {
-      sparkRTC.value.stopRecording();
-      updateUser({
-        isRecordingStarted: !isRecordingStarted
-      })
-    } else {
-      showStartRecordingDialog()
-    }
-  }
 
   if (!showControllers) return null
   return (
@@ -196,14 +144,6 @@ export const Controllers = () => {
         <Tooltip label="Reconnect">
           <IconButton onClick={handleReload} disabled={!reconnectable}>
             <Icon icon={Reconnect} />
-          </IconButton>
-        </Tooltip>
-      )}
-
-      {(
-        <Tooltip label={isRecordingStarted ? 'Stop Recording' : 'Start Recording'}>
-          <IconButton variant={isRecordingStarted && 'danger'} class="sm:flex" onClick={handleRecording}>
-            <Icon icon={isRecordingStarted ? RecordStop : RecordStart} />
           </IconButton>
         </Tooltip>
       )}
@@ -239,7 +179,7 @@ export const Controllers = () => {
         </Tooltip>
       )}
       <Tooltip label={'Menu'}>
-        <IconButton onClick={toggleMoreOptions} class="flex sm:hidden relative">
+        <IconButton onClick={toggleMoreOptions} class="flex relative">
           <Icon icon={KebabMenuVertical} />
           {attendeesBadge.value && <span class="absolute z-10 top-[0px] right-[0px] w-[10px] h-[10px] rounded-full bg-red-distructive border dark:border-secondary-1-a border-white-f-9"></span>}
         </IconButton>
@@ -249,7 +189,7 @@ export const Controllers = () => {
 }
 
 export const MoreControllers = () => {
-  const { isHost, sharingScreenStream, isStreamming, isMeetingMuted } = currentUser.value
+  const { isHost, sharingScreenStream, isStreamming, isMeetingMuted, isRecordingStarted } = currentUser.value
   const toggleMuteMeeting = () => {
     updateUser({
       isMeetingMuted: !isMeetingMuted,
@@ -268,6 +208,61 @@ export const MoreControllers = () => {
       onStopShareScreen(sharingScreenStream)
     }
   }
+
+  const handleRecording = () => {
+    logger.log("Handle Recording: isRecordingStarted: ", isRecordingStarted)
+
+    if (isRecordingStarted) {
+      sparkRTC.value.stopRecording();
+      updateUser({
+        isRecordingStarted: !isRecordingStarted
+      })
+    } else {
+      showStartRecordingDialog()
+    }
+  }
+
+  const showStartRecordingDialog = () => {
+
+    makeDialog(DialogTypes.START_RECORDING,
+      {
+        message: `Are you sure you want to start recording the screen?`,
+        title: 'Screen Recording',
+      },
+      async () => {
+        //on ok
+        const res = await sparkRTC.value.startRecording()
+        if (res === true) {
+          updateUser({
+            isRecordingStarted: !isRecordingStarted
+          })
+        } else {
+          //not able to start recording
+          showNotAbleToStartRecordingDialog()
+        }
+      },
+      () => {
+        //on close
+      },
+      false
+    )
+  }
+
+  const showNotAbleToStartRecordingDialog = () => {
+
+    makeDialog(DialogTypes.RECORDING_NOT_STARTED, {
+      message: `Your current browser does not support meeting recording. Please use a supported browser such as Chrome or Safari.`,
+      title: `Screen Recording`
+    },
+      () => {
+        //on ok
+      }, () => {
+        // on close
+      }, false);
+
+  }
+
+
   return (
     <div class="flex gap-5 py-5 justify-center">
       {isDebugMode.value && (
@@ -282,6 +277,13 @@ export const MoreControllers = () => {
           <Icon icon={isMeetingMuted ? VolumeOff : Volume} />
         </IconButton>
       </Tooltip>
+
+      <Tooltip label={isRecordingStarted ? 'Stop Recording' : 'Start Recording'}>
+        <IconButton variant={isRecordingStarted && 'danger'} class="sm:flex" onClick={handleRecording}>
+          <Icon icon={isRecordingStarted ? RecordStop : RecordStart} />
+        </IconButton>
+      </Tooltip>
+
       {isStreamming && isHost && (
         <Tooltip key={sharingScreenStream ? 'ShareOff' : 'Share'} label={!sharingScreenStream ? 'Share Screen' : 'Stop Sharing Screen'}>
           <IconButton
