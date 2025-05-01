@@ -698,7 +698,7 @@ export const LinkCopyComponent = ({ title, link, className }) => {
   const [copyTooltipTitle, setCopyTooltipTitle] = useState('Copy Link')
   const onCopy = () => {
     copy(link).then(() => {
-      setCopyTooltipTitle('Coppied')
+      setCopyTooltipTitle('Copied')
       setTimeout(() => {
         setCopyTooltipTitle('Copy Link')
       }, 2000)
