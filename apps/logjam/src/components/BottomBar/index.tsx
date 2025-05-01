@@ -5,6 +5,7 @@ import { BottomSheet, Container, Controllers, Icon, MoreControllers, Tooltip, at
 import { broadcastIsInTheMeeting, isDebugMode, meetingIsNotStarted, meetingStartRemainingTime, sparkRTC } from 'pages/Meeting'
 import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
 import logger from 'lib/logger/logger.js'
+import { meetingStartTimeInUnix } from 'pages/audience/index.js'
 export const BottomBar = () => {
 
   return (
@@ -48,9 +49,9 @@ const generateAudienceUrl = (roomName: string) => {
 
     logger.log("Iframe URL: ", TopWindowURL.value)
 
-    return `${TopWindowURL.value}/log/${roomName}`
+    return `${TopWindowURL.value}/log/${roomName}/${meetingStartTimeInUnix.value}`
   }
-  return `${window.location.origin}/log/${roomName}`
+  return `${window.location.origin}/log/${roomName}/${meetingStartTimeInUnix.value}`
 }
 
 

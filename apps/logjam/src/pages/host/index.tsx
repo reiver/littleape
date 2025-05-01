@@ -23,6 +23,7 @@ import { signal } from '@preact/signals'
 import { PocketBaseManager, HostData, RoomData, convertRoomDataToFormData } from 'lib/pocketBase/helperAPI'
 import logger from 'lib/logger/logger'
 import dayjs from 'dayjs'
+import { meetingStartTimeInUnix } from 'pages/audience'
 
 const PageNotFound = lazy(() => import('../_404'))
 const selectedImage = signal(null)
@@ -79,7 +80,7 @@ const generateAudienceUrl = async (roomName: string, unixTimestamp: number) => {
   if (isInsideIframe()) {
     baseUrl = TopWindowURL.value
   }
-  return `${baseUrl}/log/${roomName}?st=${unixTimestamp}`
+  return `${baseUrl}/log/${roomName}/${unixTimestamp}`
 }
 
 
@@ -117,6 +118,8 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
     setEventTimeInUnix(unixTimestamp)
 
+    meetingStartTimeInUnix.value = unixTimestamp
+    
     const formattedDate = dayjs.unix(unixTimestamp).format("h:m A, on dddd, MMMM D, YYYY");
 
     setDateTimeFromUnix(formattedDate)
