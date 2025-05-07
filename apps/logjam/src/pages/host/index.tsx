@@ -98,7 +98,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [showEventScheduleModal, setShowEventScheduleModal] = useState(false)
   const [startNewRoomFromIframe, setStartNewRoomFromIframe] = useState(false)
   const [hostLink, setHostLink] = useState("");
-  const [roomName, setRoomName] = useState("");
+  const [roomName, setRoomName] = useState(displayName);
   const [audienceLink, setAudienceLink] = useState("");
   const [gaUrl, setGaUrl] = useState("")
   const [allowedToStartMeeting, setAllowedToStartMeeting] = useState(false)
@@ -291,7 +291,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
 
   const onSubmit = async () => {
-    const { room, displayName } = form.getValues(); // Extracting values from the form
+    const { displayName } = form.getValues(); // Extracting values from the form
 
     if (isInsideIframe()) {
       setStartNewRoomFromIframe(true)
@@ -300,7 +300,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
       // Prepare the data to send
       const dataToSend = {
         from: "iframe",
-        roomname: room,
+        roomname: roomName,
         username: displayName
       };
 
@@ -326,9 +326,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   const handleRoomCreationInDB = async () => {
 
-    const { room, description } = form.getValues(); // Extracting values from the form
+    logger.log("Room name is: ",roomName)
+    const { description } = form.getValues(); // Extracting values from the form
     //create new Room
-    var roomData = new RoomData(room, description, selectedImageFile.value, hostId, "")
+    var roomData = new RoomData(roomName, description, selectedImageFile.value, hostId, "")
     var formData = convertRoomDataToFormData(roomData)
     logger.log("RoomData Thumbnail: ", formData.get('thumbnail'))
     createNewRoom(roomData)
@@ -350,14 +351,14 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   }
 
   const handleRedirectBackToGreatApe = async () => {
-    const { room, displayName } = form.getValues(); // Extracting values from the form
+    const { displayName } = form.getValues(); // Extracting values from the form
 
     // Prepare the data to send
     const dataToSend = {
       from: "logjam",
       audienceLink: audienceLink,
       hostLink: hostLink,
-      roomName: room,
+      roomName: roomName,
       displayName: displayName,
       startMeeting: true
     };
@@ -455,7 +456,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   const generateBothUrls = async () => {
     const host = await generateHostUrl('@' + form.getValues('displayName'));
-    const audience = await generateAudienceUrl(form.getValues('room'), eventTimeInUnix);
+    const audience = await generateAudienceUrl(roomName, eventTimeInUnix);
     setHostLink(host);
     setAudienceLink(audience);
   }
@@ -515,9 +516,9 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                   />
                 </FormControl>
               </div>
-              <FormControl className="w-full">
+              {/* <FormControl className="w-full">
                 <TextField label="Room Name" variant="outlined" size="small" {...form.register('room')} error={!!form.formState.errors.room} helperText={form.formState.errors.room?.message} />
-              </FormControl>
+              </FormControl> */}
               <FormControl className="w-full">
                 <TextField
                   rows={4}
