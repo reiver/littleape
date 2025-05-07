@@ -17,7 +17,9 @@ export const BottomBar = () => {
           </div>
         </div>
         <div class="col-span-12 sm:col-span-6 flex items-center justify-center">{broadcastIsInTheMeeting.value ? <Controllers /> : null}</div>
-        <div class="col-span-3 text-right sm:block hidden">
+
+
+        {broadcastIsInTheMeeting.value ? <div class="col-span-3 text-right sm:block hidden">
           <div class="h-full flex items-center justify-end">
             {attendeesCount.value > 0 ? (
               <Tooltip label={isAttendeesOpen.value ? 'Hide Attendees' : 'Show Attendees'}>
@@ -37,7 +39,7 @@ export const BottomBar = () => {
               </Tooltip>
             ) : null}
           </div>
-        </div>
+        </div> : null}
       </div>
     </Container>
   )

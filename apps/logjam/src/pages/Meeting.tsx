@@ -939,9 +939,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
       {meetingStatus.value ? (
         <>
           <MeetingBody customStyles={customStyles ? customStyles : null} />
-          {
-            meetingStartRemainingTime.value == "" || broadcastIsInTheMeeting.value == true ? (<BottomBar />) : null
-          }
+          <BottomBar />
         </>
       ) : (
         <div class="flex flex-col justify-center items-center sm:p-10 rounded-md gap-4 h-full flex-grow">
