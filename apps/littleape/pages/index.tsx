@@ -19,6 +19,7 @@ import { User } from "types/User";
 import { useAddress } from "web3-wallet-connection";
 import { useRouter } from "next/router";
 import { isFediverseMvpMode, isMvpMode } from "./auth/login";
+import Logo from '../public/Logo + Type.svg';
 
 export const getDeviceConfig = () => {
   if (typeof window === 'undefined') {
@@ -151,7 +152,15 @@ export default function Home() {
           name="format-detection"
           content="telephone=no, date=no, email=no, address=no"
         />
-      </Head></>) : (
+      </Head>
+
+      <div className="w-full h-screen bg-primary flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center gap-10">
+          <Logo />
+          <span className="text-medium-12">Version {process.env.NEXT_PUBLIC_GREATAPE_VERSION}</span>
+        </div>
+      </div>
+    </>) : (
       <>
         <Head>
           <title>Greatape</title>
