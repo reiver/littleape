@@ -15,7 +15,7 @@ function getAudienceUrl(roomname: string) {
     }
 
     const baseUrl = LOGJAM_URL;
-    return `${baseUrl}/log/${roomname}/${meetingSt}`;
+    return `${baseUrl}/${roomname}/log/${meetingSt}`;
 }
 
 export default function AudiencePage() {

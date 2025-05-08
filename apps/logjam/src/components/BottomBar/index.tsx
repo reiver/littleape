@@ -51,9 +51,9 @@ const generateAudienceUrl = (roomName: string) => {
 
     logger.log("Iframe URL: ", TopWindowURL.value)
 
-    return `${TopWindowURL.value}/log/${roomName}/${meetingStartTimeInUnix.value}`
+    return `${TopWindowURL.value}/${roomName}/log/${meetingStartTimeInUnix.value}`
   }
-  return `${window.location.origin}/log/${roomName}/${meetingStartTimeInUnix.value}`
+  return `${window.location.origin}/${roomName}/log/${meetingStartTimeInUnix.value}`
 }
 
 

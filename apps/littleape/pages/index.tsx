@@ -154,12 +154,13 @@ export default function Home() {
         />
       </Head>
 
-      <div className="w-full h-screen bg-primary flex items-center justify-center">
+      {/* <div className="w-full h-screen bg-primary flex items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-10">
           <Logo />
           <span className="text-medium-12">Version {process.env.NEXT_PUBLIC_GREATAPE_VERSION}</span>
         </div>
-      </div>
+      </div> */}
+      
     </>) : (
       <>
         <Head>
