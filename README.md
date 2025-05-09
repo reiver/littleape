@@ -4,49 +4,9 @@
 
 **GreatApe** is a public conversations platform for the social-web (including the Fediverse) and decentralized social-media (DeSo) — where the audience can watch live, and even join the conversation.
 
-## Details
+<img src="doc/img/greatape-logo.png" style="width:150px" />
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+The documentation for **LittleApe** is divided up into several files.
 
-Preferred [Nodejs](https://nodejs.org/) version -> [16.17.0](https://nodejs.org/dist/v16.17.0).
-
-⚠️ This project is under heavy development and the structure is unstable.
-
-## Initialization
-
-1. Clone the project
-2. Install all the dependencies using the following commands.
-
-```bash
-npm i
-# or
-yarn
-```
-
-## Development Environment
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Production Environment
-
-```bash
-npm run build
-# or
-yarn build
-```
-
-Then you need to start the Nextjs server to run the production server.
-
-```bash
-npm start
-# or
-yarn start
-```
-
-The project will be served on [http://localhost:3000](http://localhost:3000)
+* [RUNNING.md](doc/RUNNING.md) — Anyone wishing to run **LittleApe**, please see [RUNNING.md](doc/RUNNING.md) file.
+* [HACKING.md](doc/HACKING.md) — Anyone wishing to contribute to the **LittleApe** source-code, please see [HACKING.md](doc/HACKING.md) file.
