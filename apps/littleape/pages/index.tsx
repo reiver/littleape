@@ -148,10 +148,6 @@ export default function Home() {
     isMvpMode || isFediverseMvpMode ? (<>
       <Head>
         <title>Greatape</title>
-        <meta
-          name="format-detection"
-          content="telephone=no, date=no, email=no, address=no"
-        />
       </Head>
 
       {/* <div className="w-full h-screen bg-primary flex items-center justify-center">
@@ -165,10 +161,6 @@ export default function Home() {
       <>
         <Head>
           <title>Greatape</title>
-          <meta
-            name="format-detection"
-            content="telephone=no, date=no, email=no, address=no"
-          />
         </Head>
         <DashboardLayout
           footer={false}
