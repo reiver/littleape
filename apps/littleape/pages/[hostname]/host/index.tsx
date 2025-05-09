@@ -4,6 +4,8 @@ import { isFediverseMvpMode, isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "store";
 import Head from "next/head";
+import Cookies from "js-cookie";
+import { USER_COOKIE } from "constants/app";
 
 
 function getHostUrl(hostname: String) {
@@ -14,10 +16,11 @@ function getHostUrl(hostname: String) {
 export default function HostPage() {
     const [hashToSend, sethashToSend] = useState(null)
     const [iframeLoaded, setIframeLoaded] = useState(false);
-    let user = useAuthStore((state) => state.user);
+    let user = Cookies.get(USER_COOKIE);
     const router = useRouter();
     const { hostname } = router.query; // Extract query params
 
+    console.log("USER IS: ",user)
     if (isMvpMode == true || isFediverseMvpMode == true) {
         if (user == null) {
             useEffect(() => {

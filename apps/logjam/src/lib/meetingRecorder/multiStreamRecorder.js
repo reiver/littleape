@@ -104,14 +104,20 @@ class MultiStreamRecorder {
         this.audioMixer.removeTrack(streamIndex)
     }
 
-
-    // Initialize canvas if not already done
     initCanvas() {
         if (!this.canvas) {
+            const screenTrack = this.streams
+                .map((s) => s.getVideoTracks()[0])
+                .find((track) => track.label.toLowerCase().includes("screen") || track.label.toLowerCase().includes("display"));
+
+            const settings = screenTrack?.getSettings?.();
+            const screenWidth = settings?.width || 1920;
+            const screenHeight = settings?.height || 1080;
+
             const canvas = document.createElement("canvas");
-            document.body.appendChild(canvas); // Optionally attach to the DOM
-            canvas.width = 1280; // Set canvas width
-            canvas.height = 720; // Set canvas height
+            canvas.width = screenWidth;
+            canvas.height = screenHeight;
+            document.body.appendChild(canvas); // Optional for debug
             this.canvas = canvas;
         }
         return this.canvas;
@@ -135,7 +141,6 @@ class MultiStreamRecorder {
 
         // Draw the name in the top-right corner of the video container
         if (stream != null) {
-            logger.log("Stream is: ", stream)
 
             var streamName = stream.name
 
@@ -435,6 +440,7 @@ class MultiStreamRecorder {
         try {
             this.mediaRecorder = new MediaRecorder(combinedStream, {
                 mimeType: this.videoType,
+                videoBitsPerSecond: 5_000_000
             });
 
             this.mediaRecorder.ondataavailable = (event) => {

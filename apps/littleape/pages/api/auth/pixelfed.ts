@@ -1,16 +1,3 @@
-// import { NextApiRequest, NextApiResponse } from "next";
-
-// export default function handler(req: NextApiRequest, res: NextApiResponse) {
-//     const instance = "https://pixelfed.social"; // Change this for different instances
-//     const clientId = process.env.NEXT_PUBLIC_PIXELFED_CLIENT_ID;
-//     const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
-
-//     const authUrl = `${instance}/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=read&force_login=true&prompt=login`;
-
-//     res.redirect(authUrl);
-// }
-
-
 import { PIXELFED_COOKIE } from "constants/app";
 import Cookies from "js-cookie";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -24,6 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
+        const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
 
         console.log("Redirect URI: ", redirectUri);
 
@@ -32,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                client_name: "LittleApe",
+                client_name: clientName,
                 redirect_uris: redirectUri,
                 scopes: "read",
                 website: `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}`
