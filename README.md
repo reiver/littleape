@@ -1,8 +1,8 @@
 # LɪᴛᴛʟᴇAᴘᴇ
 
-**littleape** is a frontend for the free **social audio & video** social-media platform **greatape**.
+**LittlAape** is a front-end for **GreatApe**.
 
-**littleape**, via **greatape**, is a Fediverse technology that supports Federation via ActivityPub.
+**GreatApe** is a public conversations platform for the social-web (including the Fediverse) and decentralized social-media (DeSo) — where the audience can watch live, and even join the conversation.
 
 ### [📺 Live demo](https://greatape.vercel.app/)
 
