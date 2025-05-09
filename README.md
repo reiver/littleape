@@ -4,8 +4,6 @@
 
 **GreatApe** is a public conversations platform for the social-web (including the Fediverse) and decentralized social-media (DeSo) — where the audience can watch live, and even join the conversation.
 
-### [📺 Live demo](https://greatape.vercel.app/)
-
 ## Details
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
