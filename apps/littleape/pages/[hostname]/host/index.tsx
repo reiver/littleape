@@ -2,10 +2,10 @@ import { LOGJAM_URL } from "components/Navbar";
 import { useRouter } from "next/router";
 import { isFediverseMvpMode, isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
-import { useAuthStore } from "store";
 import Head from "next/head";
 import Cookies from "js-cookie";
 import { USER_COOKIE } from "constants/app";
+import { useToast } from "@chakra-ui/react";
 
 
 function getHostUrl(hostname: String) {
@@ -16,18 +16,37 @@ function getHostUrl(hostname: String) {
 export default function HostPage() {
     const [hashToSend, sethashToSend] = useState(null)
     const [iframeLoaded, setIframeLoaded] = useState(false);
-    let user = Cookies.get(USER_COOKIE);
+    let _user = Cookies.get(USER_COOKIE);
+
     const router = useRouter();
     const { hostname } = router.query; // Extract query params
 
-    console.log("USER IS: ",user)
-    if (isMvpMode == true || isFediverseMvpMode == true) {
-        if (user == null) {
-            useEffect(() => {
-                router.replace("/auth/login");
-            }, [router]);
+    const toast = useToast();
+
+    useEffect(() => {
+        if (!hostname) return; // wait until hostname is ready
+
+        const user = _user ? JSON.parse(_user) : null;
+        const prefix = "@";
+        const hostNameWithoutPrefix = hostname?.startsWith(prefix)
+            ? hostname.slice(prefix.length)
+            : hostname;
+
+        const shouldRedirect = (isMvpMode || isFediverseMvpMode) &&
+            (!user || user.username !== hostNameWithoutPrefix);
+
+        if (shouldRedirect) {
+            toast({
+                title: "403 Forbidden access",
+                description: "Please Login to continue using GreatApe",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+
+            router.replace("/auth/login");
         }
-    }
+    }, [router, _user, hostname, isMvpMode, isFediverseMvpMode]);
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
