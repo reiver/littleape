@@ -7,6 +7,7 @@ import { lazy } from 'preact-iso'
 import { useEffect, useState } from 'preact/compat'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
+export const meetingStartTimeInUnix = signal(0)
 
 const PageNotFound = lazy(() => import('../_404'))
 
@@ -28,11 +29,13 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
 
   const fetchMeetingScheduledTime = () => {
     // Get query param 'st' from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const startTime = urlParams.get('st');
+    const path = window.location.pathname;
+    const parts = path.split("/");
+    const startTime = parts[parts.length - 1];
 
     if (startTime) {
       setMeetingStartTime(Number(startTime)); // convert to number before setting
+      meetingStartTimeInUnix.value = Number(startTime)
     } else {
       // fallback or error handling
       console.warn('No "st" query param found. Using default time.');

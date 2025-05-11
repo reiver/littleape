@@ -5,6 +5,7 @@ import { BottomSheet, Container, Controllers, Icon, MoreControllers, Tooltip, at
 import { broadcastIsInTheMeeting, isDebugMode, meetingIsNotStarted, meetingStartRemainingTime, sparkRTC } from 'pages/Meeting'
 import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
 import logger from 'lib/logger/logger.js'
+import { meetingStartTimeInUnix } from 'pages/audience/index.js'
 export const BottomBar = () => {
 
   return (
@@ -16,7 +17,9 @@ export const BottomBar = () => {
           </div>
         </div>
         <div class="col-span-12 sm:col-span-6 flex items-center justify-center">{broadcastIsInTheMeeting.value ? <Controllers /> : null}</div>
-        <div class="col-span-3 text-right sm:block hidden">
+
+
+        {broadcastIsInTheMeeting.value ? <div class="col-span-3 text-right sm:block hidden">
           <div class="h-full flex items-center justify-end">
             {attendeesCount.value > 0 ? (
               <Tooltip label={isAttendeesOpen.value ? 'Hide Attendees' : 'Show Attendees'}>
@@ -36,7 +39,7 @@ export const BottomBar = () => {
               </Tooltip>
             ) : null}
           </div>
-        </div>
+        </div> : null}
       </div>
     </Container>
   )
@@ -48,9 +51,9 @@ const generateAudienceUrl = (roomName: string) => {
 
     logger.log("Iframe URL: ", TopWindowURL.value)
 
-    return `${TopWindowURL.value}/log/${roomName}`
+    return `${TopWindowURL.value}/${roomName}/log/${meetingStartTimeInUnix.value}`
   }
-  return `${window.location.origin}/log/${roomName}`
+  return `${window.location.origin}/${roomName}/log/${meetingStartTimeInUnix.value}`
 }
 
 

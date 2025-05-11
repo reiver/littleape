@@ -146,6 +146,10 @@ const Login: FC = () => {
     }
   }, [onSignMessage])
 
+  const generateUserName = (url, name) => {
+    const domain = new URL(url).hostname;
+    return `${name}@${domain}`
+  }
 
   //mastodon data
   useEffect(() => {
@@ -153,6 +157,8 @@ const Login: FC = () => {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
         setMastodonUser(userData);
+
+        const extractedUserName = generateUserName(userData.url, userData.username)
 
         toast({
           title: "Successful Login to Mastodon",
@@ -169,7 +175,7 @@ const Login: FC = () => {
           banner: userData.header, // Using header as banner
           bio: userData.note.replace(/<\/?p>/g, ""), // Removing HTML tags from bio
           name: userData.display_name,
-          username: userData.username,
+          username: extractedUserName,
           blueskyid: null,
         };
 
@@ -213,6 +219,8 @@ const Login: FC = () => {
         const userData = JSON.parse(decodeURIComponent(router.query.pixelfeduser as string));
         setPixelfedUser(userData);
 
+        const extractedUserName = generateUserName(userData.url, userData.username)
+
         toast({
           title: "Successful Login to Pixelfed",
           description: ``,
@@ -228,7 +236,7 @@ const Login: FC = () => {
           banner: userData.header, // Using header as banner
           bio: userData.note.trim(), // Removing extra spaces from bio
           name: userData.display_name,
-          username: userData.username,
+          username: extractedUserName,
           blueskyid: null,
         };
 
@@ -272,6 +280,8 @@ const Login: FC = () => {
         const userData = JSON.parse(decodeURIComponent(router.query.misskeyuser as string));
         setMisskeyUser(userData);
 
+        const extractedUserName = generateUserName(userData.avatarUrl, userData.username)
+
         toast({
           title: "Successful Login to Misskey",
           description: ``,
@@ -287,7 +297,7 @@ const Login: FC = () => {
           banner: misskeyUser.bannerUrl ?? "",
           bio: misskeyUser.description ?? "",
           name: misskeyUser.name ?? "",
-          username: misskeyUser.username ?? "",
+          username: extractedUserName ?? "",
         });
 
         const mappedUser = mapMisskeyUserToUser(userData)
@@ -331,7 +341,11 @@ const Login: FC = () => {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.peertubeuser as string));
         setPeerTubeUser(userData);
+        console.log("Peertube user: ", userData)
 
+        const extractedUserName = generateUserName(userData.url, userData.name)
+
+        
         toast({
           title: "Successful Login to Peertube",
           description: ``,
@@ -345,7 +359,7 @@ const Login: FC = () => {
           id: Number(peerTubeUser.id) || undefined,
           bio: peerTubeUser.description ?? "",
           name: peerTubeUser.displayName ?? "",
-          username: peerTubeUser.name ?? "",
+          username: extractedUserName ?? "",
         });
 
         const mappedUser = mapPeertubeUserToUser(userData)

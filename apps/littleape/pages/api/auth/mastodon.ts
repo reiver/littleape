@@ -9,6 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
+        const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
 
         console.log("Redirect URI: ", redirectUri)
         // Register app dynamically
@@ -16,10 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                client_name: "LittleApe",
+                client_name: clientName,
                 redirect_uris: redirectUri,
-                scopes: "read",
-                website: "https://littleape.xyz"
+                scopes: "profile write:statuses",
+                website: process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL
             }),
         });
 
@@ -34,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const authUrl = `${instance}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
             redirectUri
-        )}&response_type=code&scope=read&force_login=true`;
+        )}&response_type=code&scope=${encodeURIComponent("profile write:statuses")}&force_login=true`;
 
         // Set cookie with state data
         res.setHeader(

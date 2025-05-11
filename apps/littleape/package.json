@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "prepare": "husky install",
+    "prepare": "node scripts/prepare.js",
     "gen:theme-typings": "chakra-cli tokens chakra.config.ts",
     "postinstall": "npm run gen:theme-typings",
     "storybook": "start-storybook -p 6006 -s public",

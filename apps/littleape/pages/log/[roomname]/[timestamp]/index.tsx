@@ -5,16 +5,17 @@ import Head from "next/head";
 
 function getAudienceUrl(roomname: string) {
 
-    // Get query param 'st' from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const startTime = urlParams.get('st');
+    const path = window.location.pathname;
+    const parts = path.split("/");
+    const startTime = parts[parts.length - 1];
+
     var meetingSt = 0
     if (startTime) {
         meetingSt = Number(startTime); // convert to number before setting
     }
 
     const baseUrl = LOGJAM_URL;
-    return `${baseUrl}/log/${roomname}?st=${meetingSt}`;
+    return `${baseUrl}/${roomname}/log/${meetingSt}`;
 }
 
 export default function AudiencePage() {
