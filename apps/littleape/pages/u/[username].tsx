@@ -169,7 +169,7 @@ export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
     github: "",
     id: 0,
     publicKey: "",
-    username: "zaid",
+    username: "",
   };
   //   try {
   //     user = await serverFetch(API_USER_PROFILE(username), ctx.req, {
