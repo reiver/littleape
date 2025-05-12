@@ -1,19 +1,19 @@
-const isDebugMode = import.meta.env.VITE_APP_DEBUG_MODE === 'true';
+const isDebugMode = process.env.NEXT_PUBLIC_IS_DEBUG_MODE === "true";
 
 const logger = {
     log: (...args) => {
         if (isDebugMode) {
-            console.log('[LOGJAM] 🟢 ', ...args);
+            console.log('[LITTLEAPE] 🟢 ', ...args);
         }
     },
     warn: (...args) => {
         if (isDebugMode) {
-            console.warn('[LOGJAM] 🟡 ', ...args);
+            console.warn('[LITTLEAPE] 🟡 ', ...args);
         }
     },
     error: (...args) => {
         if (isDebugMode) {
-            console.error('[LOGJAM] 🔴 ', ...args);
+            console.error('[LITTLEAPE] 🔴 ', ...args);
         }
     },
 };

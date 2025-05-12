@@ -1,3 +1,4 @@
+import logger from 'lib/logger/logger'
 import { deviceSize } from 'pages'
 import { cloneElement, toChildArray, VNode } from 'preact'
 import { useEffect, useRef } from 'preact/compat'
@@ -25,7 +26,7 @@ export const Tooltip = ({ children, label, hideOnClick = true }) => {
   }, [deviceSize])
 
   useEffect(() => {
-    console.log('changed', label, tippyInstance.current)
+    logger.log('changed', label, tippyInstance.current)
     if (tippyInstance.current) tippyInstance.current.setContent(label)
   }, [label])
 

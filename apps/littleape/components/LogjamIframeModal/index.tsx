@@ -1,4 +1,5 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay, ModalProps } from "@chakra-ui/react";
+import logger from "lib/logger/logger";
 import { FC, useState } from "react";
 
 export const LogjamIframeModal = ({ url, onClose }: { url: string, onClose: (userClickedCloseIcon: boolean) => void }) => {
@@ -39,7 +40,7 @@ type ShowLogjamIframeModalProps = {
 } & Omit<ModalProps, "children">;
 
 const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose = () => { }, url, ...props }) => {
-    console.log("Inside ShowLogjamIframeModal");
+    logger.log("Inside ShowLogjamIframeModal");
 
     const [iframeLoaded, setIframeLoaded] = useState(false);
 
@@ -47,14 +48,14 @@ const ShowLogjamIframeModal: FC<ShowLogjamIframeModalProps> = ({ isOpen, onClose
     const sendParentUrlToIframe = () => {
         const iframe = document.getElementById("logjamIframe") as HTMLIFrameElement;
         if (iframe && iframe.contentWindow) {
-            console.log("Sending PARENT_URL to Iframe")
+            logger.log("Sending PARENT_URL to Iframe")
             iframe.contentWindow.postMessage({ type: "PARENT_URL" }, "*");
         }
     };
 
     const handleIframeLoad = () => {
         setIframeLoaded(true);
-        console.log("Iframe loaded successfully.");
+        logger.log("Iframe loaded successfully.");
         setTimeout(() => {
             sendParentUrlToIframe();
         }, 2000);

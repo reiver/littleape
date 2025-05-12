@@ -8,6 +8,7 @@ import { TrendingTags } from "components/TrendingTags";
 import { USER_COOKIE } from "constants/app";
 import Cookies from "js-cookie";
 import { DashboardLayout } from "layouts/Dashboard";
+import logger from "lib/logger/logger";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
 import { authProps, withAuth } from "lib/withAuth";
 import Head from "next/head";
@@ -62,13 +63,13 @@ export default function UserProfile() {
               const currentTime = Date.now();
 
               if (lastOpenedAt && currentTime - lastOpenedAt < 20000) {
-                console.log("Meeting window was opened recently. Try again later.");
+                logger.log("Meeting window was opened recently. Try again later.");
                 return
               }
 
               //start meeting in new tab inside iframe
               if (window.location.href != undefined && window.location.href != "" && !window.location.href.includes("/host")) {
-                console.log("Received data going to open new window for meeting: ", window.location.href)
+                logger.log("Received data going to open new window for meeting: ", window.location.href)
 
                 // Prepare the data to send
                 const dataToSend = {
@@ -176,7 +177,7 @@ export const getServerSideProps = withAuth("guest-authorized", async (ctx) => {
   //       activityPub: true,
   //     });
   //   } catch (e) {
-  //     console.error(e);
+  //     logger.error(e);
   //     return {
   //       notFound: true,
   //     };

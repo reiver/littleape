@@ -35,6 +35,7 @@ import { ConnectWallet, useAddress, useConnectionStatus, useDisconnect, useSDK, 
 import { z } from "zod";
 import styles from "../MyComponent.module.css";
 import { checkUserHasBlueSkyLinked } from "lib/utils";
+import logger from "lib/logger/logger";
 
 const pbManager = PocketBaseManager.getInstance();
 
@@ -192,7 +193,7 @@ const RegistrationForm: FC<{
 
       if (response.code != undefined) {
         //failed to register
-        console.error("Failed to register user: ", response);
+        logger.error("Failed to register user: ", response);
         if (response.code == 400) {
           toast({
             title: "The email is invalid or already in use.",
@@ -204,7 +205,7 @@ const RegistrationForm: FC<{
         }
       } else {
 
-        console.log("User SignedUP: ", response)
+        logger.log("User SignedUP: ", response)
 
         const record = response
 
@@ -234,7 +235,7 @@ const RegistrationForm: FC<{
             duration: 3000,
             isClosable: true,
           });
-          console.error("Sign in error:", error);
+          logger.error("Sign in error:", error);
           const err: Error = error.response?._data;
           if (err?.type === "server_error") setError(err.payload);
         }
@@ -349,14 +350,14 @@ const RegistrationForm: FC<{
             <SignInWithFarcasterButton
               onSuccess={(res) => {
                 if (loginMode != LoginMode.FARCASTER) {
-                  console.log("Farcaster Login success: ", res)
+                  logger.log("Farcaster Login success: ", res)
                   loginOrCreateNewAccountUsingFarcaster(res.data.username, res.data.displayName, res.data.fid, res.data.bio)
                   setLoginMode(LoginMode.FARCASTER);
 
                 }
               }}
               onError={(err) => {
-                console.log("Error SIWF: ", err)
+                logger.log("Error SIWF: ", err)
               }}
             />
           </div>
@@ -374,7 +375,7 @@ const RegistrationForm: FC<{
                   });
                 } else {
                   const _user = user.record
-                  console.log("Login successfull with Blue Sky: ", _user)
+                  logger.log("Login successfull with Blue Sky: ", _user)
                   setAuth(_user.email, _user);
                   setLoginMode(LoginMode.BLUESKY)
                   router.push("/")
@@ -423,7 +424,7 @@ const RegistrationForm: FC<{
               setShowConnectedWallets(false);
             }}
             onSignMessage={(value) => {
-              console.log("Signed Message: ", value)
+              logger.log("Signed Message: ", value)
               return setOnSignMessage(value);
             }}
             forceSign={true}

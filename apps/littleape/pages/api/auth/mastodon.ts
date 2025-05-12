@@ -1,3 +1,4 @@
+import logger from "lib/logger/logger";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -11,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
         const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
 
-        console.log("Redirect URI: ", redirectUri)
+        logger.log("Redirect URI: ", redirectUri)
         // Register app dynamically
         const registerRes = await fetch(`${instance}/api/v1/apps`, {
             method: "POST",

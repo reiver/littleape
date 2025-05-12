@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import cookie from "cookie";
+import logger from "lib/logger/logger";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { session } = req.query; // Retrieve session ID from the query params
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!state) {
         return res.status(400).json({ error: "State object not found in cookies" });
     }
-    console.log("State is: ", state)
+    logger.log("State is: ", state)
 
     const instance = state
 
@@ -30,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         const data = await response.json();
-        console.log("Misskey Login Response:", data);
+        logger.log("Misskey Login Response:", data);
 
         if (!data.token) {
             return res.redirect(`/auth/login?misskeyerror=${encodeURIComponent("Failed to get access token")}&misskeydata=${encodeURIComponent(JSON.stringify(data))}`);
@@ -44,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         const userData = await userResponse.json();
-        console.log("Misskey User Data:", userData);
+        logger.log("Misskey User Data:", userData);
 
         const dataToSend = {
             id: userData.id,
@@ -57,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Redirect user to frontend with user data
         res.redirect(`/auth/login?misskeyuser=${encodeURIComponent(JSON.stringify(dataToSend))}`);
     } catch (error) {
-        console.error("Misskey MIAUTH Error:", error);
+        logger.error("Misskey MIAUTH Error:", error);
         res.redirect(`/auth/login?misskeyerror=${encodeURIComponent("Internal Server Error")}`);
     }
 }

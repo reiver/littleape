@@ -10,6 +10,7 @@ import { ModalProps, Spinner, useDisclosure, useToast } from "@chakra-ui/react"
 import AtIcon from "../../public/at-sign.svg";
 import ServerIcon from "../../public/server.svg";
 import LockIcon from "../../public/lock.svg";
+import logger from "lib/logger/logger"
 
 type SocialInstancesListComponentProps = {
     logo: JSX.Element
@@ -138,7 +139,7 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
 
 
     const handleLogin = () => {
-        console.log("Title is : ", title)
+        logger.log("Title is : ", title)
         if (title == SocialPlatform.PEERTUBE) {
             setShowPeerTubeLoginForm(true)
             onPeerTubeLoginFormOpen()

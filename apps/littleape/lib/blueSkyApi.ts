@@ -1,5 +1,6 @@
 // src/lib/api.ts
 import { AppBskyRichtextFacet, AtpAgent, AtpSessionData } from "@atproto/api";
+import logger from "./logger/logger";
 
 export class BlueSkyApi {
 
@@ -14,20 +15,20 @@ export class BlueSkyApi {
   public static getInstance(serviceUrl: string = ""): BlueSkyApi {
     if (!BlueSkyApi.instance) {
       if (serviceUrl == "") {
-        console.log("Need service url to create new Bluesky Instance")
+        logger.log("Need service url to create new Bluesky Instance")
         return
       }
-      console.log("Creating new Bluesky Instance")
+      logger.log("Creating new Bluesky Instance")
       BlueSkyApi.instance = new BlueSkyApi(serviceUrl);
-      console.log("New instance Value: ", BlueSkyApi.instance)
+      logger.log("New instance Value: ", BlueSkyApi.instance)
     } else {
-      console.log("Returning Old Bluesky Instance")
+      logger.log("Returning Old Bluesky Instance")
     }
     return BlueSkyApi.instance;
   }
 
   public static clearInstance() {
-    console.log("Clearing Bluesky Instance");
+    logger.log("Clearing Bluesky Instance");
     BlueSkyApi.instance = null
   }
 
@@ -57,10 +58,10 @@ export class BlueSkyApi {
       });
 
       this.session = { identifier, password }; // Store session information
-      console.log("Session created successfully:");
+      logger.log("Session created successfully:");
       return response;
     } catch (error) {
-      console.error("Failed to create session:", error);
+      logger.error("Failed to create session:", error);
       return "Invalid credentials OR service URL";
     }
   }
@@ -92,10 +93,10 @@ export class BlueSkyApi {
         return new Error(`Error: ${response.status} - ${errorData.error || "Unknown error"}`);
       }
 
-      console.log("Session deleted successfully.");
+      logger.log("Session deleted successfully.");
       return response
     } catch (error) {
-      console.error("Failed to delete session:", error);
+      logger.error("Failed to delete session:", error);
       return error
     }
   }
@@ -106,14 +107,14 @@ export class BlueSkyApi {
 
       const session = this.agent.sessionManager.session
 
-      console.log("Session : ", session);
+      logger.log("Session : ", session);
       const response = "No need to delete bsky session" //await this.deleteSession(session.refreshJwt)
       this.session = null; // Clear session
       BlueSkyApi.clearInstance()
-      console.log("Logout successfully:", response);
+      logger.log("Logout successfully:", response);
       return response;
     } catch (error) {
-      console.error("Failed to logout:", error);
+      logger.error("Failed to logout:", error);
       throw error;
     }
   }
@@ -124,7 +125,7 @@ export class BlueSkyApi {
       const profile = await this.agent.getProfile({ actor: identifier });
       return profile;
     } catch (error) {
-      console.error("Failed to fetch profile:", error);
+      logger.error("Failed to fetch profile:", error);
       throw error;
     }
   }
@@ -139,7 +140,7 @@ export class BlueSkyApi {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       const urls = text.match(urlRegex);
 
-      // console.log("URLs: ", urls)
+      // logger.log("URLs: ", urls)
       // If a URL is found in the text
       if (urls && urls.length > 0) {
         const url = urls[0]; // Take the first URL if there are multiple
@@ -165,7 +166,7 @@ export class BlueSkyApi {
           facets,
         });
 
-        console.log("Post created successfully with Link URL");
+        logger.log("Post created successfully with Link URL");
         return response;
       }
 
@@ -175,13 +176,13 @@ export class BlueSkyApi {
         collection: "app.bsky.feed.post", // Post collection
         text,
       });
-      console.log("RESPONS from Craete post: ", response)
+      logger.log("RESPONS from Craete post: ", response)
 
-      console.log("Post created successfully without URL");
+      logger.log("Post created successfully without URL");
       return response;
     }
     catch (error) {
-      console.error("Failed to create post:", error.status);
+      logger.error("Failed to create post:", error.status);
       return error;
     }
   }
@@ -191,7 +192,7 @@ export class BlueSkyApi {
   private sessionIsExpiring(bskySession: any): boolean {
     if (!bskySession) return true; // No session means it's expiring
     const expiryDate = this.getSessionExpiryDate(bskySession);
-    console.log("expiryDate is:", expiryDate)
+    logger.log("expiryDate is:", expiryDate)
     return Date.now() > expiryDate - 10 * 60 * 1000; // Check if session is expiring in less than 10 minutes
   }
 
@@ -201,7 +202,7 @@ export class BlueSkyApi {
       try {
         return JSON.parse(atob(token.split('.')[1]));
       } catch (e) {
-        console.error('Failed to parse JWT token:', e);
+        logger.error('Failed to parse JWT token:', e);
         return null;
       }
     };
@@ -217,20 +218,20 @@ export class BlueSkyApi {
   public async resumeSession(bskySession: any) {
 
     if (bskySession != null) {
-      console.log("Old bsky session from PocketBase: ", bskySession)
+      logger.log("Old bsky session from PocketBase: ", bskySession)
 
       //get user session
       const expired = this.sessionIsExpiring(bskySession)
-      console.log("Session is expired: ", expired)
+      logger.log("Session is expired: ", expired)
 
       this.agent.sessionManager.session = bskySession
 
       if (expired) {
         try {
           const resumeSess = await this.agent.resumeSession(bskySession)
-          console.log("Resumed Session: ", resumeSess)
+          logger.log("Resumed Session: ", resumeSess)
         } catch (error) {
-          console.error("Error while resuming session: ", error.status)
+          logger.error("Error while resuming session: ", error.status)
         }
       }
       return this.agent.session

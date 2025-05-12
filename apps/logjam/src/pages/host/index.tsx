@@ -133,7 +133,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     window.addEventListener("message", (event) => {
       logger.log("Got message : ", event)
       if (event.data?.type === "FROMIFRAME") {
-        console.log("TOP Window URL:", event.origin);
+        logger.log("TOP Window URL:", event.origin);
         if (event.data?.payload == "start") {
           //let user to start the meeting
           TopWindowURL.value = event.origin
@@ -154,7 +154,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
     HashDataFromLittleApe.value = hashData
 
-    console.log("data received: ", hashData)
+    logger.log("data received: ", hashData)
     if (hashData) {
       try {
         const receivedData = JSON.parse(decodeURIComponent(hashData));
@@ -583,7 +583,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                           value={selectedDate}
                           onChange={(newValue) => {
                             setSelectedDate(newValue)
-                            console.log("Selected date is: ", newValue)
+                            logger.log("Selected date is: ", newValue)
                           }}
                           minDate={dayjs()}
                           renderInput={(params) => (

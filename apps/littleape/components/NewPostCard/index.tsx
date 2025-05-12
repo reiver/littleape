@@ -101,7 +101,7 @@ export const NewPostCard: FC<BoxProps & { defaultValue?: string }> = ({ defaultV
 
       //resume the session and retry
       const resSessiion = await blueSkyApi.resumeSession(bskySession)
-      console.log("Resumed session: ", resSessiion)
+      logger.log("Resumed session: ", resSessiion)
 
       retryResponse = await blueSkyApi.createPost(bskyPost)
 

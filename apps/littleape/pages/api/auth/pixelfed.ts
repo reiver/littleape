@@ -1,5 +1,6 @@
 import { PIXELFED_COOKIE } from "constants/app";
 import Cookies from "js-cookie";
+import logger from "lib/logger/logger";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
         const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
 
-        console.log("Redirect URI: ", redirectUri);
+        logger.log("Redirect URI: ", redirectUri);
 
         // Register app dynamically
         const registerRes = await fetch(`${instance}/api/v1/apps`, {
@@ -36,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Create the state object containing client_id, client_secret, and instance URL
         const stateObj = { instance, client_id, client_secret };
-        console.log("STATE: ", stateObj)
+        logger.log("STATE: ", stateObj)
 
         const authUrl = `${instance}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
             redirectUri
@@ -48,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             `pixelfed_state=${JSON.stringify(stateObj)}; Path=/; HttpOnly; Secure; Max-Age=3600`
         );
 
-        console.log("authUrl: ", authUrl)
+        logger.log("authUrl: ", authUrl)
         return res.redirect(authUrl);
     } catch (err) {
         return res.status(500).json({ error: "Unexpected error", detail: (err as Error).message });

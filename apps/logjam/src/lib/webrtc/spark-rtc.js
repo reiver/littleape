@@ -786,9 +786,9 @@ export class SparkRTC {
       if (result.error) {
         throw result.error;
       }
-      // console.log("[ping] pong received", result)
+      // logger.log("[ping] pong received", result)
     } catch (e) {
-      console.log("[ping] timeout");
+      logger.log("[ping] timeout");
       this.lastPong = null;
       logger.log("[timeout] pong timed out, restarting.");
       this.startProcedure?.(true);

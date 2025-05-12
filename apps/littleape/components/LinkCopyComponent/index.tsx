@@ -1,13 +1,14 @@
 import Icon from "components/Icon"
 import CopyIcon from '../../public/Copy.svg'
 import LinkIcon from '../../public/Link.svg'
+import logger from '../../lib/logger/logger'
 
 export const LinkCopyComponent = ({ title, link }) => {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(link).then(() => {
-            console.log("Copied to clipboard");
+            logger.log("Copied to clipboard");
         }).catch((err) => {
-            console.error("Failed to copy:", err);
+            logger.error("Failed to copy:", err);
         });
     };
 
