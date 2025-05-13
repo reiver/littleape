@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { LOGJAM_URL } from "components/Navbar";
 import Head from "next/head";
+import logger from "lib/logger/logger";
 
 function getAudienceUrl(roomname: string) {
 
@@ -26,7 +27,7 @@ export default function AudiencePage() {
     useEffect(() => {
         const sendMessageToIframe = () => {
             if (iframeRef.current) {
-                console.log("Sending message to iframe:", iframeRef.current?.contentWindow);
+                logger.log("Sending message to iframe:", iframeRef.current?.contentWindow);
 
                 iframeRef.current?.contentWindow?.postMessage(
                     { type: "FROMIFRAME", payload: "parenturl" },
@@ -50,7 +51,7 @@ export default function AudiencePage() {
     useEffect(() => {
         const handlePostMessage = (event) => {
             if (event.data.type === "RELOAD_PARENT_WINDOW") {
-                console.log("Received reload request from iframe, reloading parent window...");
+                logger.log("Received reload request from iframe, reloading parent window...");
                 window.location.reload();
             }
         };

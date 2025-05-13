@@ -119,7 +119,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     setEventTimeInUnix(unixTimestamp)
 
     meetingStartTimeInUnix.value = unixTimestamp
-    
+
     const formattedDate = dayjs.unix(unixTimestamp).format("h:m A, on dddd, MMMM D, YYYY");
 
     setDateTimeFromUnix(formattedDate)
@@ -133,7 +133,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     window.addEventListener("message", (event) => {
       logger.log("Got message : ", event)
       if (event.data?.type === "FROMIFRAME") {
-        console.log("TOP Window URL:", event.origin);
+        logger.log("TOP Window URL:", event.origin);
         if (event.data?.payload == "start") {
           //let user to start the meeting
           TopWindowURL.value = event.origin
@@ -154,7 +154,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
     HashDataFromLittleApe.value = hashData
 
-    console.log("data received: ", hashData)
+    logger.log("data received: ", hashData)
     if (hashData) {
       try {
         const receivedData = JSON.parse(decodeURIComponent(hashData));
@@ -336,14 +336,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   }
 
-  const handleCreateLink = () => {
-    form.trigger().then(async (v) => {
-      if (v) {
-        setShowModal(v)
+  const handleCreateLink = async () => {
+    setShowModal(true)
 
-        await handleRoomCreationInDB()
-      }
-    })
+    await handleRoomCreationInDB()
   }
 
   const handleCreateEvent = () => {
@@ -499,7 +495,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     return (
       <div class="w-full flex justify-center items-center px-4 min-h-full">
         <div class="w-full max-w-[500px] mx-auto mt-10 border rounded-md border-gray-300">
-          <form class="flex flex-col w-full " onSubmit={form.handleSubmit(onSubmit)}>
+          <form class="flex flex-col w-full ">
             <span className="text-bold-12 text-black block text-center pt-5">New Live Room</span>
             <hr className="my-3" />
             <div className="p-5 flex flex-col gap-5">
@@ -555,7 +551,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                 <Button onClick={handleCreateEvent} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
                   Create Event
                 </Button>
-                <Button type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
+                <Button onClick={onSubmit} type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
                   Start Now
                 </Button>
 
@@ -576,7 +572,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <div className="p-5 flex flex-col gap-5 pb-6">
               <span class="text-bold-12 text-gray-2">Please enter your desirable date and time for starting the event:</span>
 
-              <form class="flex flex-col w-full " onSubmit={form.handleSubmit(publishEvent)}>
+              <form class="flex flex-col w-full ">
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-3">
 
@@ -587,7 +583,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                           value={selectedDate}
                           onChange={(newValue) => {
                             setSelectedDate(newValue)
-                            console.log("Selected date is: ", newValue)
+                            logger.log("Selected date is: ", newValue)
                           }}
                           minDate={dayjs()}
                           renderInput={(params) => (
@@ -653,7 +649,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                       Back
                     </Button>
 
-                    <Button type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
+                    <Button onClick={publishEvent} variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
                       Publish Event
                     </Button>
 
@@ -686,6 +682,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
       <Meeting
         params={{
           ...form.getValues(),
+          room: roomName,
           displayName: `@${form.getValues('displayName')}`,
           name: `${form.getValues('displayName')}`,
           _customStyles: customStyles

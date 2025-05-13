@@ -6,6 +6,7 @@ import Head from "next/head";
 import Cookies from "js-cookie";
 import { USER_COOKIE } from "constants/app";
 import { useToast } from "@chakra-ui/react";
+import logger from "lib/logger/logger";
 
 
 function getHostUrl(hostname: String) {
@@ -54,7 +55,7 @@ export default function HostPage() {
     useEffect(() => {
         const sendMessageToIframe = () => {
             if (iframeRef.current) {
-                console.log("Sending message to iframe:", iframeRef.current?.contentWindow);
+                logger.log("Sending message to iframe:", iframeRef.current?.contentWindow);
 
                 iframeRef.current?.contentWindow?.postMessage(
                     { type: "FROMIFRAME", payload: "start" },
@@ -73,7 +74,7 @@ export default function HostPage() {
     useEffect(() => {
         const handlePostMessage = (event) => {
             if (event.data.type === "RELOAD_PARENT_WINDOW") {
-                console.log("Received reload request from iframe, reloading parent window...");
+                logger.log("Received reload request from iframe, reloading parent window...");
                 window.location.reload();
             }
         };
@@ -93,8 +94,8 @@ export default function HostPage() {
         if (hashData) {
             try {
                 const receivedData = JSON.parse(decodeURIComponent(hashData));
-                console.log("received Data: ", receivedData);
-                console.log("Top WINDOW URL: ", window.location.origin)
+                logger.log("received Data: ", receivedData);
+                logger.log("Top WINDOW URL: ", window.location.origin)
 
                 // Prepare the data to send
                 const dataToSend = {
@@ -114,7 +115,7 @@ export default function HostPage() {
                 window.location.hash = "";
 
             } catch (error) {
-                console.error("Error parsing hash data", error);
+                logger.error("Error parsing hash data", error);
             }
 
             window.location.hash = "";

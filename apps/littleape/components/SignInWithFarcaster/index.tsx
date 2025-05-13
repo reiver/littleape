@@ -8,6 +8,7 @@ import Close from '../../public/Close.svg'
 import { createAppClient, viemConnector } from '@farcaster/auth-client';
 import Icon from "components/Icon";
 import { LinkCopyComponent } from "components/LinkCopyComponent";
+import logger from "lib/logger/logger";
 
 const appClient = createAppClient({
     ethereum: viemConnector(),
@@ -30,7 +31,7 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
             domain: process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN
         });
 
-        console.log("Client data: ", data)
+        logger.log("Client data: ", data)
         setUrl(data.url)
 
         // Open QR Code Modal when URL is set
@@ -49,7 +50,7 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
 
             try {
                 const status = await appClient.status({ channelToken });
-                // console.log("Status: ", status.data);
+                // logger.log("Status: ", status.data);
 
                 if (status.data.state === "completed") {
                     onShowQRCodeModalClose()
@@ -63,7 +64,7 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
                     checkStatus(channelToken);
                 }, 1000);
             } catch (error) {
-                console.error("Error checking status:", error);
+                logger.error("Error checking status:", error);
                 onError(error)
             }
         };
@@ -76,14 +77,14 @@ export const SignInWithFarcasterButton = ({ onSuccess, onError }) => {
         signIn,
     } = useSignIn({
         onSuccess: (res) => {
-            console.log("useSignIn success", res)
+            logger.log("useSignIn success", res)
             setError(null);  // Clear any existing error on success
             if (onSuccess) {
                 onSuccess(res);
             }
         },
         onError: (err) => {
-            console.error('Sign-in error:', err);
+            logger.error('Sign-in error:', err);
             setError(err.message);
             if (onError) {
                 onError(err);

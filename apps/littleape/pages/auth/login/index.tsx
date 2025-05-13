@@ -58,6 +58,7 @@ import { MisskeyLoginButton } from "components/SignInWithMisskey";
 import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
+import logger from "lib/logger/logger";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -183,7 +184,7 @@ const Login: FC = () => {
         router.push("/")
 
       } catch (error) {
-        console.error("Error parsing Mastodon user data:", error);
+        logger.error("Error parsing Mastodon user data:", error);
         router.replace(router.pathname, undefined, { shallow: true });
       }
 
@@ -194,7 +195,7 @@ const Login: FC = () => {
     if (router.query.mastodonerror) {
       try {
         const errorData = JSON.parse(decodeURIComponent(router.query.mastodonerror as string));
-        console.log("Error Data:", errorData);
+        logger.log("Error Data:", errorData);
 
         toast({
           title: "Failed to Authenticate with Mastodon",
@@ -205,7 +206,7 @@ const Login: FC = () => {
         });
 
       } catch (error) {
-        console.error("Error parsing Mastodon error data:", error);
+        logger.error("Error parsing Mastodon error data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -244,7 +245,7 @@ const Login: FC = () => {
         router.push("/")
 
       } catch (error) {
-        console.error("Error parsing Pixelfed user data:", error);
+        logger.error("Error parsing Pixelfed user data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -255,7 +256,7 @@ const Login: FC = () => {
     if (router.query.pixelfederror) {
       try {
         const errorData = JSON.parse(decodeURIComponent(router.query.pixelfederror as string));
-        console.log("Error Data:", errorData);
+        logger.log("Error Data:", errorData);
 
         toast({
           title: "Failed to Authenticate with Pixelfed",
@@ -266,7 +267,7 @@ const Login: FC = () => {
         });
 
       } catch (error) {
-        console.error("Error parsing Pixelfed error data:", error);
+        logger.error("Error parsing Pixelfed error data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -306,7 +307,7 @@ const Login: FC = () => {
         router.push("/")
 
       } catch (error) {
-        console.error("Error parsing Misskey user data:", error);
+        logger.error("Error parsing Misskey user data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -317,7 +318,7 @@ const Login: FC = () => {
     if (router.query.misskeyerror) {
       try {
         const errorData = JSON.parse(decodeURIComponent(router.query.misskeyerror as string));
-        console.log("Error Data:", errorData);
+        logger.log("Error Data:", errorData);
 
         toast({
           title: "Failed to Authenticate with Misskey",
@@ -328,7 +329,7 @@ const Login: FC = () => {
         });
 
       } catch (error) {
-        console.error("Error parsing Misskey error data:", error);
+        logger.error("Error parsing Misskey error data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -341,7 +342,7 @@ const Login: FC = () => {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.peertubeuser as string));
         setPeerTubeUser(userData);
-        console.log("Peertube user: ", userData)
+        logger.log("Peertube user: ", userData)
 
         const extractedUserName = generateUserName(userData.url, userData.name)
 
@@ -368,7 +369,7 @@ const Login: FC = () => {
         router.push("/")
 
       } catch (error) {
-        console.error("Error parsing Peertube user data:", error);
+        logger.error("Error parsing Peertube user data:", error);
       }
 
       router.replace(router.pathname, undefined, { shallow: true });
@@ -492,7 +493,7 @@ const Login: FC = () => {
         duration: 3000,
         isClosable: true,
       });
-      console.error("Sign in error:", error);
+      logger.error("Sign in error:", error);
       const err: Error = error.response?._data;
       if (err?.type === "server_error") setError(err.payload);
     }
@@ -520,7 +521,7 @@ const Login: FC = () => {
   }
 
   const showLoginBlueSkyModal = async () => {
-    console.log("Show login Blue Sky modal")
+    logger.log("Show login Blue Sky modal")
 
   }
 
@@ -629,9 +630,9 @@ const Login: FC = () => {
                 {
                   isMvpMode == true && <SignInWithFarcasterButton
                     onSuccess={(res) => {
-                      console.log("Success SignInWithFarcasterButton: ", res)
+                      logger.log("Success SignInWithFarcasterButton: ", res)
                       if (loginMode != LoginMode.FARCASTER) {
-                        console.log("Farcaster Login success: ", res)
+                        logger.log("Farcaster Login success: ", res)
 
                         if (isMvpMode) {
                           const mappedUser: Partial<User> = {
@@ -647,7 +648,7 @@ const Login: FC = () => {
                       }
                     }}
                     onError={(err) => {
-                      console.log("Error SIWF: ", err)
+                      logger.log("Error SIWF: ", err)
                     }} />
                 }
 
@@ -736,7 +737,7 @@ const Login: FC = () => {
                           });
                         } else {
                           const _user = user.record
-                          console.log("Login successfull with Blue Sky: ", _user)
+                          logger.log("Login successfull with Blue Sky: ", _user)
                           setAuth(_user.email, _user);
                           setLoginMode(LoginMode.BLUESKY)
                           router.push("/")
@@ -919,11 +920,3 @@ const VerifyRegistration: FC<{
     </>
   );
 };
-
-export const getServerSideProps = withAuth("notAuthorized", (ctx) => {
-  return {
-    props: {
-      ...authProps(ctx),
-    },
-  };
-});

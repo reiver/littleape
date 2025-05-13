@@ -38,7 +38,6 @@ export const PeerTubeLoginButton = ({ onButtonClick }: Props) => {
             {
                 isMvpMode == true && <div className="w-14 h-14 rounded-full bg-gray-0 flex items-center justify-center cursor-pointer" onClick={() => {
                     onButtonClick()
-                    //(window.location.href = "/api/auth/peertube")
                 }}>
                     <PeertubeLogo />
                 </div>

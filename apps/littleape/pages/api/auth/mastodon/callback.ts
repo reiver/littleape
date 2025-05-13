@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import cookie from "cookie";
+import logger from "lib/logger/logger";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "State object not found in cookies" });
   }
 
-  console.log("State is: ", state)
+  logger.log("State is: ", state)
 
   if (!code || !state) {
     const errorData = { error: "Missing code or state" };
@@ -51,11 +52,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const userData = await userResponse.json();
 
-    console.log("userData: ", userData);
+    logger.log("userData: ", userData);
 
     res.redirect(`/auth/login/?mastodonuser=${encodeURIComponent(JSON.stringify(userData))}`);
   } catch (error) {
-    console.error("Callback error:", error);
+    logger.error("Callback error:", error);
     res.status(500).json({ error: "Callback failed", detail: (error as Error).message });
   }
 }

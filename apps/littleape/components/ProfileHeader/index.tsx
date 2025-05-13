@@ -61,6 +61,7 @@ import CheckIcon from '../../public/IconFrame.svg';
 import styles from "./MyComponent.module.css";
 import { BlueSkyLoginButton } from "components/SignInWithBlueSky";
 import { SignInWithFarcasterButton } from "components/SignInWithFarcaster";
+import logger from "lib/logger/logger";
 
 
 const pbManager = PocketBaseManager.getInstance()
@@ -154,14 +155,14 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
       return
     }
     else if (loginMode == LoginMode.FARCASTER) {
-      console.log("fid is : ", fid)
+      logger.log("fid is : ", fid)
       //fetch user by fid
       const model = await pbManager.fetchUserByFID(fid)
       setUserModel(model)
       setUser(model)
       return
     } else if (loginMode == LoginMode.BLUESKY) {
-      console.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
+      logger.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
       //fetch user by fid
       const model = await pbManager.getUserByBlueSkyId(currentUser.blueskyid)
       setUserModel(model)
@@ -179,7 +180,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
   };
 
   useEffect(() => {
-    // console.log("Updated walletsMap:", walletsMap);
+    // logger.log("Updated walletsMap:", walletsMap);
   }, [walletsMap]);
 
   useEffect(() => {
@@ -229,7 +230,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
 
         // All fetch operations are completed here
       } catch (error) {
-        console.error("Error fetching ENS lists:", error);
+        logger.error("Error fetching ENS lists:", error);
       }
     }
   };
@@ -265,7 +266,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
           }
 
           if (element.signature != undefined && element.signature != "" && element.signature != "N/A") {
-            console.log("Wallet is verified")
+            logger.log("Wallet is verified")
 
             setWalletVerified(true);
           }
@@ -276,7 +277,7 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ username, ...props }) =>
     if (userModel) {
       fetchWallets();
     } else {
-      console.log("User model is Null fetching again")
+      logger.log("User model is Null fetching again")
       //reload page to get user
       fetchUserModel()
     }
@@ -734,7 +735,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
   const fetchUserModel = async () => {
     if (address) {
       const model = await pbManager.fetchUserByWalletId(address)
-      console.log("Model: ", model)
+      logger.log("Model: ", model)
       if (model.code == undefined) {
         setUserModel(model)
         setUser(model)
@@ -757,7 +758,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
       checkWhichAccountIsLinked(model)
       return
     } else if (loginMode == LoginMode.BLUESKY) {
-      console.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
+      logger.log("currentUser Bluesky ID is : ", currentUser.blueskyid)
       //fetch user by fid
       const model = await pbManager.getUserByBlueSkyId(currentUser.blueskyid)
       setUserModel(model)
@@ -805,7 +806,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
   const lookUpEnsAddress = async (address) => {
     const resolvedName = await lookUpENS(address, process.env.NEXT_PUBLIC_ALCHAMEY_API_KEY);
-    console.log("resolvedName: ", resolvedName)
+    logger.log("resolvedName: ", resolvedName)
     if (resolvedName != null) {
       setEns(resolvedName);
 
@@ -821,7 +822,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         setPrivateEnsList(resolvedName)
       }
     } else {
-      console.log("No ENS FOUND")
+      logger.log("No ENS FOUND")
       setEns('Wallet Address could not be resolved');
       // setEnsList(["dummy.eth", "myens.eth", "abcdef.eth"]) //dummy ens list
     }
@@ -889,7 +890,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
             setWalletVerified(true);
           }
         } catch (error) {
-          console.error('Error:', error);
+          logger.error('Error:', error);
         }
       }
     };
@@ -945,20 +946,20 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
 
     const data = res.data;
 
-    console.log("Existing User: ", existingUser)
-    console.log("Farcster Data: ", data)
+    logger.log("Existing User: ", existingUser)
+    logger.log("Farcster Data: ", data)
 
 
     //check if this farcaster account already linked with any Greatape account or not
     const userByFid = await pbManager.fetchUserByFID(data.fid)
-    console.log("User by fid: ", userByFid)
+    logger.log("User by fid: ", userByFid)
 
     if (userByFid.code != undefined && userByFid.code == 404) {
       //link farcaster account
 
       if (existingUser.blueskyid == null || existingUser.blueskyid == undefined || existingUser.blueskyid == "") {
         //no bsky account linked, save whole farcaster data
-        console.log("Saving whole Farcaster DATA")
+        logger.log("Saving whole Farcaster DATA")
 
         const updatedData = JSON.stringify({
           username: data.username,
@@ -968,20 +969,20 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
         })
 
         const user = await pbManager.updateUserProfileAndLinkFarcatser(existingUser.id, updatedData)
-        console.log("Updated user: ", user)
+        logger.log("Updated user: ", user)
 
         setFarcasterAccountLinked(true)
 
       } else if (existingUser.fid == 0) {
         //bsky account is linked, save only FID
-        console.log("Saving only FID")
+        logger.log("Saving only FID")
 
         const updatedData = JSON.stringify({
           fid: data.fid
         })
 
         const user = await pbManager.updateUserProfileAndLinkFarcatser(existingUser.id, updatedData)
-        console.log("Updated user: ", user)
+        logger.log("Updated user: ", user)
 
         setFarcasterAccountLinked(true)
 
@@ -1205,7 +1206,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                               });
                             } else {
                               const _user = user.record
-                              console.log("Login successfull with Blue Sky: ", _user)
+                              logger.log("Login successfull with Blue Sky: ", _user)
                               setBskyAccountLinked(true)
                               setAuth(_user.email, _user);
                               // setLoginMode(LoginMode.BLUESKY)
@@ -1235,7 +1236,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ user, ...props }) => {
                     !farcasterAccountLinked ? (
                       <SignInWithFarcasterButton
                         onSuccess={(res) => {
-                          console.log("Login successfull with Farcaster: ", res)
+                          logger.log("Login successfull with Farcaster: ", res)
                           saveFarcasterData(userModel, res)
                         }
                         }

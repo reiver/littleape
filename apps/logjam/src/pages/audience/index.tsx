@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, FormControl, TextField } from '@mui/material'
 import { signal } from '@preact/signals'
+import logger from 'lib/logger/logger'
 import { TopWindowURL } from 'pages/host'
 import Meeting from 'pages/Meeting'
 import { lazy } from 'preact-iso'
@@ -38,7 +39,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
       meetingStartTimeInUnix.value = Number(startTime)
     } else {
       // fallback or error handling
-      console.warn('No "st" query param found. Using default time.');
+      logger.warn('No "st" query param found. Using default time.');
       setMeetingStartTime(0);
     }
   };
@@ -52,7 +53,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
   useEffect(() => {
     window.addEventListener("message", (event) => {
       if (event.data?.type === "FROMIFRAME") {
-        console.log("TOP Window URL:", event.origin);
+        logger.log("TOP Window URL:", event.origin);
         TopWindowURL.value = event.origin
       }
     });

@@ -20,6 +20,7 @@ import { useAddress } from "web3-wallet-connection";
 import { useRouter } from "next/router";
 import { isFediverseMvpMode, isMvpMode } from "./auth/login";
 import Logo from '../public/Logo + Type.svg';
+import logger from "lib/logger/logger";
 
 export const getDeviceConfig = () => {
   if (typeof window === 'undefined') {
@@ -106,13 +107,13 @@ export default function Home() {
               const currentTime = Date.now();
 
               if (lastOpenedAt && currentTime - lastOpenedAt < 20000) {
-                console.log("Meeting window was opened recently. Try again later.");
+                logger.log("Meeting window was opened recently. Try again later.");
                 return
               }
 
               //start meeting in new tab inside iframe
               if (window.location.href != undefined && window.location.href != "" && !window.location.href.includes("/host")) {
-                console.log("Received data going to open new window for meeting: ", window.location.href)
+                logger.log("Received data going to open new window for meeting: ", window.location.href)
 
                 // Prepare the data to send
                 const dataToSend = {

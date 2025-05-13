@@ -23,7 +23,7 @@
 //         });
 
 //         const tokenData = await tokenResponse.json();
-//         console.log("PIXEl FED TOKEN DATA: ", tokenData)
+//         logger.log("PIXEl FED TOKEN DATA: ", tokenData)
 //         if (!tokenData.access_token) {
 //             return res.redirect(`/auth/login?pixelfederror=${encodeURIComponent(JSON.stringify({ error: "Failed to get access token" }))}`);
 //         }
@@ -38,7 +38,7 @@
 //         // Redirect to frontend with user data
 //         res.redirect(`/auth/login?pixelfeduser=${encodeURIComponent(JSON.stringify(userData))}`);
 //     } catch (error) {
-//         console.error("OAuth Error:", error);
+//         logger.error("OAuth Error:", error);
 //         res.redirect(`/auth/login?pixelfederror=${encodeURIComponent(JSON.stringify({ error: "Internal Server Error" }))}`);
 //     }
 // }
@@ -47,6 +47,7 @@
 import { PIXELFED_COOKIE } from "constants/app";
 import { NextApiRequest, NextApiResponse } from "next";
 import cookie from "cookie";
+import logger from "lib/logger/logger";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { code } = req.query;
@@ -60,8 +61,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!state) {
         return res.status(400).json({ error: "State object not found in cookies" });
     }
-    console.log("State is: ", state)
-    console.log("code is: ", code)
+    logger.log("State is: ", state)
+    logger.log("code is: ", code)
 
     if (!code || !state) {
         const errorData = { error: "Missing code or state" };
@@ -87,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const tokenData = await tokenResponse.json();
 
-        console.log("Token Data: ",tokenData)
+        logger.log("Token Data: ",tokenData)
 
         if (!tokenData.access_token) {
             return res.redirect(`/auth/login?pixelfederror=${encodeURIComponent(JSON.stringify({ error: "Failed to get access token" }))}`);
@@ -100,12 +101,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const userData = await userResponse.json();
 
-        console.log("userData: ", userData);
+        logger.log("userData: ", userData);
 
         // Redirect to frontend with user data
         res.redirect(`/auth/login?pixelfeduser=${encodeURIComponent(JSON.stringify(userData))}`);
     } catch (error) {
-        console.error("OAuth Error:", error);
+        logger.error("OAuth Error:", error);
         res.redirect(`/auth/login?pixelfederror=${encodeURIComponent(JSON.stringify({ error: "Internal Server Error" }))}`);
     }
 }

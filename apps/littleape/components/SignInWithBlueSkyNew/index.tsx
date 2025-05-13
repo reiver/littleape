@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button, Spinner, useToast } from "@chakra-ui/react";
 import { BlueSkyApi } from "lib/blueSkyApi";
 import { PocketBaseManager, SignInData, SignUpData2 } from "lib/pocketBaseManager";
+import logger from "lib/logger/logger";
 
 const pbManager = PocketBaseManager.getInstance()
 
@@ -21,7 +22,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
 
     const createServiceUrl = async () => {
         if (serviceProvider && typeof serviceProvider === "string") {
-            console.log("Service Provider:", serviceProvider);
+            logger.log("Service Provider:", serviceProvider);
 
             // Check if it starts with "http://" or "https://"
             const isValidHttp = serviceProvider.startsWith("http://") || serviceProvider.startsWith("https://");
@@ -29,7 +30,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
             // If valid, return as is; otherwise, prepend "https://"
             const url = isValidHttp ? serviceProvider : `https://${serviceProvider}`;
 
-            console.log("Formatted Service URL:", url);
+            logger.log("Formatted Service URL:", url);
             return url; // Return the formatted URL
         }
 
@@ -63,18 +64,18 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
             const blueSkyApi = BlueSkyApi.getInstance(url)
 
             const sessionResponse = await blueSkyApi.createSession(email, pass);//createSession(email, pass);
-            console.log("Session Response:", sessionResponse);
+            logger.log("Session Response:", sessionResponse);
 
             const sessionWithService = await blueSkyApi.getBlueSkySessionWithServiceUrl()
-            console.log("sessionWithService: ", sessionWithService)
+            logger.log("sessionWithService: ", sessionWithService)
 
             if (sessionResponse.success == true) {
 
                 const profile = await blueSkyApi.fetchProfile(sessionResponse.data.did) //fetchProfile(sessionResponse.data.did)
-                console.log("Profile is: ", profile)
+                logger.log("Profile is: ", profile)
 
                 const user = await getOrRegisterUserWithBlueSky(profile.data, sessionWithService, "")
-                console.log("User after getOrRegisterUserWithBlueSky: ", user)
+                logger.log("User after getOrRegisterUserWithBlueSky: ", user)
 
                 const loggedInUser = await pbManager.signIn(new SignInData(`${user.email}`, "12345678"))
 
@@ -88,7 +89,7 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
             }
 
         } catch (error) {
-            console.error("Login Error:", error);
+            logger.error("Login Error:", error);
         }
     }
 
@@ -167,9 +168,9 @@ export const BlueSkyLoginButtonNew = ({ onLoginSuccess, existingAccountId = "" }
 async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService: any, existingAccountId: string) {
 
     if (existingAccountId != "") {
-        console.log("existing account id: ", existingAccountId)
-        console.log("Bsky Profile: ", profile)
-        console.log("sessionWithService: ", sessionWithService)
+        logger.log("existing account id: ", existingAccountId)
+        logger.log("Bsky Profile: ", profile)
+        logger.log("sessionWithService: ", sessionWithService)
 
         //fetch existing user
         const existingUser = await pbManager.fetchUserById(existingAccountId)
@@ -204,7 +205,7 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
 
             //save user bsky session data
             const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
-            console.log("New Session info Saved: ", sessionSaved)
+            logger.log("New Session info Saved: ", sessionSaved)
         }
 
         return user
@@ -218,13 +219,13 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
         const displayName = profile.displayName;
         const bio = profile.description;
 
-        console.log("user did: ", did)
+        logger.log("user did: ", did)
 
         var user = await pbManager.getUserByBlueSkyId(did)
-        console.log("User in PB: ", user)
+        logger.log("User in PB: ", user)
 
         var savedSessionInfo = await pbManager.fetchBlueSkySessionByUserId(user.id)
-        console.log("Saved Blue Sky Session in DB: ", savedSessionInfo)
+        logger.log("Saved Blue Sky Session in DB: ", savedSessionInfo)
 
         if (user.code == 404) {
             //user not found
@@ -240,7 +241,7 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
 
             user = await pbManager.signUp2(signUpData);
 
-            console.log("new user by BSKY: ", user)
+            logger.log("new user by BSKY: ", user)
 
             // Parse the JSON string back into an object
             const sessObj = JSON.parse(sessionWithService);
@@ -253,7 +254,7 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
 
             //save user bsky session data
             const sessionSaved = await pbManager.saveBlueSkySessionInfo(updatedSess)
-            console.log("New Session info Saved: ", sessionSaved)
+            logger.log("New Session info Saved: ", sessionSaved)
 
             return user;
 
@@ -270,7 +271,7 @@ async function getOrRegisterUserWithBlueSky(profile: unknown, sessionWithService
 
         //update session info
         const updatedSessionInfo = await pbManager.updateBlueSkySession(savedSessionInfo.id, updatedSess);
-        console.log("Session info Updated: ", updatedSessionInfo)
+        logger.log("Session info Updated: ", updatedSessionInfo)
 
         return user;
     }
