@@ -4,7 +4,7 @@ import { isFediverseMvpMode, isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Cookies from "js-cookie";
-import { USER_COOKIE } from "constants/app";
+import { FORCE_LOGIN, USER_COOKIE } from "constants/app";
 import { useToast } from "@chakra-ui/react";
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
@@ -38,6 +38,7 @@ export default function HostPage({ appMeta }) {
             (!user || user.username !== hostNameWithoutPrefix);
 
         if (shouldRedirect) {
+            Cookies.set(FORCE_LOGIN, "true")
             toast({
                 title: "403 Forbidden access",
                 description: "Please Login to continue using GreatApe",
@@ -46,7 +47,9 @@ export default function HostPage({ appMeta }) {
                 isClosable: true,
             });
 
-            router.replace("/auth/login");
+            router.push("/");
+        } else {
+            Cookies.set(FORCE_LOGIN, "false")
         }
     }, [router, _user, hostname, isMvpMode, isFediverseMvpMode]);
 

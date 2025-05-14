@@ -43,6 +43,10 @@ const nextConfig = {
         {
           source: '/:roomname/log/:timestamp',
           destination: '/log/:roomname/:timestamp',
+        },
+        {
+          source: '/',
+          destination: '/auth/login',
         }
       ],
     };

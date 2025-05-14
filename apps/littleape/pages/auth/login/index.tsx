@@ -60,6 +60,8 @@ import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
+import Cookies from "js-cookie";
+import { FORCE_LOGIN, USER_COOKIE } from "constants/app";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -141,9 +143,26 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     setWalletIsSigned,
   } = useWallet();
 
-  const goToMeetingPage = (username: any) => {
-    router.replace(`/@${username}/host`)
+  useEffect(() => {
+    if (router) {
+      if (Cookies.get(FORCE_LOGIN) == "true") {
+        Cookies.set(FORCE_LOGIN, "false")
+      } else {
+        goToHostMeetingPage()
+      }
+    }
+  }, [router])
+
+  const goToHostMeetingPage = () => {
+    const userFromCookie = Cookies.get(USER_COOKIE)
+
+    if (userFromCookie != null && userFromCookie != undefined) {
+      const userObj: User = JSON.parse(userFromCookie);
+      setAuth(userObj.email, userObj)
+      router.push(`/@${userObj.username}/host`)
+    }
   }
+
 
   const {
     isOpen: isSignWalletOpen,
@@ -192,7 +211,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         };
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Mastodon user data:", error);
@@ -253,7 +272,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         };
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Pixelfed user data:", error);
@@ -315,7 +334,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         const mappedUser = mapMisskeyUserToUser(userData)
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Misskey user data:", error);
@@ -377,7 +396,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         const mappedUser = mapPeertubeUserToUser(userData)
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Peertube user data:", error);
@@ -420,7 +439,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         setAuth(user.email, user);
         setLoginMode(LoginMode.WALLET)
         checkUserHasBlueSkyLinked(user)
-        router.push("/")
+        goToHostMeetingPage()
       }
     }
   }
@@ -445,7 +464,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
             username: address,
           };
           setUser(mappedUser)
-          router.push("/")
+          goToHostMeetingPage()
         } else {
           checkWalletConnectionWithAccount(address)
         }
@@ -517,7 +536,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     if (user.code == undefined) {
       setUser(user)
       checkUserHasBlueSkyLinked(user)
-      router.push("/")
+      goToHostMeetingPage()
     } else {
       toast({
         title: "This Farcaster Account is not linked with any GreatApe Account, Please Register using Farcaster",
@@ -634,7 +653,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
               {
                 isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
                   setUser(user)
-                  router.push("/")
+                  goToHostMeetingPage()
                 }} existingAccountId="" />
               }
 
@@ -668,7 +687,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
                             username: res.data.username,
                           };
                           setUser(mappedUser)
-                          router.push("/")
+                          goToHostMeetingPage()
                         } else {
                           loginUsingFarcaster(res.data.username, res.data.fid)
                           setLoginMode(LoginMode.FARCASTER);
@@ -769,7 +788,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
                           logger.log("Login successfull with Blue Sky: ", _user)
                           setAuth(_user.email, _user);
                           setLoginMode(LoginMode.BLUESKY)
-                          router.push("/")
+                          goToHostMeetingPage()
                         }
                       }
                     }}
