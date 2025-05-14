@@ -59,6 +59,7 @@ import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
 import logger from "lib/logger/logger";
+import { GetServerSideProps } from "next";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -80,8 +81,18 @@ export enum SocialPlatform {
   MISSKEY = "Misskey"
 }
 
+type LoginProps = {
+  appMeta: {
+    APP_NAME: string;
+    APP_DESCRIPTION: string;
+    APP_URL: string;
+    DOMAIN: string;
+    IMAGE_URL: string;
+  };
+};
 
-const Login: FC = () => {
+
+const Login: FC<LoginProps> = ({ appMeta }) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const router = useRouter();
   const [error, setError] = useState(null);
@@ -346,7 +357,7 @@ const Login: FC = () => {
 
         const extractedUserName = generateUserName(userData.url, userData.name)
 
-        
+
         toast({
           title: "Successful Login to Peertube",
           description: ``,
@@ -570,7 +581,25 @@ const Login: FC = () => {
   return (
     <MainLayout>
       <Head>
-        <title>GreatApe - Login</title>
+        <title>{appMeta.APP_NAME}</title>
+        <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+        {/* Open Graph */}
+        <meta property="og:url" content={appMeta.APP_URL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={appMeta.APP_NAME} />
+        <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+        <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content={appMeta.DOMAIN} />
+        <meta property="twitter:url" content={appMeta.APP_URL} />
+        <meta name="twitter:title" content={appMeta.APP_NAME} />
+        <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+        <meta name="twitter:image" content={appMeta.IMAGE_URL} />
       </Head>
       <div className={`w-full max-w-[632px] ${showSocialInsatncesList ? `max-h-[752px]` : `max-h-[703px]`} mx-auto mt-6 pb-8 md:border md:rounded-2xl bg-white`}>
         <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
@@ -919,4 +948,28 @@ const VerifyRegistration: FC<{
       </Box>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+
+  const APP_NAME = `${process.env.NEXT_PUBLIC_CLIENT_NAME} — Login`;
+  const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
+  const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
+  const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
+  const APP_URL = `${BASE_URL}`;
+  const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
+
+  logger.log(" .. appname: ", APP_NAME)
+
+  return {
+    props: {
+      appMeta: {
+        APP_NAME,
+        APP_DESCRIPTION,
+        APP_URL,
+        DOMAIN,
+        IMAGE_URL,
+      },
+    },
+  };
 };

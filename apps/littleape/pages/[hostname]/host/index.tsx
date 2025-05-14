@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { USER_COOKIE } from "constants/app";
 import { useToast } from "@chakra-ui/react";
 import logger from "lib/logger/logger";
+import { GetServerSideProps } from "next";
 
 
 function getHostUrl(hostname: String) {
@@ -14,7 +15,7 @@ function getHostUrl(hostname: String) {
     return `${baseUrl}/${hostname}/host`
 }
 
-export default function HostPage() {
+export default function HostPage({ appMeta }) {
     const [hashToSend, sethashToSend] = useState(null)
     const [iframeLoaded, setIframeLoaded] = useState(false);
     let _user = Cookies.get(USER_COOKIE);
@@ -136,7 +137,25 @@ export default function HostPage() {
         return (
             <>
                 <Head>
-                    <title>GreatApe - Host</title>
+                    <title>{appMeta.APP_NAME}</title>
+                    <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+                    {/* Open Graph */}
+                    <meta property="og:url" content={appMeta.APP_URL} />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:locale" content="en_US" />
+                    <meta property="og:title" content={appMeta.APP_NAME} />
+                    <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+                    <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+                    {/* Twitter */}
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta property="twitter:domain" content={appMeta.DOMAIN} />
+                    <meta property="twitter:url" content={appMeta.APP_URL} />
+                    <meta name="twitter:title" content={appMeta.APP_NAME} />
+                    <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+                    <meta name="twitter:image" content={appMeta.IMAGE_URL} />
                 </Head>
 
                 <iframe
@@ -175,3 +194,29 @@ export default function HostPage() {
         </div>
     );
 }
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const handle = context.params?.hostname as string;
+
+    const APP_NAME = `${handle} — ${process.env.NEXT_PUBLIC_CLIENT_NAME}`;
+    const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
+    const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
+    const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
+    const APP_URL = `${BASE_URL}/@${handle}/host`;
+    const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
+
+    logger.log("hanlde is: ", handle, " .. appname: ", APP_NAME)
+
+    return {
+        props: {
+            appMeta: {
+                APP_NAME,
+                APP_DESCRIPTION,
+                APP_URL,
+                DOMAIN,
+                IMAGE_URL,
+            },
+        },
+    };
+};
