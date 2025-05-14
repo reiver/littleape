@@ -1,28 +1,32 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { LOGJAM_URL } from "components/Navbar";
 import Head from "next/head";
 import logger from "lib/logger/logger";
+import { GetServerSideProps } from "next";
 
-function getAudienceUrl(roomname: string) {
-
-    const path = window.location.pathname;
-    const parts = path.split("/");
-    const startTime = parts[parts.length - 1];
-
-    var meetingSt = 0
-    if (startTime) {
-        meetingSt = Number(startTime); // convert to number before setting
-    }
-
-    const baseUrl = LOGJAM_URL;
-    return `${baseUrl}/${roomname}/log/${meetingSt}`;
-}
-
-export default function AudiencePage() {
+export default function AudiencePage({ appMeta }) {
     const router = useRouter();
     const { roomname } = router.query;
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [audienceUrl, setAudienceUrl] = useState("");
+
+    useEffect(() => {
+        if (!roomname) return;
+
+        const path = router.asPath;
+        const parts = path.split("/");
+        const startTime = parts[parts.length - 1];
+
+        let meetingSt = 0;
+        if (startTime) {
+            meetingSt = Number(startTime);
+        }
+
+        const url = `${LOGJAM_URL}/${roomname}/log/${meetingSt}`;
+        setAudienceUrl(url)
+
+    }, [roomname, router.asPath]);
 
     useEffect(() => {
         const sendMessageToIframe = () => {
@@ -31,7 +35,7 @@ export default function AudiencePage() {
 
                 iframeRef.current?.contentWindow?.postMessage(
                     { type: "FROMIFRAME", payload: "parenturl" },
-                    getAudienceUrl(roomname.toString()) // Use exact external origin, not "*"
+                    audienceUrl // Use exact external origin, not "*"
                 );
             }
         };
@@ -45,7 +49,7 @@ export default function AudiencePage() {
         return () => {
             if (iframeRef.current) iframeRef.current.onload = null;
         };
-    }, [roomname]);
+    }, [roomname, audienceUrl]);
 
     //handle message from Iframe
     useEffect(() => {
@@ -68,11 +72,29 @@ export default function AudiencePage() {
         return (
             <>
                 <Head>
-                    <title>GreatApe - Audience</title>
+                    <title>{appMeta.APP_NAME}</title>
+                    <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+                    {/* Open Graph */}
+                    <meta property="og:url" content={appMeta.APP_URL} />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:locale" content="en_US" />
+                    <meta property="og:title" content={appMeta.APP_NAME} />
+                    <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+                    <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+                    {/* Twitter */}
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta property="twitter:domain" content={appMeta.DOMAIN} />
+                    <meta property="twitter:url" content={appMeta.APP_URL} />
+                    <meta name="twitter:title" content={appMeta.APP_NAME} />
+                    <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+                    <meta name="twitter:image" content={appMeta.IMAGE_URL} />
                 </Head>
                 <iframe
                     ref={iframeRef}
-                    src={`${getAudienceUrl(roomname.toString())}`}
+                    src={`${audienceUrl}`}
                     width="100%"
                     height="100%"
                     title="Logjam Video Iframe"
@@ -98,3 +120,30 @@ export default function AudiencePage() {
 
     return <div></div>;
 }
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const handle = context.params?.roomname as string;
+    const id = context.params?.timestamp as string;
+
+    const APP_NAME = `${handle} — ${process.env.NEXT_PUBLIC_CLIENT_NAME}`;
+    const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
+    const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
+    const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
+    const APP_URL = `${BASE_URL}/@${handle}/log/${id}`;
+    const IMAGE_URL = `${BASE_URL}/meta-image.png`|| '';
+
+    logger.log("hanlde is: ", handle, " .. id is: ", id, " .. appname: ", APP_NAME)
+
+    return {
+        props: {
+            appMeta: {
+                APP_NAME,
+                APP_DESCRIPTION,
+                APP_URL,
+                DOMAIN,
+                IMAGE_URL,
+            },
+        },
+    };
+};
