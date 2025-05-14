@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 import { isFediverseMvpMode, isMvpMode } from "./auth/login";
 import Logo from '../public/Logo + Type.svg';
 import logger from "lib/logger/logger";
+import { GetServerSideProps } from "next";
 
 export const getDeviceConfig = () => {
   if (typeof window === 'undefined') {
@@ -47,7 +48,7 @@ export const deviceSize = getDeviceConfig()
 
 const pbManager = PocketBaseManager.getInstance()
 
-export default function Home() {
+export default function Home({ appMeta }) {
   const router = useRouter();
 
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -148,7 +149,25 @@ export default function Home() {
   return (
     isMvpMode || isFediverseMvpMode ? (<>
       <Head>
-        <title>Greatape</title>
+        <title>{appMeta.APP_NAME}</title>
+        <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+        {/* Open Graph */}
+        <meta property="og:url" content={appMeta.APP_URL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={appMeta.APP_NAME} />
+        <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+        <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content={appMeta.DOMAIN} />
+        <meta property="twitter:url" content={appMeta.APP_URL} />
+        <meta name="twitter:title" content={appMeta.APP_NAME} />
+        <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+        <meta name="twitter:image" content={appMeta.IMAGE_URL} />
       </Head>
 
       {/* <div className="w-full h-screen bg-primary flex items-center justify-center">
@@ -157,11 +176,29 @@ export default function Home() {
           <span className="text-medium-12">Version {process.env.NEXT_PUBLIC_GREATAPE_VERSION}</span>
         </div>
       </div> */}
-      
+
     </>) : (
       <>
         <Head>
-          <title>Greatape</title>
+          <title>{appMeta.APP_NAME}</title>
+          <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+          {/* Open Graph */}
+          <meta property="og:url" content={appMeta.APP_URL} />
+          <meta property="og:type" content="website" />
+          <meta property="og:locale" content="en_US" />
+          <meta property="og:title" content={appMeta.APP_NAME} />
+          <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+          <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta property="twitter:domain" content={appMeta.DOMAIN} />
+          <meta property="twitter:url" content={appMeta.APP_URL} />
+          <meta name="twitter:title" content={appMeta.APP_NAME} />
+          <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+          <meta name="twitter:image" content={appMeta.IMAGE_URL} />
         </Head>
         <DashboardLayout
           footer={false}
@@ -223,13 +260,26 @@ export default function Home() {
   );
 }
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
 
+  const APP_NAME = `${process.env.NEXT_PUBLIC_CLIENT_NAME}`;
+  const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
+  const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
+  const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
+  const APP_URL = `${BASE_URL}`;
+  const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
 
+  logger.log(" .. appname: ", APP_NAME)
 
-// export const getServerSideProps = withAuth("authorized", (ctx) => {
-//   return {
-//     props: {
-//       ...authProps(ctx),
-//     },
-//   };
-// });
+  return {
+    props: {
+      appMeta: {
+        APP_NAME,
+        APP_DESCRIPTION,
+        APP_URL,
+        DOMAIN,
+        IMAGE_URL,
+      },
+    },
+  };
+};

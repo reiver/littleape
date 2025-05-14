@@ -1,4 +1,4 @@
-import { Box, BoxProps, Text } from "@chakra-ui/react";
+import { Box, BoxProps, Link, Text } from "@chakra-ui/react";
 import { Logo } from "components/Logo";
 import { FC } from "react";
 import { ThemeSwitcher } from "../ThemeSwitcher";
@@ -13,7 +13,7 @@ export const Footer: FC<FooterProps> = (props) => {
     <Box
       w="full"
       display="flex"
-      justifyContent="space-between"
+      justifyContent="center"
       color="gray.600"
       fontSize="sm"
       _dark={{
@@ -22,7 +22,12 @@ export const Footer: FC<FooterProps> = (props) => {
       {...rest}
     >
       <Box display="flex" alignItems="center">
-        <Text ml={2}>© 2022-Present GreatApe.</Text>
+        <Text ml={2}>
+          Powered by{" "}
+          <Link href={`${process.env.NEXT_PUBLIC_GREATAPE_URL}`} isExternal color="black" fontWeight="bold">
+            GreatApe
+          </Link>
+        </Text>
       </Box>
     </Box>
   );

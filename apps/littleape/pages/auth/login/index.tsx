@@ -59,6 +59,9 @@ import { BlueSkyLoginButtonNew } from "components/SignInWithBlueSkyNew";
 import { PeerTubeLoginButton } from "components/SignInWithPeerTube";
 import { SocialInstancesListComponent } from "components/SocialInstancesListComponent";
 import logger from "lib/logger/logger";
+import { GetServerSideProps } from "next";
+import Cookies from "js-cookie";
+import { AUTH_KEY, FORCE_LOGIN, USER_COOKIE } from "constants/app";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -80,8 +83,18 @@ export enum SocialPlatform {
   MISSKEY = "Misskey"
 }
 
+type LoginProps = {
+  appMeta: {
+    APP_NAME: string;
+    APP_DESCRIPTION: string;
+    APP_URL: string;
+    DOMAIN: string;
+    IMAGE_URL: string;
+  };
+};
 
-const Login: FC = () => {
+
+const Login: FC<LoginProps> = ({ appMeta }) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
   const router = useRouter();
   const [error, setError] = useState(null);
@@ -130,9 +143,29 @@ const Login: FC = () => {
     setWalletIsSigned,
   } = useWallet();
 
-  const goToMeetingPage = (username: any) => {
-    router.replace(`/@${username}/host`)
+  useEffect(() => {
+    if (router) {
+      if (Cookies.get(FORCE_LOGIN) == "true") {
+        Cookies.set(FORCE_LOGIN, "false")
+      } else {
+        goToHostMeetingPage()
+      }
+    }
+  }, [router])
+
+  const goToHostMeetingPage = () => {
+    const userFromCookie = Cookies.get(USER_COOKIE)
+
+    if (userFromCookie != null && userFromCookie != undefined) {
+      const userObj: User = JSON.parse(userFromCookie);
+      if (userObj == null) {
+        return
+      }
+      setAuth(userObj.email, userObj)
+      router.push(`/@${userObj.username}/host`)
+    }
   }
+
 
   const {
     isOpen: isSignWalletOpen,
@@ -181,7 +214,7 @@ const Login: FC = () => {
         };
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Mastodon user data:", error);
@@ -242,7 +275,7 @@ const Login: FC = () => {
         };
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Pixelfed user data:", error);
@@ -304,7 +337,7 @@ const Login: FC = () => {
         const mappedUser = mapMisskeyUserToUser(userData)
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Misskey user data:", error);
@@ -346,7 +379,7 @@ const Login: FC = () => {
 
         const extractedUserName = generateUserName(userData.url, userData.name)
 
-        
+
         toast({
           title: "Successful Login to Peertube",
           description: ``,
@@ -366,7 +399,7 @@ const Login: FC = () => {
         const mappedUser = mapPeertubeUserToUser(userData)
 
         setUser(mappedUser)
-        router.push("/")
+        goToHostMeetingPage()
 
       } catch (error) {
         logger.error("Error parsing Peertube user data:", error);
@@ -409,7 +442,7 @@ const Login: FC = () => {
         setAuth(user.email, user);
         setLoginMode(LoginMode.WALLET)
         checkUserHasBlueSkyLinked(user)
-        router.push("/")
+        goToHostMeetingPage()
       }
     }
   }
@@ -434,7 +467,7 @@ const Login: FC = () => {
             username: address,
           };
           setUser(mappedUser)
-          router.push("/")
+          goToHostMeetingPage()
         } else {
           checkWalletConnectionWithAccount(address)
         }
@@ -506,7 +539,7 @@ const Login: FC = () => {
     if (user.code == undefined) {
       setUser(user)
       checkUserHasBlueSkyLinked(user)
-      router.push("/")
+      goToHostMeetingPage()
     } else {
       toast({
         title: "This Farcaster Account is not linked with any GreatApe Account, Please Register using Farcaster",
@@ -526,26 +559,36 @@ const Login: FC = () => {
   }
 
 
+  const clearCookies = () => {
+    Cookies.set(USER_COOKIE, null)
+    Cookies.set(FORCE_LOGIN, null)
+    Cookies.set(AUTH_KEY, null)
+  }
+
 
 
   const [showSocialInsatncesList, setShowSocialInsatncesList] = useState(false)
   const [loginPlatform, setLoginPlatform] = useState("")
   const handleMastodonButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.MASTODON)
   }
 
   const handlePixelfedButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.PIXELFED)
   }
 
   const handleMisskeyButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.MISSKEY)
   }
 
   const handlePeertubeButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.PEERTUBE)
   }
@@ -570,7 +613,25 @@ const Login: FC = () => {
   return (
     <MainLayout>
       <Head>
-        <title>GreatApe - Login</title>
+        <title>{appMeta.APP_NAME}</title>
+        <meta name="description" content={appMeta.APP_DESCRIPTION} />
+
+        {/* Open Graph */}
+        <meta property="og:url" content={appMeta.APP_URL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={appMeta.APP_NAME} />
+        <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
+        <meta property="og:image" content={appMeta.IMAGE_URL} />
+
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content={appMeta.DOMAIN} />
+        <meta property="twitter:url" content={appMeta.APP_URL} />
+        <meta name="twitter:title" content={appMeta.APP_NAME} />
+        <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
+        <meta name="twitter:image" content={appMeta.IMAGE_URL} />
       </Head>
       <div className={`w-full max-w-[632px] ${showSocialInsatncesList ? `max-h-[752px]` : `max-h-[703px]`} mx-auto mt-6 pb-8 md:border md:rounded-2xl bg-white`}>
         <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
@@ -605,7 +666,7 @@ const Login: FC = () => {
               {
                 isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
                   setUser(user)
-                  router.push("/")
+                  goToHostMeetingPage()
                 }} existingAccountId="" />
               }
 
@@ -639,7 +700,7 @@ const Login: FC = () => {
                             username: res.data.username,
                           };
                           setUser(mappedUser)
-                          router.push("/")
+                          goToHostMeetingPage()
                         } else {
                           loginUsingFarcaster(res.data.username, res.data.fid)
                           setLoginMode(LoginMode.FARCASTER);
@@ -740,7 +801,7 @@ const Login: FC = () => {
                           logger.log("Login successfull with Blue Sky: ", _user)
                           setAuth(_user.email, _user);
                           setLoginMode(LoginMode.BLUESKY)
-                          router.push("/")
+                          goToHostMeetingPage()
                         }
                       }
                     }}
@@ -919,4 +980,28 @@ const VerifyRegistration: FC<{
       </Box>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+
+  const APP_NAME = `${process.env.NEXT_PUBLIC_CLIENT_NAME} — Login`;
+  const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
+  const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
+  const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
+  const APP_URL = `${BASE_URL}`;
+  const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
+
+  logger.log(" .. appname: ", APP_NAME)
+
+  return {
+    props: {
+      appMeta: {
+        APP_NAME,
+        APP_DESCRIPTION,
+        APP_URL,
+        DOMAIN,
+        IMAGE_URL,
+      },
+    },
+  };
 };
