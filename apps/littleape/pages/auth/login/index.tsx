@@ -61,7 +61,7 @@ import { SocialInstancesListComponent } from "components/SocialInstancesListComp
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
 import Cookies from "js-cookie";
-import { FORCE_LOGIN, USER_COOKIE } from "constants/app";
+import { AUTH_KEY, FORCE_LOGIN, USER_COOKIE } from "constants/app";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -158,6 +158,9 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
 
     if (userFromCookie != null && userFromCookie != undefined) {
       const userObj: User = JSON.parse(userFromCookie);
+      if (userObj == null) {
+        return
+      }
       setAuth(userObj.email, userObj)
       router.push(`/@${userObj.username}/host`)
     }
@@ -556,26 +559,36 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   }
 
 
+  const clearCookies = () => {
+    Cookies.set(USER_COOKIE, null)
+    Cookies.set(FORCE_LOGIN, null)
+    Cookies.set(AUTH_KEY, null)
+  }
+
 
 
   const [showSocialInsatncesList, setShowSocialInsatncesList] = useState(false)
   const [loginPlatform, setLoginPlatform] = useState("")
   const handleMastodonButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.MASTODON)
   }
 
   const handlePixelfedButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.PIXELFED)
   }
 
   const handleMisskeyButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.MISSKEY)
   }
 
   const handlePeertubeButtonClick = () => {
+    clearCookies()
     setShowSocialInsatncesList(true)
     setLoginPlatform(SocialPlatform.PEERTUBE)
   }

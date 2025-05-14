@@ -44,7 +44,6 @@
 // }
 
 
-import { PIXELFED_COOKIE } from "constants/app";
 import { NextApiRequest, NextApiResponse } from "next";
 import cookie from "cookie";
 import logger from "lib/logger/logger";

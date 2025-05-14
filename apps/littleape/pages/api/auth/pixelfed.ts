@@ -1,4 +1,3 @@
-import { PIXELFED_COOKIE } from "constants/app";
 import Cookies from "js-cookie";
 import logger from "lib/logger/logger";
 import { NextApiRequest, NextApiResponse } from "next";
