@@ -10,9 +10,9 @@ Preferred [Nodejs](https://nodejs.org/) version -> [16.17.0](https://nodejs.org/
 2. Install all the dependencies using the following commands.
 
 ```bash
-npm i
+npm intsall
 # or
-yarn
+yarn install
 ```
 
 ## Development Environment
@@ -23,7 +23,7 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
 
 ## Production Environment
 
@@ -41,7 +41,7 @@ npm start
 yarn start
 ```
 
-The project will be served on [http://localhost:3000](http://localhost:3000)
+The project will be served on [http://localhost:3001](http://localhost:3001)
 
 ## Environment Variables
 
@@ -61,13 +61,15 @@ NEXT_PUBLIC_MVP_MODE="false"
 NEXT_PUBLIC_FEDIVCERSE_MVP_MODE="true"
 NEXT_PUBLIC_NEYNAR_CLIENT_ID="REPLACE_ME"
 NEXT_PUBLIC_CLIENT_NAME="GreatApe"
+NEXT_PUBLIC_CLIENT_DESCRIPTION="Watch, Listen, and Join the Conversation"
 NEXT_PUBLIC_GREATAPE_VERSION="0.0.1-alpha"
+NEXT_PUBLIC_GREATAPE_URL="https://greata.pe/"
 ```
 
 Replace the value of `NEXT_PUBLIC_THIRD_WEB_CLIENT_ID` with your thirdweb client-id.
 (This is used for Farcaster integration.)
 
-Replace the value of `NEXT_PUBLIC_LOGJAM_BASE_URL` with the base-URL of your LogJam server.
+Replace the value of `NEXT_PUBLIC_LOGJAM_BASE_URL` with the base-URL of [Logjam](../apps/logjam/) frontend server.
 
 Replace the value of `NEXT_PUBLIC_LITTLEAPE_BASE_URL` with the base-URL to your server.
 
@@ -75,3 +77,8 @@ Replace the value of `NEXT_PUBLIC_LITTLEAPE_DOMAIN` with the Internet domain of 
 
 Replace the value of `NEXT_PUBLIC_NEYNAR_CLIENT_ID` with your actual Neynar client-id.
 (This is used for Farcaster integration.)
+
+Replace the value of `NEXT_PUBLIC_CLIENT_NAME` with your GreatApe Client name.
+
+Replace the value of `NEXT_PUBLIC_CLIENT_DESCRIPTION` with your GreatApe Client description.
+(This is used for Open Graph Tags.)
