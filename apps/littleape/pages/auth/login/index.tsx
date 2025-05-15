@@ -989,7 +989,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
   const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
   const APP_URL = `${BASE_URL}`;
-  const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
+  const IMAGE_URL = `${BASE_URL}/ogimage.png` || '';
 
   logger.log(" .. appname: ", APP_NAME)
 

@@ -130,8 +130,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
     const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
     const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
-    const APP_URL = `${BASE_URL}/@${handle}/log/${id}`;
-    const IMAGE_URL = `${BASE_URL}/meta-image.png`|| '';
+    const APP_URL = `${BASE_URL}/${handle}/log/${id}`;
+    const IMAGE_URL = `${BASE_URL}/ogimage.png`|| '';
 
     logger.log("hanlde is: ", handle, " .. id is: ", id, " .. appname: ", APP_NAME)
 
