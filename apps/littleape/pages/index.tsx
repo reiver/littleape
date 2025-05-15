@@ -154,7 +154,7 @@ export default function Home({ appMeta }) {
 
         {/* Open Graph */}
         <meta property="og:url" content={appMeta.APP_URL} />
-        <meta property="og:type" content="video.other" />
+        <meta property="og:type" content="website" />
         <meta property="og:title" content={appMeta.APP_NAME} />
         <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
         <meta property="og:image" content={appMeta.IMAGE_URL} />
@@ -184,7 +184,7 @@ export default function Home({ appMeta }) {
 
           {/* Open Graph */}
           <meta property="og:url" content={appMeta.APP_URL} />
-          <meta property="og:type" content="video.other" />
+          <meta property="og:type" content="website" />
           <meta property="og:title" content={appMeta.APP_NAME} />
           <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
           <meta property="og:image" content={appMeta.IMAGE_URL} />
