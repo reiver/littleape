@@ -145,8 +145,7 @@ export default function HostPage({ appMeta }) {
 
                     {/* Open Graph */}
                     <meta property="og:url" content={appMeta.APP_URL} />
-                    <meta property="og:type" content="website" />
-                    <meta property="og:locale" content="en_US" />
+                    <meta property="og:type" content="video.other" />
                     <meta property="og:title" content={appMeta.APP_NAME} />
                     <meta property="og:description" content={appMeta.APP_DESCRIPTION} />
                     <meta property="og:image" content={appMeta.IMAGE_URL} />
@@ -206,8 +205,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const APP_DESCRIPTION = process.env.NEXT_PUBLIC_CLIENT_DESCRIPTION || '';
     const DOMAIN = process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN || '';
     const BASE_URL = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL || '';
-    const APP_URL = `${BASE_URL}/@${handle}/host`;
-    const IMAGE_URL = `${BASE_URL}/meta-image.png` || '';
+    const APP_URL = `${BASE_URL}/${handle}/host`;
+    const IMAGE_URL = `${BASE_URL}/ogimage.png` || '';
 
     logger.log("hanlde is: ", handle, " .. appname: ", APP_NAME)
 
