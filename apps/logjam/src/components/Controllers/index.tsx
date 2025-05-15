@@ -195,8 +195,8 @@ export const Controllers = () => {
           </IconButton>
         </Tooltip>
       )}
-      <Tooltip label={'Menu'}>
-        <IconButton onClick={toggleMoreOptions} class="flex relative">
+      <Tooltip label={isMoreOptionsOpen.value ? 'Hide Menu' : 'Show Menu'}>
+        <IconButton variant={isMoreOptionsOpen.value && 'danger'} onClick={toggleMoreOptions} class="flex relative">
           <Icon icon={KebabMenuVertical} />
           {attendeesBadge.value && <span class="absolute z-10 top-[0px] right-[0px] w-[10px] h-[10px] rounded-full bg-red-distructive border dark:border-secondary-1-a border-white-f-9"></span>}
         </IconButton>
