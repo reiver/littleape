@@ -10,9 +10,12 @@ import { LocalizationProvider, renderTimeViewClock, TimePicker } from '@mui/x-da
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import LogoIcon from 'assets/images/Greatapelogo.png'
+import Logo from 'assets/images/logo.svg'
+import Avatar from 'assets/icons/Avatar(outlined).svg?react'
+import ExitIcon from 'assets/icons/Exit.svg?react'
 import copy from 'clipboard-copy'
 import clsx from 'clsx'
-import { Icon, ResponsiveModal, Tooltip } from 'components'
+import { Icon, IconButton, ResponsiveModal, Tooltip } from 'components'
 import Meeting from 'pages/Meeting'
 import { lazy } from 'preact-iso'
 import { useEffect, useState } from 'preact/compat'
@@ -24,6 +27,8 @@ import { PocketBaseManager, HostData, RoomData, convertRoomDataToFormData } from
 import logger from 'lib/logger/logger'
 import dayjs from 'dayjs'
 import { meetingStartTimeInUnix } from 'pages/audience'
+import { RoundButton } from 'components/common/RoundButton'
+import ProfileButton from 'components/common/ProfileButton'
 
 const PageNotFound = lazy(() => import('../_404'))
 const selectedImage = signal(null)
@@ -91,9 +96,27 @@ export const isInsideIframe = () => {
   return window.self !== window.top
 }
 
+class User {
+  displayname: string;
+  username: string;
+  socialplatform: string;
+  image: string;
+
+  constructor(displayname: string = "", username: string = "", socialplatform: string = "", image: string = "") {
+    this.displayname = displayname;
+    this.username = "@" + username;
+    this.socialplatform = socialplatform + " Account"
+    this.image = image
+  }
+}
+
+
+
 export const HostPage = ({ params: { displayName } }: { params?: { displayName?: string } }) => {
   const [started, setStarted] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [showEventLinksModal, setShowEventLinksModal] = useState(false)
   const [showEventScheduleModal, setShowEventScheduleModal] = useState(false)
   const [startNewRoomFromIframe, setStartNewRoomFromIframe] = useState(false)
@@ -106,6 +129,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [selectedTime, setSelectedTime] = useState(dayjs())
   const [eventTimeInUnix, setEventTimeInUnix] = useState(0)
   const [dateTimeFromUnix, setDateTimeFromUnix] = useState("")
+  const [userProfile, setUserProfile] = useState(new User())
 
   useEffect(() => {
     // Combine date from dateObj and time from timeObj
@@ -139,6 +163,13 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
           TopWindowURL.value = event.origin
           setAllowedToStartMeeting(true)
         }
+      } else if (event.data?.type === "USERPROFILE") {
+        logger.log("GOT USER PROFILE: ", event.data?.payload)
+        const _user = event.data?.payload
+        const user = _user ? JSON.parse(_user) : null;
+
+        setUserProfile(new User(user.name, user.username, user.socialplatform, user.avatar))
+        setGaUrl(user.parentUrl)
       }
     });
   }, []);
@@ -326,7 +357,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   const handleRoomCreationInDB = async () => {
 
-    logger.log("Room name is: ",roomName)
+    logger.log("Room name is: ", roomName)
     const { description } = form.getValues(); // Extracting values from the form
     //create new Room
     var roomData = new RoomData(roomName, description, selectedImageFile.value, hostId, "")
@@ -450,6 +481,31 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     )
   }
 
+  const handleLogout = () => {
+    logger.log("Logout user: ", gaUrl)
+    setShowLogoutModal(false)
+    setShowProfileModal(false)
+
+    const logoutData = {
+      from: "logjam",
+      logout: true
+    }
+    window.parent.postMessage(logoutData, "*");
+
+    // Serialize the data into a URL hash
+    const hashData = encodeURIComponent(JSON.stringify(logoutData));
+
+    // Define the target URL with hash
+    const redirectUrl = `${gaUrl}#logoutData=${hashData}`;
+
+    // Redirect to the target URL
+    window.location.href = redirectUrl;
+  }
+
+  const handleStayLoggedIn = () => {
+    setShowLogoutModal(false)
+  }
+
   const generateBothUrls = async () => {
     const host = await generateHostUrl('@' + form.getValues('displayName'));
     const audience = await generateAudienceUrl(roomName, eventTimeInUnix);
@@ -494,13 +550,30 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   if (!started)
     return (
       <div class="w-full flex justify-center items-center px-4 min-h-full">
-        <div class="w-full max-w-[500px] mx-auto mt-10 border rounded-md border-gray-300">
-          <form class="flex flex-col w-full ">
-            <span className="text-bold-12 text-black block text-center pt-5">New Live Room</span>
+        <div class="w-full max-w-[632px] mx-auto mt-10 border rounded-md border-gray-300">
+          <form class="flex flex-col w-full">
+            <div className="flex items-center justify-between mt-3 px-4">
+              {/* Left: Profile Image */}
+              <ProfileButton onClick={() => {
+                logger.log("Profile Button clicked")
+                setShowProfileModal(true)
+              }}>
+                <Avatar />
+              </ProfileButton>
+              {/* Center: Logo */}
+              <img src={Logo} className="h-[24px] w-[93px]" />
+
+              {/* Right: Empty div to balance layout */}
+              <div className="h-8 w-8"></div>
+            </div>
+
             <hr className="my-3" />
-            <div className="p-5 flex flex-col gap-5">
+            <div className="p-5 flex flex-col gap-5 sm:px-16">
               <div className="flex flex-col gap-3">
-                <span class="text-bold-12 text-gray-2">Please enter your display name and room info:</span>
+                <div className="mb-4">
+                  <span class="block text-semi-bold-32 text-secondary-a-1">Create A New Live Room</span>
+                  <span class="block text-regular-12 text-gray-2">Please enter your display name and room info:</span>
+                </div>
                 <FormControl className="w-full">
                   <TextField
                     label="Display Name"
@@ -560,6 +633,55 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
 
           </form>
+
+          <ResponsiveModal open={showProfileModal} onClose={setShowProfileModal.bind(null, false)} maxWidth='550px'>
+            <span className="text-bold-12 text-black block text-center pt-5">Account</span>
+            <hr className="mt-4 mb-1 border-white md:border-gray-0" />
+            <div className="p-5 flex flex-col gap-5 pb-6">
+              <span class="text-bold-12 text-gray-2">Logged in as:</span>
+            </div>
+            <div className="flex items-center space-x-3 mx-4">
+              <img src={userProfile.image} className="h-[45px] w-[45px] rounded-full object-cover" />
+              <div className="flex flex-col justify-center">
+                <div className="flex space-x-2 items-center sm:w-[500px]">
+                  <span className="text-semi-bold-16 text-gray-3">{userProfile.displayname}</span>
+                  <span className="text-medium-12 text-gray-1">{userProfile.username}</span>
+                </div>
+                <span className="text-medium-12 text-gray-1">{userProfile.socialplatform}</span>
+              </div>
+            </div>
+
+            <hr className="mt-4 mb-4 mx-4 border-white md:border-gray-0" />
+
+            <div className="flex items-center space-x-3 mx-4 mb-4 cursor-pointer" onClick={() => {
+              setShowLogoutModal(true)
+            }}>
+              <Icon icon={ExitIcon} />
+              <span class="ml-2 text-bold-12 text-gray-2">Logout</span>
+            </div>
+
+          </ResponsiveModal>
+
+          <ResponsiveModal open={showLogoutModal} onClose={setShowLogoutModal.bind(null, false)}>
+            <span className="text-bold-12 text-black block text-center pt-5">Logout</span>
+            <hr className="mt-4 mb-1 border-white md:border-gray-0 sm:w-[400px]" />
+            <div className="p-5 flex flex-col gap-5 pb-6">
+              <span class="text-bold-12 text-gray-2">Are you sure you want to logout?</span>
+            </div>
+
+            <div class="flex gap-2 w-full flex-col-reverse md:flex-row p-4">
+              <Button onClick={handleStayLoggedIn} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
+                Stay Logged In!
+              </Button>
+
+              <Button onClick={handleLogout} variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color='error'>
+                Logout
+              </Button>
+
+            </div>
+
+          </ResponsiveModal>
+
           <ResponsiveModal open={showModal} onClose={setShowModal.bind(null, false)}>
             <span className="text-bold-12 text-black block text-center pt-5">Room Links</span>
             <hr className="mt-4 mb-1 border-white md:border-gray-0" />

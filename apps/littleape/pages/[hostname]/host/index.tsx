@@ -28,6 +28,31 @@ export default function HostPage({ appMeta }) {
     useEffect(() => {
         if (!hostname) return; // wait until hostname is ready
 
+        if (_user != null) {
+            const sendMessageToIframe = () => {
+                if (iframeRef.current) {
+                    const user = _user ? JSON.parse(_user) : null;
+
+                    if (user != null) {
+                        user.parentUrl = process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL
+                        const updatedUser = JSON.stringify(user)
+
+                        logger.log("Sending message to iframe, USER PROFILE:", updatedUser.toString());
+
+                        iframeRef.current?.contentWindow?.postMessage(
+                            { type: "USERPROFILE", payload: updatedUser.toString() },
+                            getHostUrl(hostname.toString()) // Use exact external origin, not "*"
+                        );
+                    }
+
+                }
+            };
+
+            if (iframeRef.current) {
+                setTimeout(sendMessageToIframe, 1000); // Delay ensures iframe is ready
+            }
+        }
+
         const user = _user ? JSON.parse(_user) : null;
         const prefix = "@";
         const hostNameWithoutPrefix = hostname?.startsWith(prefix)

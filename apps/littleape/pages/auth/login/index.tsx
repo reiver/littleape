@@ -144,6 +144,19 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   } = useWallet();
 
   useEffect(() => {
+    const hashData = window.location.hash.split("#logoutData=")[1];
+    if (hashData) {
+      const data = JSON.parse(decodeURIComponent(hashData));
+      if (data.logout === true) {
+        clearCookies();
+        router.push("/auth/login")
+      }
+    }
+    window.location.hash = ""
+  }, []);
+
+
+  useEffect(() => {
     if (router) {
       if (Cookies.get(FORCE_LOGIN) == "true") {
         Cookies.set(FORCE_LOGIN, "false")
@@ -191,6 +204,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
       try {
         const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
         setMastodonUser(userData);
+        logger.log("MASTODON USERDATA: ", userData)
 
         const extractedUserName = generateUserName(userData.url, userData.username)
 
@@ -211,6 +225,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
           name: userData.display_name,
           username: extractedUserName,
           blueskyid: null,
+          socialplatform: SocialPlatform.MASTODON,
         };
 
         setUser(mappedUser)
@@ -272,6 +287,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
           name: userData.display_name,
           username: extractedUserName,
           blueskyid: null,
+          socialplatform: SocialPlatform.PIXELFED,
         };
 
         setUser(mappedUser)
@@ -332,6 +348,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
           bio: misskeyUser.description ?? "",
           name: misskeyUser.name ?? "",
           username: extractedUserName ?? "",
+          socialplatform: SocialPlatform.MISSKEY,
         });
 
         const mappedUser = mapMisskeyUserToUser(userData)
@@ -394,6 +411,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
           bio: peerTubeUser.description ?? "",
           name: peerTubeUser.displayName ?? "",
           username: extractedUserName ?? "",
+          socialplatform: SocialPlatform.PEERTUBE,
         });
 
         const mappedUser = mapPeertubeUserToUser(userData)
