@@ -916,18 +916,24 @@ export class SparkRTC {
   stopShareScreen = async (stream) => {
     if (!stream) return;
 
-    for (const userId in this.myPeerConnectionArray) {
-      const apeerConnection = this.myPeerConnectionArray[userId];
+    if (Object.keys(this.myPeerConnectionArray).length > 0) {
+      for (const userId in this.myPeerConnectionArray) {
+        const apeerConnection = this.myPeerConnectionArray[userId];
 
+        stream.getTracks().forEach((track) => {
+          const sender = apeerConnection
+            .getSenders()
+            .find((sender) => sender.track && sender.track.id === track.id);
+
+          if (sender) {
+            apeerConnection.removeTrack(sender);
+            track.stop();
+          }
+        });
+      }
+    } else {
       stream.getTracks().forEach((track) => {
-        const sender = apeerConnection
-          .getSenders()
-          .find((sender) => sender.track && sender.track.id === track.id);
-
-        if (sender) {
-          apeerConnection.removeTrack(sender);
-          track.stop();
-        }
+        track.stop();
       });
     }
 
@@ -3057,9 +3063,9 @@ export class SparkRTC {
 
     await this.stopRecording()
 
-    logger.log("SLEEPING FOR 5 SEC")
-    await this.sleep(5000)
-    logger.log("AWAKEN AFTER 5 SEC")
+    logger.log("SLEEPING FOR 3 SEC")
+    await this.sleep(3000)
+    logger.log("AWAKEN AFTER 3 SEC")
     //check for local stream and stop tracks
     //stop all the sender tracks
     try {

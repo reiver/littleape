@@ -15,7 +15,7 @@ import Troubleshoot from 'assets/icons/Troubleshoot.svg?react'
 import Volume from 'assets/icons/Volume.svg?react'
 import VolumeOff from 'assets/icons/VolumeOff.svg?react'
 import { clsx } from 'clsx'
-import { Icon, IconButton, Tooltip, attendeesBadge, makeDialog } from 'components'
+import { Icon, IconButton, Tooltip, attendeesBadge, isAttendeesOpen, makeDialog } from 'components'
 import { currentUser, isDebugMode, onStartShareScreen, onStopShareScreen, setUserActionLoading, sparkRTC, updateUser } from 'pages/Meeting.js'
 import { useState } from 'preact/compat'
 import { isMobile } from '../../lib/webrtc/common.js'
@@ -24,7 +24,24 @@ import { DialogTypes } from 'components/Dialog/index.js'
 
 const disableRaiseHandFeat = true
 export const isMoreOptionsOpen = signal(false)
-export const toggleMoreOptions = () => (isMoreOptionsOpen.value = !isMoreOptionsOpen.value)
+export const toggleMoreOptions = () => {
+
+  if (isAttendeesOpen.value === true && isMoreOptionsOpen.value == true) {
+    //if both attendees and more option is open close attendees only and keep more option open
+    isAttendeesOpen.value = false
+    attendeesBadge.value = false
+    return
+  } else if (isAttendeesOpen.value === true && isMoreOptionsOpen.value == false) {
+    //if attendess is open but more menu is closed, then close the attendess and open more menu
+    isAttendeesOpen.value = false
+    attendeesBadge.value = false
+
+    isMoreOptionsOpen.value = true
+    return
+  }
+
+  isMoreOptionsOpen.value = !isMoreOptionsOpen.value
+}
 export const Controllers = () => {
   const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStream, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = currentUser.value
   logger.log('this user', isStreamming)
@@ -178,8 +195,8 @@ export const Controllers = () => {
           </IconButton>
         </Tooltip>
       )}
-      <Tooltip label={'Menu'}>
-        <IconButton onClick={toggleMoreOptions} class="flex relative">
+      <Tooltip label={isMoreOptionsOpen.value ? 'Hide Menu' : 'Show Menu'}>
+        <IconButton variant={isMoreOptionsOpen.value && 'danger'} onClick={toggleMoreOptions} class="flex relative">
           <Icon icon={KebabMenuVertical} />
           {attendeesBadge.value && <span class="absolute z-10 top-[0px] right-[0px] w-[10px] h-[10px] rounded-full bg-red-distructive border dark:border-secondary-1-a border-white-f-9"></span>}
         </IconButton>

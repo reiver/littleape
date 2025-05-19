@@ -11,8 +11,9 @@ export type User = Partial<{
   github: string;
   publicKey: string;
   username: string;
-  fid:number;
-  blueskyid:string;
+  fid: number;
+  blueskyid: string;
+  socialplatform: string,
 }>;
 
 export type ActivityUser = {
