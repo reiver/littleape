@@ -29,6 +29,7 @@ export const meetingStatus = signal(true)
 export const recordingStatus = signal(false)
 export const broadcastIsInTheMeeting = signal(true)
 export const meetingIsNotStarted = signal(false)
+export const meetingIsEnded = signal(false)
 export const meetingStartRemainingTime = signal("")
 export const raisedHandsCount = signal(0)
 export const raiseHandMaxLimitReached = computed(() => {
@@ -366,12 +367,31 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
       const interval = setInterval(() => {
         const currentTime = dayjs().unix();
 
+        logger.log("Current time is: ", currentTime)
+        logger.log("Diff is; ", currentTime - meetingStartTime)
+
+        if (meetingStartTime < currentTime) {
+          logger.log("Meeting time is passed")
+          //if more then 14 hours passed, mark meeting ended
+          const FOURTEEN_HOURS_IN_MS = 14 * 60 * 60
+
+          if (currentTime - meetingStartTime >= FOURTEEN_HOURS_IN_MS) {
+            logger.log("14 hours passed")
+            meetingIsEnded.value = true;
+            meetingIsNotStarted.value = false
+            clearInterval(interval);
+            return
+          }
+
+        }
+
         if (meetingStartTime > currentTime) {
 
           const time = getRemainingTime(meetingStartTime);
 
           meetingStartRemainingTime.value = time;
           meetingIsNotStarted.value = true;
+          meetingIsEnded.value = false;
         } else {
           logger.log("Meeting is started");
           meetingIsNotStarted.value = false;
