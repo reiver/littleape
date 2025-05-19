@@ -829,7 +829,7 @@ export const LinkCopyComponent = ({ title, link, className }) => {
     })
   }
   return (
-    <div class={clsx('flex flex-col gap-1 w-full', className)}>
+    link && <div class={clsx('flex flex-col gap-1 w-full', className)}>
       {title && <span class="text-bold-12 text-gray-3">{title}</span>}
       <div className="greatape-meeting-link-background dark:bg-gray-2 dark:text-gray-0 w-full bg-gray-0 px-4 py-2 text-gray-2 flex justify-between rounded-full items-center">
         <div className="flex gap-2 items-center overflow-hidden">

@@ -46,6 +46,9 @@ export const BottomBar = () => {
 }
 
 const generateAudienceUrl = (roomName: string) => {
+  if (roomName == "SparkRTC") {
+    return ""
+  }
   if (isInsideIframe()) {
     //get iframe URL
 
