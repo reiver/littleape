@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, FormControl, TextField } from '@mui/material'
 import { signal } from '@preact/signals'
+import { Footer } from 'components/Footer'
 import logger from 'lib/logger/logger'
 import { TopWindowURL } from 'pages/host'
 import Meeting from 'pages/Meeting'
@@ -65,7 +66,7 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
 
   if (!started)
     return (
-      <div class="w-full flex justify-center items-center px-4">
+      <div class="w-full flex justify-center items-center px-4 flex flex-col min-h-screen">
         <div class="w-full flex justify-center items-center max-w-[500px] mx-auto mt-10 border rounded-md border-gray-300">
           <form class="flex flex-col w-full " onSubmit={form.handleSubmit(onSubmit)}>
             <span className="text-bold-12 text-black block text-center pt-5">Join the meeting</span>
@@ -91,6 +92,11 @@ export const AudiencePage = ({ params: { room } }: { params?: { room?: string } 
             </div>
           </form>
         </div>
+
+        <div className="mt-auto mb-2">
+          <Footer />
+        </div>
+
       </div>
     )
 

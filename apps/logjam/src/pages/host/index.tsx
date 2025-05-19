@@ -29,6 +29,7 @@ import dayjs from 'dayjs'
 import { meetingStartTimeInUnix } from 'pages/audience'
 import { RoundButton } from 'components/common/RoundButton'
 import ProfileButton from 'components/common/ProfileButton'
+import { Footer } from 'components/Footer'
 
 const PageNotFound = lazy(() => import('../_404'))
 const selectedImage = signal(null)
@@ -546,7 +547,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
   if (!started)
     return (
-      <div class="w-full flex justify-center items-center px-4 min-h-full">
+      <div class="w-full justify-center items-center px-4 min-h-full flex flex-col min-h-screen">
         <div class="w-full max-w-[632px] mx-auto mt-10 border rounded-md border-gray-300">
           <form class="flex flex-col w-full">
             <div className="flex items-center justify-between mt-3 px-4">
@@ -646,7 +647,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
               {
                 !userProfile.image && <ProfileButton> <Avatar /></ProfileButton>
               }
-              
+
               <div className="flex flex-col justify-center">
                 <div className="flex space-x-2 items-center sm:w-[500px]">
                   <span className="text-semi-bold-16 text-gray-3">{userProfile.displayname}</span>
@@ -797,6 +798,11 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <ShowLinksComponent />
 
           </ResponsiveModal>
+
+        </div>
+
+        <div className="mt-auto mb-2">
+          <Footer />
         </div>
 
         <HostToastProvider />
