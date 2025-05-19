@@ -169,7 +169,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
         const user = _user ? JSON.parse(_user) : null;
 
         setUserProfile(new User(user.name, user.username, user.socialplatform, user.avatar))
-        setGaUrl(user.parentUrl)
+        TopWindowURL.value = event.origin
       }
     });
   }, []);
@@ -486,20 +486,17 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     setShowLogoutModal(false)
     setShowProfileModal(false)
 
-    const logoutData = {
-      from: "logjam",
-      logout: true
-    }
-    window.parent.postMessage(logoutData, "*");
+    window.parent.postMessage({ type: "HANDLE_LOGOUT", data: true }, TopWindowURL.value);
 
-    // Serialize the data into a URL hash
-    const hashData = encodeURIComponent(JSON.stringify(logoutData));
 
-    // Define the target URL with hash
-    const redirectUrl = `${gaUrl}#logoutData=${hashData}`;
+    // // Serialize the data into a URL hash
+    // const hashData = encodeURIComponent(JSON.stringify(logoutData));
 
-    // Redirect to the target URL
-    window.location.href = redirectUrl;
+    // // Define the target URL with hash
+    // const redirectUrl = `${gaUrl}#logoutData=${hashData}`;
+
+    // // Redirect to the target URL
+    // window.location.href = redirectUrl;
   }
 
   const handleStayLoggedIn = () => {
@@ -641,7 +638,15 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
               <span class="text-bold-12 text-gray-2">Logged in as:</span>
             </div>
             <div className="flex items-center space-x-3 mx-4">
-              <img src={userProfile.image} className="h-[45px] w-[45px] rounded-full object-cover" />
+              {
+                userProfile.image &&
+                <img src={userProfile.image} className="h-[45px] w-[45px] rounded-full object-cover" />
+              }
+
+              {
+                !userProfile.image && <ProfileButton> <Avatar /></ProfileButton>
+              }
+              
               <div className="flex flex-col justify-center">
                 <div className="flex space-x-2 items-center sm:w-[500px]">
                   <span className="text-semi-bold-16 text-gray-3">{userProfile.displayname}</span>

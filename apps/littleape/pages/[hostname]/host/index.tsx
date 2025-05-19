@@ -4,7 +4,7 @@ import { isFediverseMvpMode, isMvpMode } from "pages/auth/login";
 import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Cookies from "js-cookie";
-import { FORCE_LOGIN, USER_COOKIE } from "constants/app";
+import { clearCookies, FORCE_LOGIN, USER_COOKIE } from "constants/app";
 import { useToast } from "@chakra-ui/react";
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
@@ -116,6 +116,26 @@ export default function HostPage({ appMeta }) {
         };
     }, []);
 
+    //handle message from Iframe
+    useEffect(() => {
+        const handlePostMessage = (event) => {
+            logger.log("MESSAGE RECEIVED FROM IFRAME inside HANDLE_LOGOUT event, ", event.data.type)
+            if (event.data.type === "HANDLE_LOGOUT") {
+                logger.log("Received Logout request from iframe");
+                clearCookies()
+                router.push("/")
+                // window.location.reload();
+            }
+        };
+
+        window.addEventListener("message", handlePostMessage);
+        logger.log("EVent listener added for HANDLE_LOGOUT")
+
+        // Cleanup listener when the component unmounts or on re-render
+        return () => {
+            window.removeEventListener("message", handlePostMessage);
+        };
+    }, []);
 
     useEffect(() => {
         const hashData = window.location.hash.split("#start-meeting=")[1];

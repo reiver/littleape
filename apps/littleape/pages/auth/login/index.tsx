@@ -61,7 +61,7 @@ import { SocialInstancesListComponent } from "components/SocialInstancesListComp
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
 import Cookies from "js-cookie";
-import { AUTH_KEY, FORCE_LOGIN, USER_COOKIE } from "constants/app";
+import { AUTH_KEY, clearCookies, FORCE_LOGIN, USER_COOKIE } from "constants/app";
 export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
 export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
@@ -154,7 +154,6 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     }
     window.location.hash = ""
   }, []);
-
 
   useEffect(() => {
     if (router) {
@@ -396,6 +395,15 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
 
         const extractedUserName = generateUserName(userData.url, userData.name)
 
+        var imageUrl = null
+        if (userData.avatars != null && userData.avatars.length > 0) {
+          //get length
+          const size = userData.avatars.length;
+          const lastAvater = userData.avatars[size - 1]
+
+          imageUrl = lastAvater.fileUrl
+        }
+
 
         toast({
           title: "Successful Login to Peertube",
@@ -412,6 +420,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
           name: peerTubeUser.displayName ?? "",
           username: extractedUserName ?? "",
           socialplatform: SocialPlatform.PEERTUBE,
+          avatar: imageUrl
         });
 
         const mappedUser = mapPeertubeUserToUser(userData)
@@ -575,14 +584,6 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     logger.log("Show login Blue Sky modal")
 
   }
-
-
-  const clearCookies = () => {
-    Cookies.set(USER_COOKIE, null)
-    Cookies.set(FORCE_LOGIN, null)
-    Cookies.set(AUTH_KEY, null)
-  }
-
 
 
   const [showSocialInsatncesList, setShowSocialInsatncesList] = useState(false)
