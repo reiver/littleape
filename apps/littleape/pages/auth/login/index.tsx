@@ -144,18 +144,6 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   } = useWallet();
 
   useEffect(() => {
-    const hashData = window.location.hash.split("#logoutData=")[1];
-    if (hashData) {
-      const data = JSON.parse(decodeURIComponent(hashData));
-      if (data.logout === true) {
-        clearCookies();
-        router.push("/auth/login")
-      }
-    }
-    window.location.hash = ""
-  }, []);
-
-  useEffect(() => {
     if (router) {
       if (Cookies.get(FORCE_LOGIN) == "true") {
         Cookies.set(FORCE_LOGIN, "false")

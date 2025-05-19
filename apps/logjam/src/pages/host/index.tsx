@@ -488,16 +488,6 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
     setShowProfileModal(false)
 
     window.parent.postMessage({ type: "HANDLE_LOGOUT", data: true }, TopWindowURL.value);
-
-
-    // // Serialize the data into a URL hash
-    // const hashData = encodeURIComponent(JSON.stringify(logoutData));
-
-    // // Define the target URL with hash
-    // const redirectUrl = `${gaUrl}#logoutData=${hashData}`;
-
-    // // Redirect to the target URL
-    // window.location.href = redirectUrl;
   }
 
   const handleStayLoggedIn = () => {
