@@ -373,15 +373,34 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         if (meetingStartTime < currentTime) {
           logger.log("Meeting time is passed")
           //if more then 14 hours passed, mark meeting ended
-          const FOURTEEN_HOURS_IN_MS = 14 * 60 * 60
+          const FOURTEEN_HOURS_IN_S = 14 * 60 * 60
+          const TWO_HOURS_IN_S = 2 * 60 * 60
 
-          if (currentTime - meetingStartTime >= FOURTEEN_HOURS_IN_MS) {
+          const timePassed = currentTime - meetingStartTime
+
+          if (timePassed >= FOURTEEN_HOURS_IN_S) {
             logger.log("14 hours passed")
             meetingIsEnded.value = true;
             meetingIsNotStarted.value = false
             clearInterval(interval);
             return
           }
+
+          // if (timePassed > TWO_HOURS_IN_S && timePassed < FOURTEEN_HOURS_IN_S) {
+          //   logger.log("2 hours passed but less the 14 hours")
+
+          //   if (broadcastIsInTheMeeting.value == false) {
+          //     logger.log("No host so ending the meeting")
+
+          //     meetingIsEnded.value = true;
+          //     meetingIsNotStarted.value = false
+          //     clearInterval(interval);
+          //     return
+          //   }
+
+          //   logger.log("Host is there so joining the meeting")
+
+          // }
 
         }
 
@@ -476,6 +495,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
           },
           remoteStreamCallback: async (stream) => {
+
+            if (meetingIsEnded.value) {
+              //don't show remote video if meeting is ended (time is passed)
+              return
+            }
+
             log(`remoteStreamCallback`, stream)
             log(`remoteStreamCallback-Name`, stream.name)
 
@@ -908,6 +933,16 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
       }
 
       if (meetingStatus.value) {
+
+        if (sparkRTC.value) {
+          if (meetingIsEnded.value) {
+            await sparkRTC.value.leaveMeeting()
+            await sparkRTC.value.resetVariables(true)
+          }
+          //don't start again if setup already.. This check is for meeting time status and leave meeting immediatly if ended
+          return
+        }
+
         await setupSparkRTC()
         if (sparkRTC.value && role === Roles.BROADCAST) {
           let stream = await sparkRTC.value.getAccessToLocalStream()
@@ -920,7 +955,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
     fetchData()
 
-  }, [meetingStatus.value])
+  }, [meetingStatus.value, meetingIsEnded.value])
 
   const rejoinMeeting = () => {
     if (isInsideIframe()) {
