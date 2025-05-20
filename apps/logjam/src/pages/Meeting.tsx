@@ -29,6 +29,7 @@ export const meetingStatus = signal(true)
 export const recordingStatus = signal(false)
 export const broadcastIsInTheMeeting = signal(true)
 export const meetingIsNotStarted = signal(false)
+export const twoHoursPassed = signal(false)
 export const meetingIsEnded = signal(false)
 export const meetingStartRemainingTime = signal("")
 export const raisedHandsCount = signal(0)
@@ -386,21 +387,16 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
             return
           }
 
-          // if (timePassed > TWO_HOURS_IN_S && timePassed < FOURTEEN_HOURS_IN_S) {
-          //   logger.log("2 hours passed but less the 14 hours")
+          if (timePassed > TWO_HOURS_IN_S && timePassed < FOURTEEN_HOURS_IN_S) {
+            logger.log("2 hours passed but less the 14 hours")
 
-          //   if (broadcastIsInTheMeeting.value == false) {
-          //     logger.log("No host so ending the meeting")
+            twoHoursPassed.value = true
 
-          //     meetingIsEnded.value = true;
-          //     meetingIsNotStarted.value = false
-          //     clearInterval(interval);
-          //     return
-          //   }
+            logger.log("Host is there so joining the meeting")
 
-          //   logger.log("Host is there so joining the meeting")
-
-          // }
+            clearInterval(interval)
+            return
+          }
 
         }
 
@@ -538,6 +534,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
             setTimeout(() => {
               if (role === Roles.AUDIENCE) {
                 if (sparkRTC.value.broadcasterDC || stream === 'no-stream') {
+                  logger.log("NO STREAM AND BROADCASTER IS DC")
+
+                  if (twoHoursPassed.value) {
+                    meetingIsEnded.value = true
+                  }
+
                   //destroy preview Dialog
                   if (previewDialogId !== null) {
                     destroyDialog(previewDialogId)
