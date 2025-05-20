@@ -43,6 +43,7 @@ var hostId = null
 const cssList = signal(null);
 export const TopWindowURL = signal(null)
 export const HashDataFromLittleApe = signal(null)
+export const roomNameSignal = signal("")
 
 const createNewHost = async (hostData) => {
   var newHost = await pbApi.createHost(hostData)
@@ -123,6 +124,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
   const [startNewRoomFromIframe, setStartNewRoomFromIframe] = useState(false)
   const [hostLink, setHostLink] = useState("");
   const [roomName, setRoomName] = useState(displayName);
+  roomNameSignal.value = displayName
   const [audienceLink, setAudienceLink] = useState("");
   const [gaUrl, setGaUrl] = useState("")
   const [allowedToStartMeeting, setAllowedToStartMeeting] = useState(false)
@@ -832,9 +834,11 @@ export const LinkCopyComponent = ({ title, link, className }) => {
     <div class={clsx('flex flex-col gap-1 w-full', className)}>
       {title && <span class="text-bold-12 text-gray-3">{title}</span>}
       <div className="greatape-meeting-link-background dark:bg-gray-2 dark:text-gray-0 w-full bg-gray-0 px-4 py-2 text-gray-2 flex justify-between rounded-full items-center">
-        <div className="flex gap-2 items-center overflow-hidden">
-          <Icon icon={LinkIcon} class="greatape-meeting-link" />
-          <span class="text-medium-12 truncate greatape-meeting-link">{link}</span>
+        <div className="flex gap-2 items-center overflow-hidden min-w-0">
+          <Icon icon={LinkIcon} class="greatape-meeting-link flex-shrink-0" />
+          <span class="text-medium-12 truncate overflow-hidden text-ellipsis greatape-meeting-link max-w-full">
+            {link}
+          </span>
         </div>
         <Tooltip label={copyTooltipTitle} hideOnClick={false}>
           <button class="cursor-pointer" onClick={onCopy}>

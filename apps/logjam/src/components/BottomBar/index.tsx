@@ -3,7 +3,7 @@ import Troubleshoot from 'assets/icons/Troubleshoot.svg?react'
 import clsx from 'clsx'
 import { BottomSheet, Container, Controllers, Icon, MoreControllers, Tooltip, attendeesBadge, attendeesCount, isAttendeesOpen, isMoreOptionsOpen, toggleAttendees, toggleMoreOptions } from 'components'
 import { broadcastIsInTheMeeting, isDebugMode, meetingIsNotStarted, meetingStartRemainingTime, sparkRTC } from 'pages/Meeting'
-import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, TopWindowURL } from '../../pages/host/index.tsx'
+import { HashDataFromLittleApe, isInsideIframe, LinkCopyComponent, roomNameSignal, TopWindowURL } from '../../pages/host/index.tsx'
 import logger from 'lib/logger/logger.js'
 import { meetingStartTimeInUnix } from 'pages/audience/index.js'
 export const BottomBar = () => {
@@ -13,7 +13,7 @@ export const BottomBar = () => {
       <div class="w-full grid grid-cols-12 dark:bg-secondary-1-a py-3 pt-0 dark:text-gray-0 text-gray-2" id="bottom-bar">
         <div class="col-span-3 sm:block hidden">
           <div class="h-full flex items-center">
-            <LinkCopyComponent link={generateAudienceUrl(sparkRTC.value ? sparkRTC.value.roomName : '')} className="max-w-[300px]" />
+            <LinkCopyComponent link={generateAudienceUrl(roomNameSignal.value ? roomNameSignal.value : sparkRTC.value ? sparkRTC.value.roomName : '')} className="max-w-[300px]" />
           </div>
         </div>
         <div class="col-span-12 sm:col-span-6 flex items-center justify-center">{broadcastIsInTheMeeting.value ? <Controllers /> : null}</div>
@@ -46,6 +46,7 @@ export const BottomBar = () => {
 }
 
 const generateAudienceUrl = (roomName: string) => {
+  
   if (isInsideIframe()) {
     //get iframe URL
 
@@ -65,7 +66,7 @@ export const BottomBarBottomSheet = () => {
     <BottomSheet open={isMoreOptionsOpen.value} onClose={toggleMoreOptions} title="More">
       <div class="w-full h-full flex gap-3 py-6 flex-col pb-0">
         <span class="text-bold-14">{'Welcome to the Fediverse!'}</span>
-        <LinkCopyComponent link={generateAudienceUrl(sparkRTC.value ? sparkRTC.value.roomName : '')} />
+        <LinkCopyComponent link={generateAudienceUrl(roomNameSignal.value ? roomNameSignal.value : sparkRTC.value ? sparkRTC.value.roomName : '')} />
         <Tooltip label={isAttendeesOpen.value ? 'Hide Attendees' : 'Show Attendees'}>
           <div
             onClick={handleAttendeesOpen}
