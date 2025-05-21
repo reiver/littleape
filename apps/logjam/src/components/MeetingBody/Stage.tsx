@@ -3,6 +3,8 @@ import MicrophoneOff from 'assets/icons/MicrophoneOff.svg?react'
 import ScreenFull from 'assets/icons/ScreenFull.svg?react'
 import ScreenNormal from 'assets/icons/ScreenNormal.svg?react'
 import verticalDots from 'assets/icons/verticalDots.svg?react'
+import GreatApeImageBeforeMeetingStarted from 'assets/images/greatape-before-meeting-start.png'
+import GreatApeImageAfterMeetingEnded from 'assets/images/greatape-after-meeting-end.png'
 import clsx from 'clsx'
 import { Icon, IconButton, attendeesWidth, makeDialog } from 'components'
 import throttle from 'lodash.throttle'
@@ -405,12 +407,23 @@ export const Stage = ({ customStyles }) => {
       ) : (
         meetingIsNotStarted.value && meetingStartRemainingTime.value !== "" ? (
           <div>
+            <img src={GreatApeImageBeforeMeetingStarted} className="mx-auto" />
             <span class="inline-block w-full text-center text-bold-18">The live conversation has not started yet.<br />Please stand by, and thank you for your patience.</span>
             <span class="inline-block w-full text-center text-bold-14 mt-3">{meetingStartRemainingTime.value} to go</span>
           </div>
 
         ) : (
-          meetingIsEnded.value == true ? (<span class="inline-block w-full text-center text-bold-14">This conversation has ended.</span>) : (<span class="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>)
+          meetingIsEnded.value == true ? (
+            <div>
+              <img src={GreatApeImageAfterMeetingEnded} className="mx-auto" />
+              <span class="inline-block w-full text-center text-bold-14">This conversation has ended.</span>
+            </div>
+          ) : (
+            <div>
+              <img src={GreatApeImageBeforeMeetingStarted} className="mx-auto" />
+              <span class="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>
+            </div>
+          )
         )
       )
       }
