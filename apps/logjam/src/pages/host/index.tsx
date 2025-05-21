@@ -686,11 +686,11 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <ShowLinksComponent />
           </ResponsiveModal>
 
-          <ResponsiveModal open={showEventScheduleModal} onClose={setShowEventScheduleModal.bind(null, false)}>
+          <ResponsiveModal open={showEventScheduleModal} onClose={setShowEventScheduleModal.bind(null, false)} modalProps={{ disableEnforceFocus: true }}>
             <span className="text-bold-12 text-black block text-center pt-5">Schedule The Live Room</span>
             <hr className="mt-4 mb-1 border-white md:border-gray-0" />
             <div className="p-5 flex flex-col gap-5 pb-6">
-              <span class="text-bold-12 text-gray-2">Please enter your desirable date and time for starting the event:</span>
+              <span className="text-bold-12 text-gray-2">Please enter your desirable date and time for starting the event:</span>
 
               <form class="flex flex-col w-full ">
                 <div className="flex flex-col gap-5">
@@ -699,6 +699,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <FormControl className="w-full">
                         <DatePicker
+                          slotProps={{
+                            popper: { disablePortal: true },
+                            dialog: { disablePortal: true },
+                          }}
                           label="Date"
                           value={selectedDate}
                           onChange={(newValue) => {
@@ -732,6 +736,10 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
                             hours: renderTimeViewClock,
                             minutes: renderTimeViewClock,
                             seconds: renderTimeViewClock,
+                          }}
+                          slotProps={{
+                            popper: { disablePortal: true },
+                            dialog: { disablePortal: true },
                           }}
                           format="hh:mm A"
                           label="Time"
