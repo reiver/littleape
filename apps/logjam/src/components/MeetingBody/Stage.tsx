@@ -406,7 +406,7 @@ export const Stage = ({ customStyles }) => {
         meetingIsNotStarted.value && meetingStartRemainingTime.value !== "" ? (
           <div>
             <span class="inline-block w-full text-center text-bold-18">The live conversation has not started yet.<br />Please stand by, and thank you for your patience.</span>
-            <span class="inline-block w-full text-center text-bold-14 mt-3">{meetingStartRemainingTime.value} left</span>
+            <span class="inline-block w-full text-center text-bold-14 mt-3">{meetingStartRemainingTime.value} to go</span>
           </div>
 
         ) : (

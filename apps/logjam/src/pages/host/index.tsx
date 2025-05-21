@@ -784,7 +784,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <span className="text-bold-12 text-black block text-center pt-5">Room Links</span>
             <hr className="mt-4 mb-1 border-white md:border-gray-0" />
             <div className="p-5 pb-0 flex flex-col gap-5">
-              <span class="text-bold-14 text-black">The Event is published on your Bluesky account, You can start your live show at {dateTimeFromUnix}</span>
+              <span class="text-bold-14 text-black">The GreatApe conversation was shared with your followers on your {displayName} account. You can start your live show at {dateTimeFromUnix}</span>
             </div>
 
             <ShowLinksComponent />
