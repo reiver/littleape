@@ -30,9 +30,9 @@ export class SparkRTC {
   /** @type {WebSocket} */
   socket;
   metaDataInterVal = null
-  myName = "NoName";
-  roomName = "SparkRTC";
-  myUsername = "NoUsername";
+  myName = "";
+  roomName = "";
+  myUsername = "";
   debug = false;
   lastBroadcasterId = "";
   /**@type {Date} */
