@@ -608,11 +608,11 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
               </div>
               <div class="flex gap-2 w-full flex-col-reverse md:flex-row">
-                <Button onClick={handleCreateLink} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
+                {/* <Button onClick={handleCreateLink} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
                   Create Link
-                </Button>
+                </Button> */}
                 <Button onClick={handleCreateEvent} variant="outlined" className="w-full normal-case" sx={{ textTransform: 'none' }}>
-                  Create Event
+                  Start Later
                 </Button>
                 <Button onClick={onSubmit} type="submit" variant="contained" className="w-full normal-case" sx={{ textTransform: 'none' }} color="primary">
                   Start Now
