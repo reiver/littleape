@@ -63,7 +63,6 @@ NEXT_PUBLIC_NEYNAR_CLIENT_ID="REPLACE_ME"
 NEXT_PUBLIC_CLIENT_NAME="GreatApe"
 NEXT_PUBLIC_CLIENT_DESCRIPTION="Watch, Listen, and Join the Conversation"
 NEXT_PUBLIC_GREATAPE_VERSION="0.0.1-alpha"
-NEXT_PUBLIC_GREATAPE_URL="https://greata.pe/"
 ```
 
 Replace the value of `NEXT_PUBLIC_THIRD_WEB_CLIENT_ID` with your thirdweb client-id.

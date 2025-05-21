@@ -24,7 +24,7 @@ export const Footer: FC<FooterProps> = (props) => {
       <Box display="flex" alignItems="center">
         <Text ml={2}>
           Powered by{" "}
-          <Link href={`${process.env.NEXT_PUBLIC_GREATAPE_URL}`} isExternal color="black" fontWeight="bold">
+          <Link href={`https://greata.pe`} isExternal color="black" fontWeight="bold">
             GreatApe
           </Link>
         </Text>
