@@ -620,7 +620,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
           },
           updateMeetingUI: (styles) => {
             if (sparkRTC.value.role == sparkRTC.value.Roles.AUDIENCE) {
-              logger.log("Latest Meeting UI: ", styles)
+              // logger.log("Latest Meeting UI: ", styles)
               setCustomStyles(styles)
             }
           },
@@ -904,7 +904,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
           },
           updateVideosMuteStatus: (muted) => {
             if (muted) {
-              logger.log("MutedMap: ", muted)
+              // logger.log("MutedMap: ", muted)
               for (const [streamID, isMuted] of Object.entries(muted)) {
 
                 if (sparkRTC.value.localStream && streamID === sparkRTC.value.localStream.id) {
