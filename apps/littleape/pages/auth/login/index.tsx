@@ -95,6 +95,7 @@ type LoginProps = {
 
 
 const Login: FC<LoginProps> = ({ appMeta }) => {
+  const [showLoginButtons, setShowLoginButtons] = useState(false)
   const [email, setEmail] = useState<string | undefined>(undefined);
   const router = useRouter();
   const [error, setError] = useState(null);
@@ -115,8 +116,6 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   const [pixelfedUser, setPixelfedUser] = useState(null)
   const [misskeyUser, setMisskeyUser] = useState(null)
   const [peerTubeUser, setPeerTubeUser] = useState(null)
-
-
 
   const toast = useToast();
   const disconnect = useDisconnect();
@@ -147,6 +146,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     if (router) {
       if (Cookies.get(FORCE_LOGIN) == "true") {
         Cookies.set(FORCE_LOGIN, "false")
+        setShowLoginButtons(true)
       } else {
         goToHostMeetingPage()
       }
@@ -166,6 +166,19 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     }
   }
 
+  useEffect(() => {
+    const userFromCookie = Cookies.get(USER_COOKIE)
+
+    if (userFromCookie != null && userFromCookie != undefined) {
+      const userObj: User = JSON.parse(userFromCookie);
+      if (userObj == null) {
+        setShowLoginButtons(true)
+        return
+      }
+    } else {
+      setShowLoginButtons(true)
+    }
+  })
 
   const {
     isOpen: isSignWalletOpen,
@@ -189,6 +202,7 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.mastodonuser) {
       try {
+        setShowLoginButtons(false)
         const userData = JSON.parse(decodeURIComponent(router.query.mastodonuser as string));
         setMastodonUser(userData);
         logger.log("MASTODON USERDATA: ", userData)
@@ -229,6 +243,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.mastodonerror) {
       try {
+        setShowLoginButtons(true)
+
         const errorData = JSON.parse(decodeURIComponent(router.query.mastodonerror as string));
         logger.log("Error Data:", errorData);
 
@@ -252,6 +268,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.pixelfeduser) {
       try {
+        setShowLoginButtons(false)
+
         const userData = JSON.parse(decodeURIComponent(router.query.pixelfeduser as string));
         setPixelfedUser(userData);
 
@@ -291,6 +309,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.pixelfederror) {
       try {
+        setShowLoginButtons(true)
+
         const errorData = JSON.parse(decodeURIComponent(router.query.pixelfederror as string));
         logger.log("Error Data:", errorData);
 
@@ -314,6 +334,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.misskeyuser) {
       try {
+        setShowLoginButtons(false)
+
         const userData = JSON.parse(decodeURIComponent(router.query.misskeyuser as string));
         setMisskeyUser(userData);
 
@@ -354,6 +376,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.misskeyerror) {
       try {
+        setShowLoginButtons(true)
+
         const errorData = JSON.parse(decodeURIComponent(router.query.misskeyerror as string));
         logger.log("Error Data:", errorData);
 
@@ -377,6 +401,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
   useEffect(() => {
     if (router.query.peertubeuser) {
       try {
+        setShowLoginButtons(false)
+
         const userData = JSON.parse(decodeURIComponent(router.query.peertubeuser as string));
         setPeerTubeUser(userData);
         logger.log("Peertube user: ", userData)
@@ -426,6 +452,8 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
 
   useEffect(() => {
     if (router.query.peertubeerror) {
+      setShowLoginButtons(true)
+
       toast({
         title: "Failed to Authenticate with Peertube",
         description: ``,
@@ -605,6 +633,9 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     setLoginPlatform("")
   }
 
+  const loginFormSubHeadingText = `Login to GreatApe (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN}) to start or schedule a live conversation`
+  const loginFormHeadingText = `Welcome!`
+
   const getSocialLogo = () => {
     if (loginPlatform == SocialPlatform.MASTODON) {
       return <MastodonLogoColor />
@@ -639,235 +670,237 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
         <meta name="twitter:description" content={appMeta.APP_DESCRIPTION} />
         <meta name="twitter:image" content={appMeta.IMAGE_URL} />
       </Head>
-      <div className={`w-full max-w-[632px] ${showSocialInsatncesList ? `max-h-[752px]` : `max-h-[703px]`} mx-auto mt-6 pb-8 md:border md:rounded-2xl bg-white`}>
-        <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
+      {showLoginButtons &&
+        <div className={`w-full max-w-[632px] ${showSocialInsatncesList ? `max-h-[752px]` : `max-h-[703px]`} mx-auto mt-6 pb-8 md:border md:rounded-2xl bg-white`}>
+          <Box mx="auto" mt="10" w="full" className="max-w-[416px]">
 
-          {
-            !showSocialInsatncesList && <>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-start"
-                textColor="slate.900"
-                _dark={{ textColor: "slate.200" }}
-              >
-                <Box display="flex" justifyContent="center" width="100%">
-                  <GreatApeLogo />
+            {
+              !showSocialInsatncesList && <>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  textColor="slate.900"
+                  _dark={{ textColor: "slate.200" }}
+                >
+                  <Box display="flex" justifyContent="center" width="100%">
+                    <GreatApeLogo />
+                  </Box>
+                  <Text className="text-secondary-1-a text-semi-bold-32 mt-6 mx-auto">
+                    {loginFormHeadingText}
+                  </Text>
+                  {
+                    isMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                      {loginFormSubHeadingText}
+                    </Text>
+                  }
+                  {
+                    isFediverseMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
+                      {loginFormSubHeadingText}
+                    </Text>
+                  }
                 </Box>
-                <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
-                  Welcome!
-                </Text>
+
                 {
-                  isMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
-                    Please enter your info. to continue
-                  </Text>
+                  isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
+                    setUser(user)
+                    goToHostMeetingPage()
+                  }} existingAccountId="" />
                 }
+
                 {
-                  isFediverseMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
-                    Please choose a login option:
-                  </Text>
+                  isMvpMode == true && <div className="flex items-center gap-4 mt-6 mb-6">
+                    <div className="flex-1 h-[2px] bg-gray-0" />
+                    <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
+                    <div className="flex-1 h-[2px] bg-gray-0" />
+                  </div>
                 }
-              </Box>
-
-              {
-                isMvpMode && <BlueSkyLoginButtonNew onLoginSuccess={(user) => {
-                  setUser(user)
-                  goToHostMeetingPage()
-                }} existingAccountId="" />
-              }
-
-              {
-                isMvpMode == true && <div className="flex items-center gap-4 mt-6 mb-6">
-                  <div className="flex-1 h-[2px] bg-gray-0" />
-                  <Text className="text-gray-400 text-[16px]">Or Continue With</Text>
-                  <div className="flex-1 h-[2px] bg-gray-0" />
-                </div>
-              }
 
 
-              <div className={`${isMvpMode ? 'flex' : ''} items-center gap-4 justify-center ${isFediverseMvpMode ? 'mt-4' : ''}`}>
-                <MastodonLoginButton onButtonClick={handleMastodonButtonClick} />
+                <div className={`${isMvpMode ? 'flex' : ''} items-center gap-4 justify-center ${isFediverseMvpMode ? 'mt-4' : ''}`}>
+                  <MastodonLoginButton onButtonClick={handleMastodonButtonClick} />
 
-                <PixelfedLoginButton onButtonClick={handlePixelfedButtonClick} />
+                  <PixelfedLoginButton onButtonClick={handlePixelfedButtonClick} />
 
-                <MisskeyLoginButton onButtonClick={handleMisskeyButtonClick} />
+                  <MisskeyLoginButton onButtonClick={handleMisskeyButtonClick} />
 
-                <PeerTubeLoginButton onButtonClick={handlePeertubeButtonClick} />
+                  <PeerTubeLoginButton onButtonClick={handlePeertubeButtonClick} />
 
-                {
-                  isMvpMode == true && <SignInWithFarcasterButton
-                    onSuccess={(res) => {
-                      logger.log("Success SignInWithFarcasterButton: ", res)
-                      if (loginMode != LoginMode.FARCASTER) {
-                        logger.log("Farcaster Login success: ", res)
+                  {
+                    isMvpMode == true && <SignInWithFarcasterButton
+                      onSuccess={(res) => {
+                        logger.log("Success SignInWithFarcasterButton: ", res)
+                        if (loginMode != LoginMode.FARCASTER) {
+                          logger.log("Farcaster Login success: ", res)
 
-                        if (isMvpMode) {
-                          const mappedUser: Partial<User> = {
-                            username: res.data.username,
-                          };
-                          setUser(mappedUser)
-                          goToHostMeetingPage()
-                        } else {
-                          loginUsingFarcaster(res.data.username, res.data.fid)
-                          setLoginMode(LoginMode.FARCASTER);
+                          if (isMvpMode) {
+                            const mappedUser: Partial<User> = {
+                              username: res.data.username,
+                            };
+                            setUser(mappedUser)
+                            goToHostMeetingPage()
+                          } else {
+                            loginUsingFarcaster(res.data.username, res.data.fid)
+                            setLoginMode(LoginMode.FARCASTER);
+                          }
+
                         }
+                      }}
+                      onError={(err) => {
+                        logger.log("Error SIWF: ", err)
+                      }} />
+                  }
 
-                      }
-                    }}
-                    onError={(err) => {
-                      logger.log("Error SIWF: ", err)
-                    }} />
-                }
-
-              </div>
-            </>
-          }
+                </div>
+              </>
+            }
 
 
-          {
-            showSocialInsatncesList &&
-            <SocialInstancesListComponent logo={getSocialLogo()} title={loginPlatform} goBack={handleBackToLogin} />
-          }
+            {
+              showSocialInsatncesList &&
+              <SocialInstancesListComponent logo={getSocialLogo()} title={loginPlatform} goBack={handleBackToLogin} />
+            }
 
-          {!email ? (
-            walletIsSigned ? (
-              <div>
-                <Text>Loading...</Text>
-              </div>
-            ) : (
-              <div>
-                {
-                  isMvpMode == false && isFediverseMvpMode == false && <Form
-                    onSubmit={handleLoginViaPocketBase}
-                    mt="8"
-                    display="flex"
-                    flexDirection="column"
-                    experimental_spaceY={4}
-                  >
-                    <Input autoFocus {...register("email")} error={errors.email} />
-                    {error && (
-                      <Alert status="error">
-                        <AlertIcon />
-                        {error}
-                      </Alert>
-                    )}
-                    <Box>
-                      <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
-                        Login
+            {!email ? (
+              walletIsSigned ? (
+                <div>
+                  <Text>Loading...</Text>
+                </div>
+              ) : (
+                <div>
+                  {
+                    isMvpMode == false && isFediverseMvpMode == false && <Form
+                      onSubmit={handleLoginViaPocketBase}
+                      mt="8"
+                      display="flex"
+                      flexDirection="column"
+                      experimental_spaceY={4}
+                    >
+                      <Input autoFocus {...register("email")} error={errors.email} />
+                      {error && (
+                        <Alert status="error">
+                          <AlertIcon />
+                          {error}
+                        </Alert>
+                      )}
+                      <Box>
+                        <Button primary w="full" type="submit" mt={error ? 0 : 3} isLoading={loading}>
+                          Login
+                        </Button>
+                      </Box>
+                    </Form>
+                  }
+
+                  {
+                    isMvpMode == false && isFediverseMvpMode == false && !walletConnected && <Box>
+                      <ConnectWallet
+                        theme={walletConnected ? "light" : "dark"}
+                        className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
+                        auth={{ loginOptional: false }}
+                        btnTitle="Continue With Your Wallet"
+                        showThirdwebBranding={false}
+                        onConnect={async (wallet) => {
+                          setWalletConnected(true);
+                          onSignWalletOpen()
+                        }}
+                      />
+                    </Box>
+                  }
+
+
+                  {
+                    walletConnected && <Box>
+                      <Button w="full" mt={error ? 0 : 3} onClick={() => {
+                        resetAll()
+                        disconnect()
+                      }}>
+                        Disconnect Wallet
                       </Button>
                     </Box>
-                  </Form>
-                }
+                  }
 
-                {
-                  isMvpMode == false && isFediverseMvpMode == false && !walletConnected && <Box>
-                    <ConnectWallet
-                      theme={walletConnected ? "light" : "dark"}
-                      className={walletConnected ? styles.connectButtonAfter : styles.connectButtonLight}
-                      auth={{ loginOptional: false }}
-                      btnTitle="Continue With Your Wallet"
-                      showThirdwebBranding={false}
-                      onConnect={async (wallet) => {
-                        setWalletConnected(true);
-                        onSignWalletOpen()
+                  {/* Show blue sky login modal only if not mvp */}
+                  {
+                    isMvpMode == false && isFediverseMvpMode == false && <BlueSkyLoginButton
+
+                      onClose={(user?: any) => {
+
+                        if (user != null && user != undefined) {
+                          if (user.record == null || user.record == undefined) {
+                            toast({
+                              title: user,
+                              description: ``,
+                              status: "error",
+                              duration: 3000,
+                              isClosable: true,
+                            });
+                          } else {
+                            const _user = user.record
+                            logger.log("Login successfull with Blue Sky: ", _user)
+                            setAuth(_user.email, _user);
+                            setLoginMode(LoginMode.BLUESKY)
+                            goToHostMeetingPage()
+                          }
+                        }
                       }}
-                    />
-                  </Box>
-                }
+
+                      existingAccountId="" />
+                  }
 
 
-                {
-                  walletConnected && <Box>
-                    <Button w="full" mt={error ? 0 : 3} onClick={() => {
-                      resetAll()
-                      disconnect()
-                    }}>
-                      Disconnect Wallet
-                    </Button>
-                  </Box>
-                }
-
-                {/* Show blue sky login modal only if not mvp */}
-                {
-                  isMvpMode == false && isFediverseMvpMode == false && <BlueSkyLoginButton
-
-                    onClose={(user?: any) => {
-
-                      if (user != null && user != undefined) {
-                        if (user.record == null || user.record == undefined) {
+                  {
+                    isMvpMode == false && isFediverseMvpMode == false && <Box
+                      mt="6"
+                      display="flex"
+                      flexDirection="column"
+                      experimental_spaceY="4"
+                      textAlign="center"
+                      color="slate.500"
+                      _dark={{ color: "slate.400" }}
+                    >
+                      <span>Don&rsquo;t have an account?</span>
+                      <Button className="block w-full" onClick={(() => {
+                        if (walletConnected) {
                           toast({
-                            title: user,
+                            title: "Please disconnect the wallet first!",
                             description: ``,
                             status: "error",
                             duration: 3000,
                             isClosable: true,
                           });
+                          return
                         } else {
-                          const _user = user.record
-                          logger.log("Login successfull with Blue Sky: ", _user)
-                          setAuth(_user.email, _user);
-                          setLoginMode(LoginMode.BLUESKY)
-                          goToHostMeetingPage()
+                          resetAll()
+                          router.push("/auth/register")
                         }
-                      }
-                    }}
-
-                    existingAccountId="" />
-                }
+                      })}>Register now</Button>
+                    </Box>
+                  }
 
 
-                {
-                  isMvpMode == false && isFediverseMvpMode == false && <Box
-                    mt="6"
-                    display="flex"
-                    flexDirection="column"
-                    experimental_spaceY="4"
-                    textAlign="center"
-                    color="slate.500"
-                    _dark={{ color: "slate.400" }}
-                  >
-                    <span>Don&rsquo;t have an account?</span>
-                    <Button className="block w-full" onClick={(() => {
-                      if (walletConnected) {
-                        toast({
-                          title: "Please disconnect the wallet first!",
-                          description: ``,
-                          status: "error",
-                          duration: 3000,
-                          isClosable: true,
-                        });
-                        return
-                      } else {
-                        resetAll()
-                        router.push("/auth/register")
-                      }
-                    })}>Register now</Button>
-                  </Box>
-                }
+                </div>
+              )
 
+            ) : (
+              <VerifyRegistration email={email} backToRegistration={backToRegistration} />
+            )}
 
-              </div>
-            )
+            <SignWalletModal
+              user={loggedInUser}
+              isOpen={isSignWalletOpen}
+              onClose={(() => {
+                onSignWalletClose()
+                setShowConnectedWallets(false)
+              })}
+              onSignMessage={(value) => {
+                return setOnSignMessage(value);
+              }}
+              forceSign={true}
+            />
 
-          ) : (
-            <VerifyRegistration email={email} backToRegistration={backToRegistration} />
-          )}
-
-          <SignWalletModal
-            user={loggedInUser}
-            isOpen={isSignWalletOpen}
-            onClose={(() => {
-              onSignWalletClose()
-              setShowConnectedWallets(false)
-            })}
-            onSignMessage={(value) => {
-              return setOnSignMessage(value);
-            }}
-            forceSign={true}
-          />
-
-        </Box>
-      </div>
+          </Box>
+        </div>
+      }
     </MainLayout>
   );
 };

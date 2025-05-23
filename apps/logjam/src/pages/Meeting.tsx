@@ -620,7 +620,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
           },
           updateMeetingUI: (styles) => {
             if (sparkRTC.value.role == sparkRTC.value.Roles.AUDIENCE) {
-              logger.log("Latest Meeting UI: ", styles)
+              // logger.log("Latest Meeting UI: ", styles)
               setCustomStyles(styles)
             }
           },
@@ -697,7 +697,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                 localStream,
                 {
                   message: 'Set the default state of your “Video” and “Audio” before joining the stage please',
-                  title: 'Join The Stage',
+                  title: 'Are You Ready To Join?',
                 },
                 () => {
                   //onOk
@@ -862,8 +862,8 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
               localStream,
               {
                 message: 'The host has requested you to come on stage. Set the default state of your “Video” and “Audio” before joining please.',
-                title: 'Join The Stage',
-                yesButton: 'Join The Stage!',
+                title: 'Are You Ready To Join?',
+                yesButton: 'Join Now',
                 noButton: 'Not Now!',
               },
               () => {
@@ -904,7 +904,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
           },
           updateVideosMuteStatus: (muted) => {
             if (muted) {
-              logger.log("MutedMap: ", muted)
+              // logger.log("MutedMap: ", muted)
               for (const [streamID, isMuted] of Object.entries(muted)) {
 
                 if (sparkRTC.value.localStream && streamID === sparkRTC.value.localStream.id) {
@@ -1024,7 +1024,7 @@ function showPreviewDialog(str, host, name, room) {
     str,
     {
       message: 'Set the default state of your “Video” and “Audio” before joining the stage please',
-      title: 'Join The Stage',
+      title: 'Are You Ready To Join?',
     },
     async () => {
       //onOK

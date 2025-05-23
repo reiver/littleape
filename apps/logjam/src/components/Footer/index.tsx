@@ -15,7 +15,7 @@ export const Footer: FC<FooterProps> = ({ compact, ...rest }) => {
                 <p className="ml-2">
                     Powered by{" "}
                     <a
-                        href={import.meta.env.VITE_PUBLIC_GREATAPE_URL}
+                        href="https://greata.pe"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-black font-bold"

@@ -9,7 +9,7 @@ export default function AudiencePage({ appMeta }) {
     const router = useRouter();
     const { roomname } = router.query;
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const [audienceUrl, setAudienceUrl] = useState("");
+    const [audienceUrl, setAudienceUrl] = useState(null);
 
     useEffect(() => {
         if (!roomname) return;

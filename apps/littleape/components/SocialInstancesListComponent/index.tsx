@@ -11,6 +11,7 @@ import AtIcon from "../../public/at-sign.svg";
 import ServerIcon from "../../public/server.svg";
 import LockIcon from "../../public/lock.svg";
 import logger from "lib/logger/logger"
+import { useServerHistory } from "hooks/useCustomSeversHistory"
 
 type SocialInstancesListComponentProps = {
     logo: JSX.Element
@@ -44,6 +45,10 @@ type NewServerModalProps = { onOk: (url: string) => void, onCanel: () => void };
 var loginWithNewUrl = false
 
 export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInstancesListComponentProps) => {
+    const { servers, addServer, removeServer } = useServerHistory(`customservers-${title}`);
+
+    const toast = useToast()
+
     const {
         isOpen: isPeerTubeLoginFormOpen,
         onOpen: onPeerTubeLoginFormOpen,
@@ -93,18 +98,44 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
         }
     }
 
-    function removeHttpPrefix(url: string): string {
-        return url.replace(/^https?:\/\//, '');
+    function extractHostname(url: string): string {
+        try {
+            const parsedUrl = new URL(url);
+            return parsedUrl.hostname;
+        } catch {
+            // fallback if input is not a valid URL
+            return url.split('/')[0].replace(/^https?:\/\//, '');
+        }
     }
+
+    function isValidHostname(hostname: string): boolean {
+        const hostnameRegex = /^(?=.{1,253}$)(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))+$/;
+        return hostnameRegex.test(hostname);
+    }
+
+
 
     const setNewUrlBaseLinkAndHref = (url: string) => {
 
         var newUrl = ""
         if (isValidHttp(url)) {
-            newUrl = removeHttpPrefix(url)
+            newUrl = extractHostname(url)
         } else {
             newUrl = url
         }
+
+        if (!isValidHostname(newUrl)) {
+            logger.log("Invaid Hostname")
+            toast({
+                title: "Please input valid server url",
+                description: ``,
+                status: "error",
+                duration: 6000,
+                isClosable: true,
+            });
+            return
+        }
+        addServer(newUrl)
 
         if (title == SocialPlatform.MASTODON) {
             const instance = `https://${newUrl}`;
@@ -158,8 +189,16 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
 
 
     const NewServerModal: FC<NewServerModalProps> = ({ onOk, onCanel }) => {
-
+        const [showDropdown, setShowDropdown] = useState(false);
         const [newUrl, setNewUrl] = useState("")
+
+        logger.log("YOOO")
+
+        const handleSelect = (url: string) => {
+            logger.log("URL SELECTED: ", url)
+            setNewUrl(url);
+            setShowDropdown(false);
+        };
 
         return (
             <div className="absolute top-0 left-0 w-full h-full">
@@ -173,16 +212,55 @@ export const SocialInstancesListComponent = ({ logo, title, goBack }: SocialInst
                     </div>
                     <hr className="border-gray-0 sm:block hidden mb-8" />
                     <span className="text-bold-12 text-gray-2 mx-4 items-center">Please enter the instance server URL:</span>
-                    <div className="mx-4 my-4 flex flex-col items-center justify-center border border-black rounded-md py-3 pl-4">
 
+                    <div className="mx-4 my-4 flex flex-col items-center justify-center border border-black rounded-md py-3 pl-4 relative">
                         <input
                             type="text"
                             value={newUrl}
-                            onChange={(e) => setNewUrl(e.target.value)}
+                            onChange={(e) => {
+                                setNewUrl(e.target.value)
+                                setShowDropdown(false)
+                                if (e.target.value.trim() === "") {
+                                    setShowDropdown(true);
+                                }
+
+                            }}
+                            onFocus={() => setShowDropdown(true)}
+                            onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // delay to allow click
                             placeholder="Server URL"
                             className="w-full border-none outline-none bg-transparent text-regular-16 text-secondary-1-a"
                         />
 
+                        {showDropdown && servers.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-2 max-h-40 overflow-y-auto bg-white border border-gray-200 shadow-lg z-50 rounded-md scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                {servers.map((url) => (
+                                    <div
+                                        key={url}
+                                        className="px-4 py-2 text-sm flex justify-between items-center hover:bg-gray-100"
+                                    >
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevents triggering parent click
+                                                logger.log("CLICK on SPAN")
+                                                handleSelect(url)
+                                            }}
+                                            className="text-left flex-1"
+                                        >
+                                            {url}
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevents triggering parent click
+                                                logger.log("Removing server url: ", url)
+                                                removeServer(url)
+                                            }}
+                                        >
+                                            <Icon icon={Close} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col-reverse sm:flex-row gap-2 mt-8 mx-4 mb-4">
