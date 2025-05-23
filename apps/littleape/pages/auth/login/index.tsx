@@ -633,6 +633,9 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
     setLoginPlatform("")
   }
 
+  const loginFormSubHeadingText = `Login to GreatApe (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN}) to start or schedule a live conversation`
+  const loginFormHeadingText = `Welcome!`
+
   const getSocialLogo = () => {
     if (loginPlatform == SocialPlatform.MASTODON) {
       return <MastodonLogoColor />
@@ -683,17 +686,17 @@ const Login: FC<LoginProps> = ({ appMeta }) => {
                   <Box display="flex" justifyContent="center" width="100%">
                     <GreatApeLogo />
                   </Box>
-                  <Text className="text-secondary-1-a text-semi-bold-32 mt-6">
-                    Welcome!
+                  <Text className="text-secondary-1-a text-semi-bold-32 mt-6 mx-auto">
+                    {loginFormHeadingText}
                   </Text>
                   {
                     isMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
-                      Please enter your info. to continue
+                      {loginFormSubHeadingText}
                     </Text>
                   }
                   {
                     isFediverseMvpMode == true && <Text className="text-gray-2 text-regular-16 mt-2">
-                      Please choose a login option:
+                      {loginFormSubHeadingText}
                     </Text>
                   }
                 </Box>
