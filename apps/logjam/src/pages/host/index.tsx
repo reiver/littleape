@@ -147,7 +147,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
 
     meetingStartTimeInUnix.value = unixTimestamp
 
-    const formattedDate = dayjs.unix(unixTimestamp).format("h:m A, on dddd, MMMM D, YYYY");
+    const formattedDate = dayjs.unix(unixTimestamp).format("hh:mm A, on dddd, MMMM D, YYYY");
 
     setDateTimeFromUnix(formattedDate)
 
