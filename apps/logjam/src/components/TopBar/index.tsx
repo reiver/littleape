@@ -18,7 +18,7 @@ export const TopBar = ({ customStyles }) => {
           <div class="col-span-3 text-right">
             {meetingStatus.value && (
               <Button variant="red" onClick={handleLeaveMeeting}>
-                Leave
+                End Conference
               </Button>
             )}
           </div>
