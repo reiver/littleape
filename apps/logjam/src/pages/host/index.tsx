@@ -87,7 +87,7 @@ const generateAudienceUrl = async (roomName: string, unixTimestamp: number) => {
   if (isInsideIframe()) {
     baseUrl = TopWindowURL.value
   }
-  return `${baseUrl}/${roomName}/log/${unixTimestamp}`
+  return `${baseUrl}/${roomName}/conf/${unixTimestamp}`
 }
 
 
