@@ -861,7 +861,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
               DialogTypes.PREVIEW,
               localStream,
               {
-                message: 'The host has requested you to come on stage. Set the default state of your “Video” and “Audio” before joining please.',
+                message: 'The host has <strong>invited you</strong> to come on stage. Set the default state of your “Video” and “Audio” before joining, please.',
                 title: 'Are You Ready To Join?',
                 yesButton: 'Join Now',
                 noButton: 'Not Now!',
