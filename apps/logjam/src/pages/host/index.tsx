@@ -87,7 +87,7 @@ const generateAudienceUrl = async (roomName: string, unixTimestamp: number) => {
   if (isInsideIframe()) {
     baseUrl = TopWindowURL.value
   }
-  return `${baseUrl}/${roomName}/log/${unixTimestamp}`
+  return `${baseUrl}/${roomName}/conf/${unixTimestamp}`
 }
 
 
@@ -561,8 +561,8 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
             <div className="p-5 flex flex-col gap-5 sm:px-16">
               <div className="flex flex-col gap-3">
                 <div className="mb-4">
-                  <span class="block text-semi-bold-32 text-secondary-a-1">Create A New Live Room</span>
-                  <span class="block text-regular-12 text-gray-2">Please enter your display name and room info:</span>
+                  <span class="block text-semi-bold-32 text-secondary-a-1">Start A Live Conference</span>
+                  <span class="block text-regular-12 text-gray-2">Please enter your display name and conference info:</span>
                 </div>
                 <FormControl className="w-full">
                   <TextField
@@ -581,7 +581,7 @@ export const HostPage = ({ params: { displayName } }: { params?: { displayName?:
               <FormControl className="w-full">
                 <TextField
                   rows={4}
-                  label="Room Description"
+                  label="Conference Description"
                   variant="outlined"
                   size="small"
                   {...form.register('description')}

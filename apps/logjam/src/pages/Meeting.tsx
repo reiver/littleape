@@ -1000,13 +1000,13 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         </>
       ) : (
         <div class="flex flex-col justify-center items-center sm:p-10 rounded-md gap-4 h-full flex-grow">
-          <span class="text-bold-18 text-center">You Left The Live Show</span>
+          <span class="text-bold-18 text-center">You Left The Live Conference</span>
           <div class="flex w-full justify-center items-center gap-4 flex-row max-w-[85%] sm:max-w-[400px]">
             {/* <Button onClick={leaveMeeting} variant="outline" class="flex-1 w-full px-0">
               Go To Home Feed
             </Button> */}
             <Button onClick={rejoinMeeting} variant="primary" class="flex-1 w-full px-0">
-              Rejoin
+              Rejoin Conference
             </Button>
           </div>
         </div>

@@ -23,7 +23,7 @@ export default function AudiencePage({ appMeta }) {
             meetingSt = Number(startTime);
         }
 
-        const url = `${LOGJAM_URL}/${roomname}/log/${meetingSt}`;
+        const url = `${LOGJAM_URL}/${roomname}/conf/${meetingSt}`;
         setAudienceUrl(url)
 
     }, [roomname, router.asPath]);

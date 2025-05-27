@@ -1,6 +1,6 @@
 import { Button, Container, Logo } from 'components'
 
-import { leaveMeeting, meetingStatus } from 'pages/Meeting'
+import { leaveMeeting, meetingStatus, sparkRTC } from 'pages/Meeting'
 
 export const TopBar = ({ customStyles }) => {
   const handleLeaveMeeting = leaveMeeting
@@ -18,7 +18,7 @@ export const TopBar = ({ customStyles }) => {
           <div class="col-span-3 text-right">
             {meetingStatus.value && (
               <Button variant="red" onClick={handleLeaveMeeting}>
-                Leave
+                {sparkRTC.value && sparkRTC.value.role === sparkRTC.value.Roles.BROADCAST ? 'End Conference' : 'Leave'}
               </Button>
             )}
           </div>

@@ -41,6 +41,10 @@ const nextConfig = {
           destination: joinURL(process.env.NEXT_PUBLIC_HOST, "/u/:username/follow"),
         },
         {
+          source: '/:roomname/conf/:timestamp',
+          destination: '/log/:roomname/:timestamp',
+        },
+        {
           source: '/:roomname/log/:timestamp',
           destination: '/log/:roomname/:timestamp',
         },
