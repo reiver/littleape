@@ -136,8 +136,8 @@ export const Participant = ({ participant }) => {
       makeInviteDialog(
         DialogTypes.INVITE,
         {
-          message: `Do you want to request "<strong>${participant.name}</strong>" to come on stage?`,
-          title: 'Request To Come On Stage',
+          message: `Do you want to invite "<strong>${participant.name}</strong>" to come on stage?`,
+          title: 'Invite On Stage',
         },
         () => {
           //on ok
