@@ -46,6 +46,9 @@ export function createSparkRTC(role, options) {
     return createAudienceSpartRTC(role, options);
   }
 }
+
+//FIXME; Enable later on
+
 // export const videoBackGround = new VideoBackground();
 
 export const createBroadcastSpartRTC = (role, props) => {

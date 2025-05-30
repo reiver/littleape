@@ -177,3 +177,11 @@ export const onStopStream = async (stream) => {
 
 
 }
+
+export const onInviteToStage = (participant: any)=>{
+
+}
+
+export const onUserRaisedHand = (userId: any, p0: boolean, p1: boolean)=>{
+
+}

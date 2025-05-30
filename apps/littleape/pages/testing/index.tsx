@@ -12,6 +12,15 @@ import RoundButton from 'components/vite-migrated/common/RoundButton'
 import { Tooltip } from 'components/vite-migrated/common/Tooltip'
 import TopBar from 'components/vite-migrated/TopBar'
 import BottomBar from 'components/vite-migrated/BottomBar'
+import { DialogTypes, makeDialog, makeIODevicesDialog, ToastProvider } from 'components/vite-migrated/Dialog'
+import Footer from 'components/vite-migrated/Footer'
+import Attendees from 'components/vite-migrated/Attendees'
+
+import { IODevices } from 'lib/ioDevices/io-devices'
+import logger from 'lib/logger/logger'
+import { meetingStore } from 'lib/store'
+import { MoreOptions } from 'components/vite-migrated/MoreOptions'
+
 
 const TestPage = () => {
     return (
@@ -67,9 +76,63 @@ const TestPage = () => {
                 </IconButton>
             </Tooltip>
 
-            <BottomBar/>
+            <span>Test Dialogs</span>
+            <RoundButton image={reset.src} variant="red">
+                Test Dialogs
+            </RoundButton>
+
+            <BottomBar />
+
+            <Footer />
+
+            <MoreOptions />
+
+            {/* <Attendees/> */}
+
+            <ToastProvider />
         </div>
     )
 }
+
+const testDialogs = () => {
+
+    // makeDialog(DialogTypes.IO_DEVICES,
+    //     {
+    //         message: `Are you sure you want to start recording the screen?`,
+    //         title: 'Screen Recording',
+    //     },
+    //     async () => {
+
+    //     },
+    //     () => {
+    //         //on close
+    //     },
+    //     false
+    // )
+}
+
+// const selectVideoInputDevice = async () => {
+//     const io = new IODevices()
+//     await io.initDevices()
+//     const devices = io.getVideoInputDevices()
+//     logger.log('Video Input Devices: ', devices)
+
+//     makeIODevicesDialog(
+//         DialogTypes.IO_DEVICES,
+//         {
+//             message: 'Please choose your "Video input":',
+//             title: 'Video',
+//         },
+//         devices,
+//         'camera',
+//         (device) => {
+//             setTimeout(() => {
+//                 if (device && device.label) {
+//                     meetingStore.selectedCamera = device
+//                 }
+//             }, 100)
+//         } //on close
+//     )
+// }
 
 export default TestPage

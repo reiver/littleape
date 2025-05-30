@@ -1,6 +1,11 @@
 import { proxy } from 'valtio'
 
 export const meetingStore = proxy({
+    dialogs: [],
+    selectedMic: null as any,
+    selectedSpeaker: null as any,
+    selectedCamera: null as any,
+    selectedBackground: null as any,
     statsDataOpen: false,
     statsData: '',
     sparkRTC: null as any,

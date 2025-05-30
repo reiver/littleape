@@ -3,7 +3,7 @@
 import logger from '../../../lib/logger/logger'
 import { meetingStore } from '../../../lib/store'
 import { onStartShareScreen, onStopShareScreen, setUserActionLoading, updateUser } from 'pages/Meeting'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Tooltip } from '../common/Tooltip'
 import { IconButton } from '../common/IconButton'
 import Icon from '../common/Icon'
@@ -25,10 +25,16 @@ import VolumeOff from '../../../public/vite-migrated/icons/VolumeOff.svg'
 import RecordStop from "../../../public/vite-migrated/icons/StopRecording.svg"
 import RecordStart from "../../../public/vite-migrated/icons/StartRecording.svg"
 import { isMobile } from 'lib/webrtc/common'
+import { DialogTypes, makeDialog } from '../Dialog'
+import { useSnapshot } from 'valtio';
 
 const disableRaiseHandFeat = true
 
+
 export const toggleMoreOptions = () => {
+    // const snap = useSnapshot(meetingStore);
+
+    logger.log("More options value: ", meetingStore.isMoreOptionsOpen)
 
     if (meetingStore.isAttendeesOpen === true && meetingStore.isMoreOptionsOpen == true) {
         //if both attendees and more option is open close attendees only and keep more option open
@@ -45,10 +51,15 @@ export const toggleMoreOptions = () => {
     }
 
     meetingStore.isMoreOptionsOpen = !meetingStore.isMoreOptionsOpen
+
+    logger.log("More options value after change: ", meetingStore.isMoreOptionsOpen)
+
 }
 
 export const Controllers = () => {
-    const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStream, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = meetingStore.currentUser
+    const snap = useSnapshot(meetingStore);
+
+    const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStream, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = snap.currentUser
     logger.log('this user', isStreamming)
     const toggleMuteMeeting = () => {
         updateUser({
@@ -58,54 +69,54 @@ export const Controllers = () => {
 
     const handleShareScreen = async () => {
         if (!sharingScreenStream) {
-            const stream = await meetingStore.sparkRTC.startShareScreen()
+            const stream = await snap.sparkRTC.startShareScreen()
             onStartShareScreen(stream)
             updateUser({
                 sharingScreenStream: stream,
             })
         } else {
-            await meetingStore.sparkRTC.stopShareScreen(sharingScreenStream)
+            await snap.sparkRTC.stopShareScreen(sharingScreenStream)
             onStopShareScreen(sharingScreenStream)
         }
     }
     const toggleCamera = () => {
-        meetingStore.sparkRTC.disableVideo(!isCameraOn)
+        snap.sparkRTC.disableVideo(!isCameraOn)
         updateUser({
             isCameraOn: !isCameraOn,
         })
     }
     const toggleMicrophone = () => {
         logger.log("Toggle MicroPhone: ", isMicrophoneOn)
-        meetingStore.sparkRTC.disableAudio(!isMicrophoneOn)
+        snap.sparkRTC.disableAudio(!isMicrophoneOn)
         updateUser({
             isMicrophoneOn: !isMicrophoneOn,
         })
     }
     const onRaiseHand = async () => {
         if (isStreamming) {
-            // makeDialog(
-            //     DialogTypes.CONFIRM,
-            //     {
-            //         message: `Are you sure you want to leave the stage and get beck to the audience list?`,
-            //         title: 'Leave The Stage',
-            //     },
-            //     () => {
-            //         updateUser({
-            //             isStreamming: false,
-            //             ableToRaiseHand: true,
-            //             isMicrophoneOn: true,
-            //             isCameraOn: true,
-            //         })
-            //         meetingStore.sparkRTC.leaveStage()
-            //     },
-            //     () => { },
-            //     false,
-            //     {
-            //         okText: 'Leave the stage',
-            //         okButtonVariant: 'red',
-            //         cancelText: 'Let me stay!',
-            //     }
-            // )
+            makeDialog(
+                DialogTypes.CONFIRM,
+                {
+                    message: `Are you sure you want to leave the stage and get beck to the audience list?`,
+                    title: 'Leave The Stage',
+                },
+                () => {
+                    updateUser({
+                        isStreamming: false,
+                        ableToRaiseHand: true,
+                        isMicrophoneOn: true,
+                        isCameraOn: true,
+                    })
+                    snap.sparkRTC.leaveStage()
+                },
+                () => { },
+                false,
+                {
+                    okText: 'Leave the stage',
+                    okButtonVariant: 'red',
+                    cancelText: 'Let me stay!',
+                }
+            )
         } else {
             if (ableToRaiseHand) {
                 updateUser({
@@ -113,12 +124,12 @@ export const Controllers = () => {
                     ableToRaiseHand: false,
                 })
 
-                setUserActionLoading(meetingStore.currentUser.userId, true)
-                meetingStore.sparkRTC.raiseHand()
-                // makeDialog('info', {
-                //     message: 'Raise hand request has been sent.',
-                //     icon: 'Check',
-                // })
+                setUserActionLoading(snap.currentUser.userId, true)
+                snap.sparkRTC.raiseHand()
+                makeDialog('info', {
+                    message: 'Raise hand request has been sent.',
+                    icon: 'Check',
+                })
             } else {
                 //lower hand
                 updateUser({
@@ -127,8 +138,8 @@ export const Controllers = () => {
                     isMicrophoneOn: true,
                     isCameraOn: true,
                 })
-                meetingStore.sparkRTC.lowerHand()
-                setUserActionLoading(meetingStore.currentUser.userId, false)
+                snap.sparkRTC.lowerHand()
+                setUserActionLoading(snap.currentUser.userId, false)
             }
         }
     }
@@ -138,7 +149,7 @@ export const Controllers = () => {
     const handleReload = () => {
         if (reconnectable) {
             setReconnectable(false)
-            meetingStore.sparkRTC.startProcedure(true)
+            snap.sparkRTC.startProcedure(true)
             setTimeout(() => {
                 setReconnectable(true)
             }, 2500)
@@ -199,10 +210,10 @@ export const Controllers = () => {
                     </IconButton>
                 </Tooltip>
             )}
-            <Tooltip label={meetingStore.isMoreOptionsOpen ? 'Hide Menu' : 'Show Menu'}>
-                <IconButton variant={meetingStore.isMoreOptionsOpen ? 'danger' : undefined} onClick={toggleMoreOptions} className="flex relative">
+            <Tooltip label={snap.isMoreOptionsOpen ? 'Hide Menu' : 'Show Menu'}>
+                <IconButton variant={snap.isMoreOptionsOpen ? 'danger' : undefined} onClick={toggleMoreOptions} className="flex relative">
                     <Icon icon={<KebabMenuVertical />} />
-                    {meetingStore.attendeesBadge && <span className="absolute z-10 top-[0px] right-[0px] w-[10px] h-[10px] rounded-full bg-red-distructive border dark:border-secondary-1-a border-white-f-9"></span>}
+                    {snap.attendeesBadge && <span className="absolute z-10 top-[0px] right-[0px] w-[10px] h-[10px] rounded-full bg-red-distructive border dark:border-secondary-1-a border-white-f-9"></span>}
                 </IconButton>
             </Tooltip>
         </div>
@@ -211,7 +222,9 @@ export const Controllers = () => {
 
 
 export const MoreControllers = () => {
-    const { isHost, sharingScreenStream, isStreamming, isMeetingMuted, isRecordingStarted } = meetingStore.currentUser
+    const snap = useSnapshot(meetingStore);
+
+    const { isHost, sharingScreenStream, isStreamming, isMeetingMuted, isRecordingStarted } = snap.currentUser
     const toggleMuteMeeting = () => {
         updateUser({
             isMeetingMuted: !isMeetingMuted,
@@ -220,13 +233,13 @@ export const MoreControllers = () => {
 
     const handleShareScreen = async () => {
         if (!sharingScreenStream) {
-            const stream = await meetingStore.sparkRTC.startShareScreen()
+            const stream = await snap.sparkRTC.startShareScreen()
             onStartShareScreen(stream)
             updateUser({
                 sharingScreenStream: stream,
             })
         } else {
-            await meetingStore.sparkRTC.stopShareScreen(sharingScreenStream)
+            await snap.sparkRTC.stopShareScreen(sharingScreenStream)
             onStopShareScreen(sharingScreenStream)
         }
     }
@@ -235,7 +248,7 @@ export const MoreControllers = () => {
         logger.log("Handle Recording: isRecordingStarted: ", isRecordingStarted)
 
         if (isRecordingStarted) {
-            meetingStore.sparkRTC.stopRecording();
+            snap.sparkRTC.stopRecording();
             updateUser({
                 isRecordingStarted: !isRecordingStarted
             })
@@ -246,41 +259,41 @@ export const MoreControllers = () => {
 
     const showStartRecordingDialog = () => {
 
-        // makeDialog(DialogTypes.START_RECORDING,
-        //     {
-        //         message: `Are you sure you want to start recording the screen?`,
-        //         title: 'Screen Recording',
-        //     },
-        //     async () => {
-        //         //on ok
-        //         const res = await meetingStore.sparkRTC.startRecording()
-        //         if (res === true) {
-        //             updateUser({
-        //                 isRecordingStarted: !isRecordingStarted
-        //             })
-        //         } else {
-        //             //not able to start recording
-        //             showNotAbleToStartRecordingDialog()
-        //         }
-        //     },
-        //     () => {
-        //         //on close
-        //     },
-        //     false
-        // )
+        makeDialog(DialogTypes.START_RECORDING,
+            {
+                message: `Are you sure you want to start recording the screen?`,
+                title: 'Screen Recording',
+            },
+            async () => {
+                //on ok
+                const res = await snap.sparkRTC.startRecording()
+                if (res === true) {
+                    updateUser({
+                        isRecordingStarted: !isRecordingStarted
+                    })
+                } else {
+                    //not able to start recording
+                    showNotAbleToStartRecordingDialog()
+                }
+            },
+            () => {
+                //on close
+            },
+            false
+        )
     }
 
     const showNotAbleToStartRecordingDialog = () => {
 
-        // makeDialog(DialogTypes.RECORDING_NOT_STARTED, {
-        //     message: `Your current browser does not support meeting recording. Please use a supported browser such as Chrome or Safari.`,
-        //     title: `Screen Recording`
-        // },
-        //     () => {
-        //         //on ok
-        //     }, () => {
-        //         // on close
-        //     }, false);
+        makeDialog(DialogTypes.RECORDING_NOT_STARTED, {
+            message: `Your current browser does not support meeting recording. Please use a supported browser such as Chrome or Safari.`,
+            title: `Screen Recording`
+        },
+            () => {
+                //on ok
+            }, () => {
+                // on close
+            }, false);
 
     }
 
