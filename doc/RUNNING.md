@@ -57,6 +57,7 @@ NEXT_PUBLIC_IS_DEBUG_MODE="true"
 NEXT_PUBLIC_LOGJAM_BASE_URL="https://logjam.example"
 NEXT_PUBLIC_LITTLEAPE_BASE_URL="https://greatape.example"
 NEXT_PUBLIC_LITTLEAPE_DOMAIN="greatape.example"
+NEXT_PUBLIC_LOGJAM_HOST=logjam-backend.example
 NEXT_PUBLIC_MVP_MODE="false"
 NEXT_PUBLIC_FEDIVCERSE_MVP_MODE="true"
 NEXT_PUBLIC_NEYNAR_CLIENT_ID="REPLACE_ME"
@@ -73,6 +74,8 @@ Replace the value of `NEXT_PUBLIC_LOGJAM_BASE_URL` with the base-URL of [Logjam]
 Replace the value of `NEXT_PUBLIC_LITTLEAPE_BASE_URL` with the base-URL to your server.
 
 Replace the value of `NEXT_PUBLIC_LITTLEAPE_DOMAIN` with the Internet domain of your server.
+
+Replace the value of `NEXT_PUBLIC_LOGJAM_HOST` with the host of your LogJam back-end server.
 
 Replace the value of `NEXT_PUBLIC_NEYNAR_CLIENT_ID` with your actual Neynar client-id.
 (This is used for Farcaster integration.)
