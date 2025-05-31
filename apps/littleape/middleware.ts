@@ -4,8 +4,16 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
 	const acceptHeader = request.headers.get('accept') || '';
+	const pathname = request.nextUrl.pathname;
 
-	if (acceptHeader && acceptHeader.includes('application/activity+json')) {
+	const doRedirect =
+		(acceptHeader && acceptHeader.includes('application/activity+json'))
+		||
+		('/.well-known/nodeinfo' == pathname)
+		||
+		('/.well-known/webfinger' == pathname);
+
+	if (doRedirect) {
 		const url = request.nextUrl.clone();
 
 		// Construct the new URL on a different domain
