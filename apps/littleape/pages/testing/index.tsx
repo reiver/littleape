@@ -1,3 +1,6 @@
+"use client"
+
+
 import Button from 'components/vite-migrated/common/Button'
 import Container from 'components/vite-migrated/common/Container'
 import React from 'react'
@@ -11,18 +14,29 @@ import Microphone from "../../public/vite-migrated/icons/Microphone.svg"
 import RoundButton from 'components/vite-migrated/common/RoundButton'
 import { Tooltip } from 'components/vite-migrated/common/Tooltip'
 import TopBar from 'components/vite-migrated/TopBar'
-import BottomBar from 'components/vite-migrated/BottomBar'
+import BottomBar, { BottomBarBottomSheet } from 'components/vite-migrated/BottomBar'
 import { DialogTypes, makeDialog, makeIODevicesDialog, ToastProvider } from 'components/vite-migrated/Dialog'
 import Footer from 'components/vite-migrated/Footer'
-import Attendees from 'components/vite-migrated/Attendees'
-
 import { IODevices } from 'lib/ioDevices/io-devices'
 import logger from 'lib/logger/logger'
 import { meetingStore } from 'lib/store'
 import { MoreOptions } from 'components/vite-migrated/MoreOptions'
+import { useSnapshot } from 'valtio'
+import { Attendees, Participant } from 'components/vite-migrated';
+import { AttendeesBottomSheet } from 'components/vite-migrated/Attendees'
 
 
 const TestPage = () => {
+    const snap = useSnapshot(meetingStore)
+    const attendeesList = Object.values(snap.attendees);
+
+
+    attendeesList.map((attendee) => (
+        logger.log("Attendees lists is: ", attendee)
+
+    ))
+
+
     return (
         <div className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8">
             <h1 className="text-2xl font-bold mb-4">React Components Test</h1>
@@ -87,10 +101,18 @@ const TestPage = () => {
 
             <MoreOptions />
 
-            {/* <Attendees/> */}
+
+            <Attendees />
 
             <ToastProvider />
+
+            <div className="sm:hidden">
+                <BottomBarBottomSheet />
+                <AttendeesBottomSheet />
+            </div>
         </div>
+
+
     )
 }
 

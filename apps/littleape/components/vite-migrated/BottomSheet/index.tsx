@@ -1,6 +1,6 @@
 'use client'
 
-import CloseIcon from 'public/vite-migrated/icons/Close.svg'
+import CloseIcon from '../../../public/vite-migrated/icons/Close.svg'
 import Icon from 'components/vite-migrated/common/Icon'
 import React from 'react'
 
@@ -22,7 +22,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, children, onClos
             />
             <div className="bottom-0 to-top absolute max-h-[80%] w-full dark:bg-gray-3 bg-white-f flex flex-col rounded-t-[16px]">
                 <div className="flex justify-between relative px-4 py-4">
-                    <Icon icon={CloseIcon} onClick={onClose} className="cursor-pointer" />
+                    <Icon icon={<CloseIcon/>} onClick={onClose} className="cursor-pointer" />
                     <span className="dark:text-white absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-bold-12">
                         {title}
                     </span>

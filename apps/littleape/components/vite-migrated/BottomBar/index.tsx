@@ -1,9 +1,8 @@
 'use client'
 
-import AvatarIcon from 'public/vite-migrated/icons/Avatar.svg'
-import Troubleshoot from 'public/vite-migrated/icons/Troubleshoot.svg'
+import AvatarIcon from '../../../public/vite-migrated/icons/Avatar.svg'
+import Troubleshoot from '../../../public/vite-migrated/icons/Troubleshoot.svg'
 import clsx from 'clsx'
-import logger from 'lib/logger/logger.js'
 import { meetingStore } from 'lib/store'
 import { useSnapshot } from 'valtio'
 import Container from '../common/Container'
@@ -42,7 +41,7 @@ export const BottomBar = () => {
                   className="transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3"
                 >
                   <div className="relative">
-                    <Icon icon={AvatarIcon} className="greatape-attendees-count" />
+                    <Icon icon={<AvatarIcon/>} className="greatape-attendees-count" />
 
                     {state.attendeesBadge && <span className="absolute top-0 -right-1 w-2 h-2 rounded-full bg-red-distructive"></span>}
                   </div>
@@ -85,7 +84,7 @@ export const BottomBarBottomSheet = () => {
             className="w-full transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3"
           >
             <div className="relative">
-              <Icon icon={AvatarIcon} />
+              <Icon icon={<AvatarIcon/>} />
 
               {state.attendeesBadge && <span className="absolute top-0 -right-1 w-2 h-2 rounded-full bg-red-distructive"></span>}
             </div>
@@ -98,7 +97,7 @@ export const BottomBarBottomSheet = () => {
         <Tooltip label="Troubleshoot">
           <div className="w-full transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3">
             <div className="relative">
-              <Icon icon={Troubleshoot} />
+              <Icon icon={<Troubleshoot/>} />
             </div>
             <span>Troubleshoot</span>
           </div>

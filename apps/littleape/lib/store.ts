@@ -57,7 +57,7 @@ export const meetingStore = proxy({
         {
             name: string
             isHost: boolean
-            avatar: string
+            avatar?: string
             raisedHand: Date
             hasCamera: boolean
             userId: number
