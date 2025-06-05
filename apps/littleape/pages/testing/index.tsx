@@ -24,6 +24,8 @@ import { MoreOptions } from 'components/vite-migrated/MoreOptions'
 import { useSnapshot } from 'valtio'
 import { Attendees, Participant } from 'components/vite-migrated';
 import { AttendeesBottomSheet } from 'components/vite-migrated/Attendees'
+import RecordingBar from 'components/vite-migrated/RecordingBar'
+import Meeting from 'pages/Meeting'
 
 
 const TestPage = () => {
@@ -41,8 +43,18 @@ const TestPage = () => {
         <div className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8">
             <h1 className="text-2xl font-bold mb-4">React Components Test</h1>
 
-            <span>Top Bar</span>
+            <Meeting
+                params={{
+                    // ...form.getValues(),
+                    room: "HELLO",
+                    meetingStartTime: 123333
+                }}
+            />
+
+            {/* <span>Top Bar</span>
             <TopBar customStyles={null} />
+
+            <RecordingBar customStyles={null} />
 
 
             <span>Buttons in conatiner</span>
@@ -109,7 +121,8 @@ const TestPage = () => {
             <div className="sm:hidden">
                 <BottomBarBottomSheet />
                 <AttendeesBottomSheet />
-            </div>
+            </div>*/}
+
         </div>
 
 

@@ -1,6 +1,11 @@
 import { proxy } from 'valtio'
 
 export const meetingStore = proxy({
+    userInteractedWithDom:false,
+    windowHeight: 0,
+    windowWidth: 0,
+    bottomBarVisible: true,
+    isDebugMode: false,
     dialogs: [],
     selectedMic: null as any,
     selectedSpeaker: null as any,
@@ -21,6 +26,7 @@ export const meetingStore = proxy({
     meetingIsNotStarted: false,
     twoHoursPassed: false,
     meetingIsEnded: false,
+    fullScreenedStream: null,
     meetingStartRemainingTime: '',
     raisedHandsCount: 0,
     streamers: {} as Record<
@@ -40,7 +46,7 @@ export const meetingStore = proxy({
     >,
     currentUser: {
         showControllers: true,
-        isHost: false,
+        isHost: true,
         isMicrophoneOn: true,
         isCameraOn: true,
         isMeetingMuted: false,
@@ -67,3 +73,12 @@ export const meetingStore = proxy({
         }
     >,
 })
+
+
+export const isRecordingInProgress = () => {
+  return (
+    meetingStore.meetingStatus &&
+    meetingStore.broadcastIsInTheMeeting &&
+    meetingStore.recordingStatus
+  )
+}
