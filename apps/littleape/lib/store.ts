@@ -1,5 +1,7 @@
 import { proxy } from 'valtio'
 
+export const rawStreams = new Map<string, MediaStream>();
+
 export const meetingStore = proxy({
     userInteractedWithDom:false,
     windowHeight: 0,
@@ -35,7 +37,7 @@ export const meetingStore = proxy({
             isHost: boolean
             isShareScreen: boolean
             isLocalStream: boolean
-            stream: any
+            streamId: any
             userId: any
             muted: boolean
             name: string

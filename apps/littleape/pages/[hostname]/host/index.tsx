@@ -289,14 +289,14 @@ export const LinkCopyComponent = ({ title, link, className }) => {
       {title && <span className="text-bold-12 text-gray-3">{title}</span>}
       <div className="greatape-meeting-link-background dark:bg-gray-2 dark:text-gray-0 w-full bg-gray-0 px-4 py-2 text-gray-2 flex justify-between rounded-full items-center">
         <div className="flex gap-2 items-center overflow-hidden min-w-0">
-          <Icon icon={LinkIcon} class="greatape-meeting-link flex-shrink-0" />
+          <Icon icon={<LinkIcon/>} class="greatape-meeting-link flex-shrink-0" />
           <span className="text-medium-12 truncate overflow-hidden text-ellipsis greatape-meeting-link max-w-full">
             {link}
           </span>
         </div>
         <Tooltip label={copyTooltipTitle} hideOnClick={false}>
           <button className="cursor-pointer" onClick={onCopy}>
-            <Icon icon={CopyIcon} class="greatape-meeting-link" />
+            <Icon icon={<CopyIcon/>} class="greatape-meeting-link" />
           </button>
         </Tooltip>
       </div>

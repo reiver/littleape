@@ -40,11 +40,13 @@ const TestPage = () => {
 
 
     return (
-        <div className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8">
-            <h1 className="text-2xl font-bold mb-4">React Components Test</h1>
+        <div 
+        // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
+        >
 
             <Meeting
                 params={{
+                    name:"Zaid",
                     // ...form.getValues(),
                     room: "HELLO",
                     meetingStartTime: 123333

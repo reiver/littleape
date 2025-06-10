@@ -2,7 +2,7 @@
 
 
 import logger from 'lib/logger/logger'
-import { isRecordingInProgress, meetingStore } from 'lib/store'
+import { isRecordingInProgress, meetingStore, rawStreams } from 'lib/store'
 import { Roles, createSparkRTC, getWsUrl } from 'lib/webrtc/common.js'
 import { detectKeyPress } from 'lib/helpers/controls'
 import { lazy, useEffect, useState } from 'react'
@@ -15,6 +15,7 @@ import BottomBar from 'components/vite-migrated/BottomBar'
 import TopBar from 'components/vite-migrated/TopBar'
 import RecordingBar from 'components/vite-migrated/RecordingBar'
 import { MeetingBody } from 'components/vite-migrated/MeetingBody'
+import { useSnapshot } from 'valtio';
 
 const PageNotFound = lazy(() => import('./404'))
 
@@ -38,6 +39,7 @@ export const leaveMeeting = () => {
         meetingStore.meetingStatus = false
         meetingStore.recordingStatus = false
         meetingStore.streamers = {}
+        rawStreams.clear()
     }
 }
 
@@ -84,11 +86,13 @@ export const onStartShareScreen = (stream) => {
             avatar: '',
             raisedHand: false,
             hasCamera: false,
-            stream,
+            streamId: stream.id,
             isShareScreen: true,
             displayId: 2,
         },
     }
+
+    rawStreams.set(stream.id, stream)
 }
 
 export const onStopShareScreen = async (stream) => {
@@ -101,6 +105,7 @@ export const onStopShareScreen = async (stream) => {
     const streamersTmp = { ...meetingStore.streamers }
     delete streamersTmp[stream.id]
     meetingStore.streamers = streamersTmp
+    rawStreams.delete(stream.id)
 }
 
 const toggleFullScreen = async (stream) => {
@@ -178,16 +183,19 @@ const displayStream = async (stream, toggleFull = false) => {
             raisedHand: false,
             hasCamera: false,
             muted: meetingStore.streamers[stream.id] ? meetingStore.streamers[stream.id].muted : undefined,
-            stream,
+            streamId: stream.id,
             isLocalStream: local,
             isShareScreen: stream.isShareScreen || false,
             toggleScreenId: toggleFull ? stream.id : null,
             displayId: streamMap.get(stream.id),
         },
     }
+
+    rawStreams.set(stream.id, stream)
 }
 
 export const onStopStream = async (stream) => {
+    const snap = useSnapshot(meetingStore)
     await toggleFullScreen(stream)
 
     const streamersTmp = { ...meetingStore.streamers }
@@ -196,6 +204,7 @@ export const onStopStream = async (stream) => {
         delete streamersTmp[stream.id];
         meetingStore.streamers = streamersTmp;
 
+        rawStreams.delete(stream.id)
         streamMap.delete(stream.id) //remove stream display id from stream map
     }
 
@@ -228,7 +237,7 @@ function keyPressCallback(key) {
         if (meetingStore.streamers.hasOwnProperty(userId)) {
             const streamer = meetingStore.streamers[id];
 
-            const stream = streamer.stream;
+            const stream = rawStreams.get(streamer.streamId);
             const displayId = streamer.displayId;
 
             if (displayId.toString() === key) {
@@ -242,6 +251,7 @@ function keyPressCallback(key) {
 }
 
 const setupSignalingSocket = async (host, name, room, debug) => {
+    logger.log("Spark RTC is: ", meetingStore.sparkRTC);
     await meetingStore.sparkRTC.setupSignalingSocket(getWsUrl(host), JSON.stringify({ name, email: '' }), room, debug)
 }
 const start = async () => {
@@ -253,7 +263,7 @@ export const getUserRaiseHandStatus = (userId) => {
 }
 
 const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any } }) => {
-
+    const snap = useSnapshot(meetingStore)
     useEffect(() => {
         detectKeyPress(keyPressCallback)
     }, [])
@@ -377,8 +387,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
     if (displayName && room) {
         if (displayName[0] !== '@') return <PageNotFound />
     }
-    const isHost = !!displayName
+    const isHost = true//!!displayName
     useEffect(() => {
+        logger.log("Hook t setup cam")
 
         const fetchData = async () => {
 
@@ -414,7 +425,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     },
                     onUserInitialized: async (userId) => {
                         //@ts-ignore
-                        currentUser.value.userId = userId
+                        meetingStore.currentUser.userId = userId
 
                         //request for role [zaid]
                         await start()
@@ -438,12 +449,14 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                 avatar: '',
                                 raisedHand: false,
                                 hasCamera: false,
-                                stream,
+                                streamId: stream.id,
                                 isLocalStream: true,
                                 isShareScreen: stream.isShareScreen || false,
                                 displayId: 1,
                             },
                         }
+
+                        rawStreams.set(stream.id, stream)
 
                     },
                     remoteStreamCallback: async (stream) => {
@@ -745,6 +758,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
 
                         meetingStore.attendees = usersTmp
+                        logger.log("meetingStore.attendees: ", meetingStore.attendees)
                     },
                     constraintResults: (constraints) => {
                         if (!constraints.audio) {
@@ -892,20 +906,31 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
             if (meetingStore.meetingStatus) {
 
-                if (meetingStore.sparkRTC) {
-                    if (meetingStore.meetingIsEnded) {
-                        await meetingStore.sparkRTC.leaveMeeting()
-                        await meetingStore.sparkRTC.resetVariables(true)
-                    }
-                    //don't start again if setup already.. This check is for meeting time status and leave meeting immediatly if ended
-                    return
-                }
+                // if (meetingStore.sparkRTC) {
+                //     if (meetingStore.meetingIsEnded) {
+                //         await meetingStore.sparkRTC.leaveMeeting()
+                //         await meetingStore.sparkRTC.resetVariables(true)
+                //     }
+                //     //don't start again if setup already.. This check is for meeting time status and leave meeting immediatly if ended
+                //     return
+                // }
 
                 await setupSparkRTC()
-                if (meetingStore.sparkRTC && role === Roles.BROADCAST) {
+                if (snap.sparkRTC && role === Roles.BROADCAST) {
                     let stream = await meetingStore.sparkRTC.getAccessToLocalStream()
 
-                    showPreviewDialog(stream, host, name, room)
+                    // showPreviewDialog(stream, host, name, room)
+
+                    await setupSignalingSocket(host, name, room, null)
+
+                    // //send user mute status to everyone to update the Ui
+                    // setTimeout(() => {
+                    //     if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
+                    //         meetingStore.sparkRTC.sendAudioStatus(false)
+                    //     } else {
+                    //         meetingStore.sparkRTC.sendAudioStatus(true)
+                    //     }
+                    // }, 2000)
                 }
 
             }
@@ -944,35 +969,40 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         }
     }, [customStyles])
 
-    return (
-        <div className={clsx('flex flex-col justify-between min-h-[--doc-height] dark:bg-secondary-1-a bg-white-f-9 text-medium-12 text-gray-800 dark:text-gray-200',
-            getValidClass(customStyles),
-        )}>
+    try {
+        return (
+            <div className={clsx('flex flex-col justify-between min-h-[--doc-height] dark:bg-secondary-1-a bg-white-f-9 text-medium-12 text-gray-800 dark:text-gray-200',
+                getValidClass(customStyles),
+            )}>
 
-            <TopBar customStyles={customStyles ? customStyles : null} />
-            {isRecordingInProgress() && <RecordingBar customStyles={customStyles ? customStyles : null} />}
-            {meetingStore.meetingStatus ? (
-                <>
-                    <MeetingBody customStyles={customStyles ? customStyles : null} />
-                    <BottomBar />
-                </>
-            ) : (
-                <div className="flex flex-col justify-center items-center sm:p-10 rounded-md gap-4 h-full flex-grow">
-                    <span className="text-bold-18 text-center">You Left The Live Conference</span>
-                    <div className="flex w-full justify-center items-center gap-4 flex-row max-w-[85%] sm:max-w-[400px]">
-                        {/* <Button onClick={leaveMeeting} variant="outline" class="flex-1 w-full px-0">
+                <TopBar customStyles={customStyles ? customStyles : null} />
+                {isRecordingInProgress() && <RecordingBar customStyles={customStyles ? customStyles : null} />}
+                {meetingStore.meetingStatus ? (
+                    <>
+                        <MeetingBody customStyles={customStyles ? customStyles : null} />
+                        <BottomBar />
+                    </>
+                ) : (
+                    <div className="flex flex-col justify-center items-center sm:p-10 rounded-md gap-4 h-full flex-grow">
+                        <span className="text-bold-18 text-center">You Left The Live Conference</span>
+                        <div className="flex w-full justify-center items-center gap-4 flex-row max-w-[85%] sm:max-w-[400px]">
+                            {/* <Button onClick={leaveMeeting} variant="outline" className="flex-1 w-full px-0">
               Go To Home Feed
             </Button> */}
-                        <Button onClick={rejoinMeeting} variant="primary" class="flex-1 w-full px-0">
-                            Rejoin Conference
-                        </Button>
+                            <Button onClick={rejoinMeeting} variant="primary" className="flex-1 w-full px-0">
+                                Rejoin Conference
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            <ToastProvider />
-        </div>
-    )
+                <ToastProvider />
+            </div>
+        )
+    } catch (error) {
+        logger.error("Error while rendering meeting:", error)
+        return <div>Error</div>
+    }
 }
 
 

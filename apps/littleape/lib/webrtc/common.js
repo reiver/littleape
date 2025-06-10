@@ -23,11 +23,11 @@ export function getWsUrl(host = null) {
   if (host) {
     baseUrl = host
   } else {
-    if (import.meta.env.VITE_APP_LOCAL_ENV == "true") {
-      baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS_LOCAL
+    if (process.env.NEXT_PUBLIC_LOCAL_ENV == "true") {
+      baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL_WS_LOCAL
       protocol = "ws"
     } else {
-      baseUrl = import.meta.env.VITE_APP_BACKEND_URL_WS_DEPLOYED
+      baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL_WS_DEPLOYED
       protocol = "wss"
     }
   }

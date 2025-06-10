@@ -12,18 +12,26 @@ import Icon from '../common/Icon'
 import Controllers, { MoreControllers, toggleMoreOptions } from '../Controllers'
 import { LinkCopyComponent } from 'components/LinkCopyComponent'
 import { BottomSheet } from '../BottomSheet'
+import { useEffect, useState } from 'react'
 
 export const BottomBar = () => {
 
   const state = useSnapshot(meetingStore)
 
+  const [audienceUrl, setAudienceUrl] = useState('');
+
+  useEffect(() => {
+    const roomName = state.roomNameSignal || state.sparkRTC?.roomName || '';
+    const url = `${window.location.origin}/${roomName}/conf/${meetingStore.meetingStartTimeInUnix}`;
+    setAudienceUrl(url);
+  }, []);
 
   return (
     <Container className={clsx('transition-all', {})}>
       <div className="w-full grid grid-cols-12 dark:bg-secondary-1-a py-3 pt-0 dark:text-gray-0 text-gray-2" id="bottom-bar">
         <div className="col-span-3 sm:block hidden">
           <div className="h-full flex items-center">
-            <LinkCopyComponent link={generateAudienceUrl(state.roomNameSignal ? state.roomNameSignal : state.sparkRTC ? state.sparkRTC.roomName : '')}
+            <LinkCopyComponent link={audienceUrl}
               className="max-w-[300px]" />
           </div>
         </div>
@@ -41,7 +49,7 @@ export const BottomBar = () => {
                   className="transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3"
                 >
                   <div className="relative">
-                    <Icon icon={<AvatarIcon/>} className="greatape-attendees-count" />
+                    <Icon icon={<AvatarIcon />} className="greatape-attendees-count" />
 
                     {state.attendeesBadge && <span className="absolute top-0 -right-1 w-2 h-2 rounded-full bg-red-distructive"></span>}
                   </div>
@@ -73,18 +81,28 @@ export const BottomBarBottomSheet = () => {
   const handleAttendeesOpen = () => {
     toggleAttendees()
   }
+
+
+  const [audienceUrl, setAudienceUrl] = useState('');
+
+  useEffect(() => {
+    const roomName = state.roomNameSignal || state.sparkRTC?.roomName || '';
+    const url = `${window.location.origin}/${roomName}/conf/${meetingStore.meetingStartTimeInUnix}`;
+    setAudienceUrl(url);
+  }, []);
+
   return (
     <BottomSheet open={state.isMoreOptionsOpen} onClose={toggleMoreOptions} title="More">
       <div className="w-full h-full flex gap-3 py-6 flex-col pb-0">
         <span className="text-bold-14">{'Welcome to the Fediverse!'}</span>
-        <LinkCopyComponent link={generateAudienceUrl(state.roomNameSignal ? state.roomNameSignal : state.sparkRTC ? state.sparkRTC.roomName : '')} />
+        <LinkCopyComponent link={audienceUrl} />
         <Tooltip label={state.isAttendeesOpen ? 'Hide Attendees' : 'Show Attendees'}>
           <div
             onClick={handleAttendeesOpen}
             className="w-full transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3"
           >
             <div className="relative">
-              <Icon icon={<AvatarIcon/>} />
+              <Icon icon={<AvatarIcon />} />
 
               {state.attendeesBadge && <span className="absolute top-0 -right-1 w-2 h-2 rounded-full bg-red-distructive"></span>}
             </div>
@@ -97,7 +115,7 @@ export const BottomBarBottomSheet = () => {
         <Tooltip label="Troubleshoot">
           <div className="w-full transition-all select-none cursor-pointer flex items-center gap-2 rounded-md hover:bg-gray-0 hover:bg-opacity-10 hover:dark:bg-gray-2 hover:dark:bg-opacity-20 py-1 px-3">
             <div className="relative">
-              <Icon icon={<Troubleshoot/>} />
+              <Icon icon={<Troubleshoot />} />
             </div>
             <span>Troubleshoot</span>
           </div>

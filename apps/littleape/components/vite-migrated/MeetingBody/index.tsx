@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Attendees, { AttendeesBottomSheet } from "../Attendees";
 import { MoreOptions } from "../MoreOptions";
 import { BottomBarBottomSheet } from "../BottomBar";
-import { Video } from "./Stage";
+import { Stage, Video } from "./Stage";
 
 
 export const MeetingBody = ({ customStyles }) => {
@@ -39,33 +39,10 @@ export const MeetingBody = ({ customStyles }) => {
         }
     };
 
-    const [stream, setStream] = useState<MediaStream | null>(null);
-
-    useEffect(() => {
-        const loadStream = async () => {
-            const localStream = await getLocalCameraStream();
-            if (localStream) setStream(localStream);
-        };
-
-        loadStream();
-    }, []);
-
     return (
         <>
             <Container className="relative h-full flex-grow overflow-hidden py-4 flex items-center" id="meeting-body">
-                {/* <Stage customStyles={customStyles} /> */}
-                {stream && <Video
-                    stream={stream}
-                // userId={attendee.userId}
-                // isMuted={muted}
-                // isUserMuted={attendee.muted}
-                // name={attendee.name}
-                // isHostStream={attendee.isHost}
-                // isShareScreen={attendee.isShareScreen}
-                // toggleScreen={attendee.toggleScreenId}
-                // displayId={attendee.displayId}
-                // customStyles={customStyles}
-                />}
+                <Stage customStyles={customStyles} />
                 <Attendees />
                 <MoreOptions />
             </Container>

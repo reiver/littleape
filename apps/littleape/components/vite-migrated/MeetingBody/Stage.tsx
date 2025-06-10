@@ -1,7 +1,7 @@
 'use client';
 
 
-import { isRecordingInProgress, meetingStore } from 'lib/store'
+import { isRecordingInProgress, meetingStore, rawStreams } from 'lib/store'
 
 import MicrophoneOff from '../../../public/vite-migrated/icons/MicrophoneOff.svg'
 import ScreenFull from '../../../public/vite-migrated/icons/ScreenFull.svg'
@@ -14,7 +14,7 @@ import throttle from 'lodash.throttle'
 import logger from 'lib/logger/logger'
 import { deviceSize, getDeviceConfig } from 'pages';
 let timeOut
-import { useSnapshot } from 'valtio'
+import { snapshot, useSnapshot } from 'valtio'
 import { attendeesWidth } from '../Attendees';
 import { memo, useEffect, useRef, useState } from 'react';
 import { DialogTypes, isIphone, makeDialog } from '../Dialog';
@@ -84,12 +84,11 @@ let iw = getItemsWidth(
 
 
 export const getVideoWidth = (attendee, index) => {
-    const snap = useSnapshot(meetingStore)
 
     if (deviceSize === 'xs') {
-        let availableHeight = snap.windowHeight - topBarBottomBarHeight()
+        let availableHeight = meetingStore.windowHeight - topBarBottomBarHeight()
         if (hasFullScreenedStream) {
-            if (attendee.stream.id === snap.fullScreenedStream) {
+            if (attendee.stream.id === meetingStore.fullScreenedStream) {
                 return `100%; height: ${availableHeight}px`
             } else return `0px; height: 0px;`
         }
@@ -110,9 +109,9 @@ export const getVideoWidth = (attendee, index) => {
             return `calc(${100 / columns}% - ${columns > 1 ? '8px' : '0px'}); height: ${rowHeight}px`
         }
     }
-    let availableHeight = snap.windowHeight - topBarBottomBarHeight()
+    let availableHeight = meetingStore.windowHeight - topBarBottomBarHeight()
     if (hasFullScreenedStream) {
-        if (attendee.stream != undefined && attendee.stream.id === snap.fullScreenedStream) {
+        if (attendee.stream != undefined && attendee.stream.id === meetingStore.fullScreenedStream) {
             return `100%; height: ${availableHeight}px`
         } else {
             return `0px; height: 0px;`
@@ -147,8 +146,294 @@ export const getValidClass = (customStyles) => {
 }
 
 
+export const Stage = ({ customStyles }) => {
+
+    const snap = useSnapshot(meetingStore)
+
+    useEffect(() => {
+        if (customStyles) {
+            // Create a style element and append it to the head of the document
+            const styleElement = document.createElement('style');
+            styleElement.id = 'customStyles';
+            document.head.appendChild(styleElement);
+
+            // Set the CSS content of the style element
+            styleElement.textContent = customStyles;
+            logger.log("Creating style elem Stage.js")
+
+        }
+    }, [])
+
+    // useEffect(() => {
+    //     const onResize = throttle(() => {
+    //         meetingStore.windowWidth = window.innerWidth
+    //         meetingStore.windowHeight.value = window.innerHeight
+    //         deviceSize.value = getDeviceConfig(window.innerWidth)
+    //     }, 200)
+    //     window.addEventListener('resize', onResize)
+    //     return () => window.removeEventListener('resize', onResize)
+    // }, [])
+
+    const documentClick = () => {
+        if (timeOut) clearTimeout(timeOut)
+        if (hasFullScreenedStream) {
+            meetingStore.bottomBarVisible = true
+            handleMaximize()
+        }
+    }
+    const handleMaximize = () => {
+        if (timeOut) clearTimeout(timeOut)
+        timeOut = setTimeout(() => {
+            if (snap.bottomBarVisible) {
+                meetingStore.bottomBarVisible = false
+            }
+        }, 2000)
+    }
+    useEffect(() => {
+        if (hasFullScreenedStream) {
+            handleMaximize()
+            document.getElementsByTagName('body')[0].addEventListener('click', documentClick)
+        } else {
+            document.getElementsByTagName('body')[0].removeEventListener('click', documentClick)
+            meetingStore.bottomBarVisible = true
+            if (timeOut) clearTimeout(timeOut)
+        }
+    }, [hasFullScreenedStream])
+    const handleOnClick = (e, streamId) => {
+        if (streamId === snap.fullScreenedStream) {
+            meetingStore.bottomBarVisible = !meetingStore.bottomBarVisible
+            handleMaximize()
+            e.stopPropagation()
+        }
+    }
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+
+            //get host video position
+            const hostVideoElement = document.querySelector('.greatape-host-video');
+            if (hostVideoElement) {
+                const computedStyles = getComputedStyle(hostVideoElement);
+
+                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+
+                //get Host Stream
+                const hostStream = () => {
+                    const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && !s.isShareScreen);
+                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+                };
+
+                if (hostStream) {
+                    let stream = hostStream()
+                    meetingStore.streamers = {
+                        ...meetingStore.streamers,
+                        [stream.id]: {
+                            ...meetingStore.streamers[stream.id],
+                            position: positionValue,
+                        },
+                    };
+
+                }
+
+            }
+
+            //get screen share position
+            const screenShareVideoElement = document.querySelector('.greatape-share-screen-video');
+            if (screenShareVideoElement) {
+                const computedStyles = getComputedStyle(screenShareVideoElement);
+
+                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+
+                //get screen share Stream
+                const screenShareStream = () => {
+                    const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && s.isShareScreen);
+                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+                };
+
+                if (screenShareStream) {
+                    let stream = screenShareStream()
+
+                    meetingStore.streamers = {
+                        ...meetingStore.streamers,
+                        [stream.id]: {
+                            ...meetingStore.streamers[stream.id],
+                            position: positionValue,
+                        },
+                    };
+                }
+
+            }
+
+            //get audience position
+            const audienceVideoElement = document.querySelector('.greatape-audience-video');
+            if (audienceVideoElement) {
+                const computedStyles = getComputedStyle(audienceVideoElement);
+
+                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+
+                //get audience Stream
+                const audienceStream = () => {
+                    const hostStreamer = Object.values(snap.streamers).find((s) => !s.isHost && !s.isShareScreen);
+                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+                };
+
+                if (audienceStream) {
+                    let stream = audienceStream()
+
+                    meetingStore.streamers = {
+                        ...meetingStore.streamers,
+                        [stream.id]: {
+                            ...meetingStore.streamers.value[stream.id],
+                            position: positionValue,
+                        },
+                    };
+                }
+
+            }
+        }, 500);
+
+        // Clear the interval when the component is unmounted
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const sortStreamers = (a, b) => {
+        if (customStyles) {
+            if (a.position && b.position && a.position != undefined && b.position != undefined) {
+                return a.position - b.position;
+            }
+            return 0;
+        } else {
+            logger.log("Original Sorting Logic")
+
+            //original Logic
+            let aScore = 0
+            let bScore = 0
+            if (a.isHost) aScore += 10
+            if (a.isShareScreen) aScore += 20
+            if (b.isHost) bScore += 10
+            if (b.isShareScreen) bScore += 20
+            return bScore - aScore
+        }
+
+    }
+
+
+    try {
+        return (
+            <div className={`transition-all h-full lg:px-0 relative`} style={{ width: `calc(100% - ${attendeesWidth}px)` }}>
+                {snap.broadcastIsInTheMeeting ? (
+                    <div className={clsx('relative h-full justify-end'
+                        , {
+                            'flex': !customStyles,
+                        })}>
+                        <div
+                            className={clsx('flex justify-start sm:justify-center items-center h-full transition-all', {
+                                'flex-wrap': !customStyles,
+                                'gap-4': !hasFullScreenedStream,
+                                'gap-0': hasFullScreenedStream,
+                                'w-1/2': !hasFullScreenedStream && hasShareScreenStream && deviceSize !== 'xs' && !customStyles,
+                                'w-full': hasFullScreenedStream || !hasShareScreenStream || deviceSize === 'xs',
+                            }, 'greatape-gap-in-videos')}
+                        >
+                            {Object.values(snap.streamers)
+                                .sort((a, b) => sortStreamers(a, b))
+                                .map((attendee, i) => {
+                                    let muted = false
+
+                                    //mute the stream if it's my local stream
+                                    if (attendee.isLocalStream === true) {
+                                        muted = true
+                                    } else {
+                                        //mute it based on meeting status
+                                        muted = snap.currentUser.isMeetingMuted
+                                    }
+
+                                    return (
+                                        <div
+                                            id={`video_${attendee.isShareScreen ? 'sc' : attendee.name}`}
+                                            key={i}
+                                            className={clsx(
+                                                // Conditional customStyles width logic
+                                                customStyles ? '' : `width: ${getVideoWidth(attendee, i)}`,
+
+                                                // Conditional inline-style-like class logic
+                                                !hasFullScreenedStream && deviceSize !== 'xs' && attendee.isShareScreen && !customStyles && 'absolute left-[25px]',
+
+                                                // Static and dynamic style classes
+                                                'group transition-all aspect-video relative max-w-full text-white-f-9',
+                                                'bg-gray-1 rounded-lg min-w-10',
+                                                'dark:bg-gray-3 overflow-hidden',
+
+                                                // Conditional class for host / audience
+                                                attendee.isHost
+                                                    ? (attendee.isShareScreen && hasCustomStyleClass(customStyles, 'greatape-share-screen-video')
+                                                        ? 'greatape-share-screen-video'
+                                                        : hasCustomStyleClass(customStyles, 'greatape-host-video')
+                                                            ? 'greatape-host-video'
+                                                            : '')
+                                                    : hasCustomStyleClass(customStyles, 'greatape-audience-video')
+                                                        ? 'greatape-audience-video'
+                                                        : '',
+
+                                                // Final fallback class
+                                                getValidClass(customStyles)
+                                            )}
+
+                                            onClick={(e) => handleOnClick(e, attendee.streamId)}
+                                        >
+                                            <Video
+                                                stream={rawStreams.get(attendee.streamId)}
+                                                userId={attendee.userId}
+                                                isMuted={muted}
+                                                isUserMuted={attendee.muted}
+                                                name={attendee.name}
+                                                isHostStream={attendee.isHost}
+                                                isShareScreen={attendee.isShareScreen}
+                                                toggleScreen={attendee.toggleScreenId}
+                                                displayId={attendee.displayId}
+                                                customStyles={customStyles}
+                                            />
+                                        </div>
+                                    )
+                                })}
+                        </div>
+                    </div>
+                ) : (
+                    snap.meetingIsNotStarted && snap.meetingStartRemainingTime !== "" ? (
+                        <div>
+                            <img src={GreatApeImageBeforeMeetingStarted.src} className="mx-auto" />
+                            <span className="inline-block w-full text-center text-bold-18">The live conversation has not started yet.<br />Please stand by, and thank you for your patience.</span>
+                            <span className="inline-block w-full text-center text-bold-14 mt-3">{snap.meetingStartRemainingTime} to go</span>
+                        </div>
+
+                    ) : (
+                        snap.meetingIsEnded == true ? (
+                            <div>
+                                <img src={GreatApeImageAfterMeetingEnded.src} className="mx-auto" />
+                                <span className="inline-block w-full text-center text-bold-14">This conversation has ended.</span>
+                            </div>
+                        ) : (
+                            <div>
+                                <img src={GreatApeImageBeforeMeetingStarted.src} className="mx-auto" />
+                                <span className="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>
+                            </div>
+                        )
+                    )
+                )
+                }
+            </div >
+        )
+    } catch (error) {
+        logger.error("Error on Stage loading: ", error)
+        return <div>Error</div>
+    }
+}
 
 export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUserMuted, isShareScreen, toggleScreen, displayId, customStyles }: any) => {
+
+    logger.log('stream type:', typeof stream, stream);
+
+
     const snap = useSnapshot(meetingStore)
 
     const [muted, setMuted] = useState(true)
@@ -212,13 +497,23 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                 videoRef.current.srcObject = null
                 videoRef.current.style.backgroundColor = 'black';
             } else {
-                videoRef.current.srcObject = stream
+                if (videoRef.current && stream instanceof MediaStream) {
+                    videoRef.current.srcObject = stream;
+                } else {
+                    logger.error('❌ Invalid stream:', stream);
+                }
+
                 videoRef.current.style.backgroundColor = '';
             }
         } else {
             //every other stream anywhere
             logger.log("Not Iphone display normal stream")
-            videoRef.current.srcObject = stream
+            if (videoRef.current && stream instanceof MediaStream) {
+                videoRef.current.srcObject = stream;
+            } else {
+                logger.error('❌ Invalid stream:', stream);
+            }
+
         }
         //set default speaker
         if (snap.sparkRTC.defaultSpeaker) {
@@ -286,18 +581,19 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
         }
     }, [menu, menuOpen])
 
-    return (
-        <div onClick={handleOnClick} className="w-full h-full rounded-lg">
-            <video
-                ref={videoRef}
-                autoplay
-                playsinline
-                muted={muted}
-                className={`w-full h-full
+    try {
+        return (
+            <div onClick={handleOnClick} className="w-full h-full rounded-lg">
+                <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted={muted}
+                    className={`w-full h-full
                     ${isShareScreen ? '' : 'object-cover'}
                          rounded-lg`}
-            />
-            <div className="absolute top-0 left-0 flex justify-between w-full px-2 gap-2">
+                />
+                {/* <div className="absolute top-0 left-0 flex justify-between w-full px-2 gap-2">
                 <div id={`video_name_bg_${isShareScreen ? 'sc' : name}`} className="flex truncate justify-center items-center greatape-video-name-background">
                     <div id={`video_name_${isShareScreen ? 'sc' : name}`} className="px-4 py-1 bg-black bg-opacity-50 text-white rounded-full text-medium-12 truncate greatape-video-name ">
                         {name} {isHostStream && isShareScreen ? '(Shared Screen)' : isHostStream ? ' (Host)' : ''}
@@ -324,8 +620,8 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                                 onMouseLeave={() => { setHoveredOnFullScreenIcon(false) }}
                             >
                                 <Icon
-                                    key={stream && snap.fullScreenedStream === stream.id ? ScreenNormal : ScreenFull}
-                                    icon={stream && snap.fullScreenedStream === stream.id ? ScreenNormal : ScreenFull}
+                                    // key={stream && snap.fullScreenedStream === stream.id ? <ScreenNormal/> : <ScreenFull/>}
+                                    icon={stream && snap.fullScreenedStream === stream.id ? <ScreenNormal/> : <ScreenFull/>}
                                     width="20px"
                                     height="20px"
 
@@ -349,8 +645,8 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="absolute top-8 left-0 flex justify-between w-full px-2 gap-2">
+            </div> */}
+                {/* <div className="absolute top-8 left-0 flex justify-between w-full px-2 gap-2">
                 <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
                     <div
                         className={clsx('sm:flex:hidden', {
@@ -380,7 +676,11 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                         </div>
                     </div>
                 </div>
+            </div> */}
             </div>
-        </div>
-    )
+        )
+    } catch (error) {
+        logger.error("Error while rendering Video: ", error)
+        return <div>Error</div>
+    }
 })

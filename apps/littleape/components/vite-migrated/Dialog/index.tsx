@@ -36,6 +36,7 @@ import Button from '../common/Button'
 import Icon from '../common/Icon'
 import { IconButton } from '../common/IconButton'
 import { Tooltip } from '../common/Tooltip'
+import { useSnapshot } from 'valtio';
 
 const blurTxt = "Blur";
 const noneTxt = "None"
@@ -960,15 +961,16 @@ export const InfoDialog = ({ onOk, onClose, message: { message, icon, variant },
 }
 
 export const DialogPool = () => {
+  const snap = useSnapshot(meetingStore)
   return (
     <>
       <div className="absolute right-0 left-0 md:left-[unset] md:right-10 bottom-[5.5rem] flex flex-col justify-end gap-2 px-4 sm:px-0">
-        {Object.values(meetingStore.dialogs).map((dialog) => {
+        {Object.values(snap.dialogs).map((dialog) => {
           if (dialog.type === 'info') return <InfoDialog {...dialog} />
         })}
       </div>
 
-      {Object.values(meetingStore.dialogs).map((dialog) => {
+      {Object.values(snap.dialogs).map((dialog) => {
         if (dialog.type === DialogTypes.CONFIRM) return <ConfirmDialog {...dialog} />
         else if (dialog.type === DialogTypes.PREVIEW) return <PreviewDialog {...dialog} />
         else if (dialog.type === DialogTypes.IO_SETTINGS) return <IOSettingsDialog {...dialog} />
