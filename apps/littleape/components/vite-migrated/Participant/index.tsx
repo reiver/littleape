@@ -18,38 +18,38 @@ import clsx from 'clsx'
 const isMobile = false //window.self == window.top && window.parent.outerWidth <= 400 && window.parent.outerHeight <= 850
 
 
-meetingStore.attendees = {
-    "user1": {
-        name: "Alice Khan",
-        isHost: true,
-        raisedHand: new Date(),
-        hasCamera: true,
-        userId: 101,
-        actionLoading: false,
-        acceptRaiseHand: null,
-        isRecordingTheMeeting: true,
-    },
-    "user2": {
-        name: "Bilal Ahmed",
-        isHost: false,
-        raisedHand: new Date(),
-        hasCamera: false,
-        userId: 102,
-        actionLoading: false,
-        acceptRaiseHand: null,
-        isRecordingTheMeeting: false,
-    },
-    "user3": {
-        name: "Sara Malik",
-        isHost: false,
-        raisedHand: new Date(),
-        hasCamera: true,
-        userId: 103,
-        actionLoading: true,
-        acceptRaiseHand: null,
-        isRecordingTheMeeting: false,
-    },
-};
+// meetingStore.attendees = {
+//     "user1": {
+//         name: "Alice Khan",
+//         isHost: true,
+//         raisedHand: new Date(),
+//         hasCamera: true,
+//         userId: 101,
+//         actionLoading: false,
+//         acceptRaiseHand: null,
+//         isRecordingTheMeeting: true,
+//     },
+//     "user2": {
+//         name: "Bilal Ahmed",
+//         isHost: false,
+//         raisedHand: new Date(),
+//         hasCamera: false,
+//         userId: 102,
+//         actionLoading: false,
+//         acceptRaiseHand: null,
+//         isRecordingTheMeeting: false,
+//     },
+//     "user3": {
+//         name: "Sara Malik",
+//         isHost: false,
+//         raisedHand: new Date(),
+//         hasCamera: true,
+//         userId: 103,
+//         actionLoading: true,
+//         acceptRaiseHand: null,
+//         isRecordingTheMeeting: false,
+//     },
+// };
 
 const Participant = ({ participant }) => {
     const snap = useSnapshot(meetingStore)

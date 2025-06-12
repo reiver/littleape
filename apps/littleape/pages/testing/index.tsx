@@ -26,7 +26,7 @@ import { Attendees, Participant } from 'components/vite-migrated';
 import { AttendeesBottomSheet } from 'components/vite-migrated/Attendees'
 import RecordingBar from 'components/vite-migrated/RecordingBar'
 import Meeting from 'pages/Meeting'
-
+import { useRouter } from 'next/router'
 
 const TestPage = () => {
     const snap = useSnapshot(meetingStore)
@@ -38,18 +38,31 @@ const TestPage = () => {
 
     ))
 
+    //get query param role from link
+
+    const router = useRouter()
+    const { role } = router.query
+    const { name } = router.query
+
+    if (!role || !name) return null // or <Loader /> or <p>Loading...</p>
+
+    logger.log("Role is: ", role)
+    logger.log("Name is: ", name)
+
+
 
     return (
-        <div 
+        <div
         // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
         >
 
             <Meeting
                 params={{
-                    name:"Zaid",
+                    name: name.toString(),
                     // ...form.getValues(),
                     room: "HELLO",
-                    meetingStartTime: 123333
+                    meetingStartTime: 123333,
+                    userRole: role.toString()
                 }}
             />
 

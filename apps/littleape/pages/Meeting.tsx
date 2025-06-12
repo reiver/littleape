@@ -195,7 +195,6 @@ const displayStream = async (stream, toggleFull = false) => {
 }
 
 export const onStopStream = async (stream) => {
-    const snap = useSnapshot(meetingStore)
     await toggleFullScreen(stream)
 
     const streamersTmp = { ...meetingStore.streamers }
@@ -262,7 +261,7 @@ export const getUserRaiseHandStatus = (userId) => {
     return meetingStore.attendees[userId]?.raisedHand || false
 }
 
-const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any } }) => {
+const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime, userRole } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any; userRole?: string } }) => {
     const snap = useSnapshot(meetingStore)
     useEffect(() => {
         detectKeyPress(keyPressCallback)
@@ -387,7 +386,13 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
     if (displayName && room) {
         if (displayName[0] !== '@') return <PageNotFound />
     }
-    const isHost = true//!!displayName
+
+    var isHost = true//!!displayName
+
+    if (userRole == "audience") {
+        isHost = false
+    }
+
     useEffect(() => {
         logger.log("Hook t setup cam")
 
@@ -424,6 +429,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
                     },
                     onUserInitialized: async (userId) => {
+                        logger.log("onUserInitialized")
                         //@ts-ignore
                         meetingStore.currentUser.userId = userId
 

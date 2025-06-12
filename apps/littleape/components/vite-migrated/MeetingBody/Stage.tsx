@@ -20,7 +20,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { DialogTypes, isIphone, makeDialog } from '../Dialog';
 import { IODevices } from 'lib/ioDevices/io-devices';
 import { IconButton } from '../common/IconButton';
-import { Icon } from 'components/Icon';
+import Icon from '../common/Icon';
 
 export const streamersLength = Object.keys(meetingStore.streamers).length
 export const hasHostStream = !!Object.values(meetingStore.streamers).find((s) => s.isHost && !s.isShareScreen)
@@ -593,7 +593,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                     ${isShareScreen ? '' : 'object-cover'}
                          rounded-lg`}
                 />
-                {/* <div className="absolute top-0 left-0 flex justify-between w-full px-2 gap-2">
+             <div className="absolute top-0 left-0 flex justify-between w-full px-2 gap-2">
                 <div id={`video_name_bg_${isShareScreen ? 'sc' : name}`} className="flex truncate justify-center items-center greatape-video-name-background">
                     <div id={`video_name_${isShareScreen ? 'sc' : name}`} className="px-4 py-1 bg-black bg-opacity-50 text-white rounded-full text-medium-12 truncate greatape-video-name ">
                         {name} {isHostStream && isShareScreen ? '(Shared Screen)' : isHostStream ? ' (Host)' : ''}
@@ -602,7 +602,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                 <div className={clsx('h-[48px] gap-0 flex justify-center items-center')}>
                     {isUserMuted && (
                         <div className="pr-2">
-                            <Icon icon={MicrophoneOff} width="20px" height="20px" />
+                            <Icon icon={<MicrophoneOff/>} width="20px" height="20px" />
                         </div>
                     )}
                     <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
@@ -645,38 +645,38 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                         </div>
                     </div>
                 </div>
-            </div> */}
-                {/* <div className="absolute top-8 left-0 flex justify-between w-full px-2 gap-2">
-                <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
-                    <div
-                        className={clsx('sm:flex:hidden', {
-                            hidden: !isHoveredOnFullScreenIcon || menuOpen
-                        })}
-                    >
-                        <div className="flex justify-center items-center">
-                            <div className="px-4 py-1 bg-gray-0 text-gray-2 rounded-full text-medium-12">
-                                {snap.fullScreenedStream != stream.id ? 'Maximize' : 'Minimize'}{' shortcut key='}{displayId}
+            </div> 
+                <div className="absolute top-8 left-0 flex justify-between w-full px-2 gap-2">
+                    <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
+                        <div
+                            className={clsx('sm:flex:hidden', {
+                                hidden: !isHoveredOnFullScreenIcon || menuOpen
+                            })}
+                        >
+                            <div className="flex justify-center items-center">
+                                <div className="px-4 py-1 bg-gray-0 text-gray-2 rounded-full text-medium-12">
+                                    {snap.fullScreenedStream != stream.id ? 'Maximize' : 'Minimize'}{' shortcut key='}{displayId}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
-                    <div
-                        className={clsx('sm:flex:hidden', {
-                            hidden: !isHoveredOnFullScreenIcon || menuOpen
-                        })}
-                    >
-                        <div className="flex justify-center items-center">
-                            <div className="px-4 py-1 bg-black bg-opacity-50 text-white rounded-[16px] text-semi-bold-32">
-                                {displayId}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className={clsx('h-[48px] gap-0 flex justify-end items-center flex-grow')}>
+                        <div
+                            className={clsx('sm:flex:hidden', {
+                                hidden: !isHoveredOnFullScreenIcon || menuOpen
+                            })}
+                        >
+                            <div className="flex justify-center items-center">
+                                <div className="px-4 py-1 bg-black bg-opacity-50 text-white rounded-[16px] text-semi-bold-32">
+                                    {displayId}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div> */}
             </div>
         )
     } catch (error) {
