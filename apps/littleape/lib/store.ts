@@ -3,6 +3,7 @@ import { proxy } from 'valtio'
 export const rawStreams = new Map<string, MediaStream>();
 
 export const meetingStore = proxy({
+    deviceSize:'md',
     attendeesWidth:0,
     userInteractedWithDom:false,
     windowHeight: 0,

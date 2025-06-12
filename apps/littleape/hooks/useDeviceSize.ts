@@ -1,5 +1,6 @@
 'use client'
 
+import { meetingStore } from 'lib/store'
 import { useEffect, useState } from 'react'
 
 export type DeviceSize = 'xs' | 'sm' | 'md' | 'lg' | '2xl'
@@ -35,6 +36,7 @@ export function useDeviceSize(): DeviceSize {
 
         const onResize = () => {
             setDeviceSize(getDeviceConfig(window.innerWidth))
+            meetingStore.deviceSize = getDeviceConfig(window.innerWidth)
         }
 
         window.addEventListener('resize', onResize)

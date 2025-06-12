@@ -52,7 +52,7 @@ const TestPage = () => {
 
 
     return (
-        <div
+        <div style={{ overflow: 'hidden' }}
         // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
         >
 
