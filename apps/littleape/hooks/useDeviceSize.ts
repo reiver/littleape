@@ -1,4 +1,8 @@
+'use client'
+
 import { useEffect, useState } from 'react'
+
+export type DeviceSize = 'xs' | 'sm' | 'md' | 'lg' | '2xl'
 
 
 export const getDeviceConfig = (width) => {
@@ -15,21 +19,23 @@ export const getDeviceConfig = (width) => {
     }
 }
 
-function getInitialDeviceSize() {
+function getInitialDeviceSize(): DeviceSize {
     if (typeof window !== 'undefined') {
         return getDeviceConfig(window.innerWidth)
     }
     // fallback for SSR
-    return getDeviceConfig(1024) // or some default width
+    return getDeviceConfig(1024)
 }
 
-export function useDeviceSize() {
-    const [deviceSize, setDeviceSize] = useState(getInitialDeviceSize)
+export function useDeviceSize(): DeviceSize {
+    const [deviceSize, setDeviceSize] = useState<DeviceSize>(getInitialDeviceSize)
 
     useEffect(() => {
-        if (typeof window === 'undefined') return // safeguard
+        if (typeof window === 'undefined') return
 
-        const onResize = () => setDeviceSize(getDeviceConfig(window.innerWidth))
+        const onResize = () => {
+            setDeviceSize(getDeviceConfig(window.innerWidth))
+        }
 
         window.addEventListener('resize', onResize)
         return () => window.removeEventListener('resize', onResize)

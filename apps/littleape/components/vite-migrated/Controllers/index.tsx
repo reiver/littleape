@@ -1,7 +1,7 @@
 'use client'
 
 import logger from '../../../lib/logger/logger'
-import { meetingStore } from '../../../lib/store'
+import { meetingStore, rawStreams } from '../../../lib/store'
 import { onStartShareScreen, onStopShareScreen, setUserActionLoading, updateUser } from 'pages/Meeting'
 import { useEffect, useState } from 'react'
 import { Tooltip } from '../common/Tooltip'
@@ -59,7 +59,7 @@ export const toggleMoreOptions = () => {
 export const Controllers = () => {
     const snap = useSnapshot(meetingStore);
 
-    const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStream, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = snap.currentUser
+    const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStreamId, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = snap.currentUser
     logger.log('this user', isStreamming)
     const toggleMuteMeeting = () => {
         updateUser({
@@ -68,15 +68,19 @@ export const Controllers = () => {
     }
 
     const handleShareScreen = async () => {
-        if (!sharingScreenStream) {
+        if (!sharingScreenStreamId) {
             const stream = await snap.sparkRTC.startShareScreen()
             onStartShareScreen(stream)
             updateUser({
-                sharingScreenStream: stream,
+                sharingScreenStreamId: stream.id,
             })
+
+            //save share screen stream ref
+            rawStreams.set(stream.id, stream)
         } else {
-            await snap.sparkRTC.stopShareScreen(sharingScreenStream)
-            onStopShareScreen(sharingScreenStream)
+            const stream = rawStreams.get(sharingScreenStreamId)
+            await snap.sparkRTC.stopShareScreen(stream)
+            onStopShareScreen(stream)
         }
     }
     const toggleCamera = () => {
@@ -181,9 +185,9 @@ export const Controllers = () => {
             )}
 
             {isStreamming && isHost && (
-                <Tooltip key={sharingScreenStream ? 'ShareOff' : 'Share'} label={!sharingScreenStream ? 'Share Screen' : 'Stop Sharing Screen'}>
-                    <IconButton variant={sharingScreenStream ? 'danger' : undefined} onClick={handleShareScreen} className="hidden sm:flex">
-                        <Icon icon={sharingScreenStream ? <ShareOff /> : <Share />} />
+                <Tooltip key={sharingScreenStreamId ? 'ShareOff' : 'Share'} label={!sharingScreenStreamId ? 'Share Screen' : 'Stop Sharing Screen'}>
+                    <IconButton variant={sharingScreenStreamId ? 'danger' : undefined} onClick={handleShareScreen} className="hidden sm:flex">
+                        <Icon icon={sharingScreenStreamId ? <ShareOff /> : <Share />} />
                     </IconButton>
                 </Tooltip>
             )}
@@ -224,7 +228,7 @@ export const Controllers = () => {
 export const MoreControllers = () => {
     const snap = useSnapshot(meetingStore);
 
-    const { isHost, sharingScreenStream, isStreamming, isMeetingMuted, isRecordingStarted } = snap.currentUser
+    const { isHost, sharingScreenStreamId, isStreamming, isMeetingMuted, isRecordingStarted } = snap.currentUser
     const toggleMuteMeeting = () => {
         updateUser({
             isMeetingMuted: !isMeetingMuted,
@@ -232,15 +236,20 @@ export const MoreControllers = () => {
     }
 
     const handleShareScreen = async () => {
-        if (!sharingScreenStream) {
+        if (!sharingScreenStreamId) {
             const stream = await snap.sparkRTC.startShareScreen()
             onStartShareScreen(stream)
             updateUser({
-                sharingScreenStream: stream,
+                sharingScreenStreamId: stream.id,
             })
+
+            //save share screen stream
+            rawStreams.set(stream.id,stream)
+
         } else {
-            await snap.sparkRTC.stopShareScreen(sharingScreenStream)
-            onStopShareScreen(sharingScreenStream)
+            const stream = rawStreams.get(sharingScreenStreamId)
+            await snap.sparkRTC.stopShareScreen(stream)
+            onStopShareScreen(stream)
         }
     }
 
@@ -319,16 +328,16 @@ export const MoreControllers = () => {
             </Tooltip>
 
             {isStreamming && isHost && (
-                <Tooltip key={sharingScreenStream ? 'ShareOff' : 'Share'} label={!sharingScreenStream ? 'Share Screen' : 'Stop Sharing Screen'}>
+                <Tooltip key={sharingScreenStreamId ? 'ShareOff' : 'Share'} label={!sharingScreenStreamId ? 'Share Screen' : 'Stop Sharing Screen'}>
                     <IconButton
-                        variant={sharingScreenStream ? 'danger' : undefined}
+                        variant={sharingScreenStreamId ? 'danger' : undefined}
                         onClick={handleShareScreen}
                         className={clsx({
                             'hidden sm:flex': !isMobile(),
                             hidden: isMobile(),
                         })}
                     >
-                        <Icon icon={sharingScreenStream ? <ShareOff /> : <Share />} />
+                        <Icon icon={sharingScreenStreamId ? <ShareOff /> : <Share />} />
                     </IconButton>
                 </Tooltip>
             )}

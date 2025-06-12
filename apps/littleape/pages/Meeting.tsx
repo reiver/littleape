@@ -62,7 +62,7 @@ export const stopRecording = () => {
 }
 
 export const onStartShareScreen = (stream) => {
-    logger.log(`ScreenShareStram: ${stream}`)
+    logger.log("ScreenShareStram: ", stream)
 
     if (stream == null || stream == undefined) {
         return
@@ -71,8 +71,9 @@ export const onStartShareScreen = (stream) => {
     stream.getTracks()[0].onended = async () => {
         await meetingStore.sparkRTC.stopShareScreen(stream)
         updateUser({
-            sharingScreenStream: null,
+            sharingScreenStreamId: null,
         })
+        rawStreams.delete(stream.id)
         onStopStream(stream)
     }
 
@@ -100,7 +101,7 @@ export const onStopShareScreen = async (stream) => {
 
     stream.getTracks().forEach((track) => track.stop())
     updateUser({
-        sharingScreenStream: null,
+        sharingScreenStreamId: null,
     })
     const streamersTmp = { ...meetingStore.streamers }
     delete streamersTmp[stream.id]

@@ -9,31 +9,30 @@ import AvatarIcon from '../../../public/vite-migrated/icons/Avatar.svg'
 import CloseIcon from '../../../public/vite-migrated/icons/Close.svg'
 import { BottomSheet } from '../BottomSheet';
 import Participant from '../Participant';
+import { useDeviceSize } from 'hooks/useDeviceSize';
+import { useAttendeesWidth } from 'hooks/useAttendeesWidth';
+
 
 export const toggleAttendees = () => {
     meetingStore.attendeesBadge = false
     meetingStore.isAttendeesOpen = !meetingStore.isAttendeesOpen
 }
 
-//FIXME
-// export const attendeesCount = 0;
-//computed(() => Object.values(meetingStore.attendees).length)
-
-//FIXME 
-export const attendeesWidth = 0
-// computed(() => {
-//     if (snap.isAttendeesOpen || isMoreOptionsOpen.value) {
-//         return deviceSize.value === 'xs' ? 0 : 350 + 40;
-//     }
-
-//     return 0;
-// })
-
-
 
 const Attendees = () => {
     const snap = useSnapshot(meetingStore)
     const attendeesCount = Object.keys(snap.attendees).length;
+
+
+    const deviceSize = useDeviceSize()
+
+    const attendeesWidth = useAttendeesWidth({
+        isAttendeesOpen: meetingStore.isAttendeesOpen,
+        isMoreOptionsOpen: meetingStore.isMoreOptionsOpen,
+        deviceSize: deviceSize,
+    });
+
+    meetingStore.attendeesWidth = attendeesWidth
 
     return (
         <div

@@ -15,7 +15,6 @@ import logger from 'lib/logger/logger'
 import { deviceSize, getDeviceConfig } from 'pages';
 let timeOut
 import { snapshot, useSnapshot } from 'valtio'
-import { attendeesWidth } from '../Attendees';
 import { memo, useEffect, useRef, useState } from 'react';
 import { DialogTypes, isIphone, makeDialog } from '../Dialog';
 import { IODevices } from 'lib/ioDevices/io-devices';
@@ -26,7 +25,7 @@ export const streamersLength = Object.keys(meetingStore.streamers).length
 export const hasHostStream = !!Object.values(meetingStore.streamers).find((s) => s.isHost && !s.isShareScreen)
 export const hasShareScreenStream = !!Object.values(meetingStore.streamers).find((s) => s.isShareScreen)
 export const hasFullScreenedStream = !!meetingStore.fullScreenedStream
-const stageWidth = meetingStore.windowWidth - attendeesWidth - (deviceSize !== 'xs' ? 140 : 32)
+const stageWidth = meetingStore.windowWidth - meetingStore.attendeesWidth - (deviceSize !== 'xs' ? 140 : 32)
 
 
 const topBarBottomBarHeight = () => {
@@ -320,7 +319,7 @@ export const Stage = ({ customStyles }) => {
 
     try {
         return (
-            <div className={`transition-all h-full lg:px-0 relative`} style={{ width: `calc(100% - ${attendeesWidth}px)` }}>
+            <div className={`transition-all h-full lg:px-0 relative`} style={{ width: `calc(100% - ${snap.attendeesWidth}px)` }}>
                 {snap.broadcastIsInTheMeeting ? (
                     <div className={clsx('relative h-full justify-end'
                         , {

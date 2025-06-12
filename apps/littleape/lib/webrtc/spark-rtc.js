@@ -920,6 +920,7 @@ export class SparkRTC {
       for (const userId in this.myPeerConnectionArray) {
         const apeerConnection = this.myPeerConnectionArray[userId];
 
+        logger.log("Screen share stream before stop is: ",stream)
         stream.getTracks().forEach((track) => {
           const sender = apeerConnection
             .getSenders()
