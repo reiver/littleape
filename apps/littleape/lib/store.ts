@@ -1,4 +1,5 @@
 import { proxy } from 'valtio'
+import { SparkRTC } from './webrtc/spark-rtc';
 
 export const rawStreams = new Map<string, MediaStream>();
 
@@ -17,7 +18,7 @@ export const meetingStore = proxy({
     selectedBackground: null as any,
     statsDataOpen: false,
     statsData: '',
-    sparkRTC: null as any,
+    sparkRTC: null as SparkRTC,
     isAttendeesOpen: false,
     attendeesBadge: false,
     meetingStatus: true,

@@ -110,6 +110,36 @@ let iw = getItemsWidth(
     meetingStore.windowHeight,
 )
 
+const getVideoDimensions = (attendee) => {
+    let width, height;
+    const availableHeight = meetingStore.windowHeight - topBarBottomBarHeight();
+
+    if (hasFullScreenedStream()) {
+        if (attendee.stream?.id === meetingStore.fullScreenedStream) {
+            return { width: '100%', height: `${availableHeight}px` };
+        } else {
+            return { width: '0px', height: '0px' };
+        }
+    }
+
+    let iw = getItemsWidth(
+        stageWidth(),
+        deviceSize(),
+        hasShareScreenStream(),
+        streamersLength(),
+        meetingStore.windowHeight
+    );
+
+    if (attendee.isShareScreen) {
+        iw = stageWidth() / 2;
+    }
+
+    height = (iw * 9) / 16;
+    const wh = { width: `${iw}px`, height: `${height}px` };
+    return wh
+};
+
+
 const getVideoWidth = (attendee, index) => {
 
     logger.log("getVideoWidth: full screen stream is: ", meetingStore.fullScreenedStream)
@@ -212,94 +242,94 @@ export const Stage = ({ customStyles }) => {
         }
     }
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
 
-            //get host video position
-            const hostVideoElement = document.querySelector('.greatape-host-video');
-            if (hostVideoElement) {
-                const computedStyles = getComputedStyle(hostVideoElement);
+    //         //get host video position
+    //         const hostVideoElement = document.querySelector('.greatape-host-video');
+    //         if (hostVideoElement) {
+    //             const computedStyles = getComputedStyle(hostVideoElement);
 
-                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+    //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
 
-                //get Host Stream
-                const hostStream = () => {
-                    const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && !s.isShareScreen);
-                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-                };
+    //             //get Host Stream
+    //             const hostStream = () => {
+    //                 const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && !s.isShareScreen);
+    //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+    //             };
 
-                if (hostStream) {
-                    let stream = hostStream()
-                    meetingStore.streamers = {
-                        ...meetingStore.streamers,
-                        [stream.id]: {
-                            ...meetingStore.streamers[stream.id],
-                            position: positionValue,
-                        },
-                    };
+    //             if (hostStream) {
+    //                 let stream = hostStream()
+    //                 meetingStore.streamers = {
+    //                     ...meetingStore.streamers,
+    //                     [stream.id]: {
+    //                         ...meetingStore.streamers[stream.id],
+    //                         position: positionValue,
+    //                     },
+    //                 };
 
-                }
+    //             }
 
-            }
+    //         }
 
-            //get screen share position
-            const screenShareVideoElement = document.querySelector('.greatape-share-screen-video');
-            if (screenShareVideoElement) {
-                const computedStyles = getComputedStyle(screenShareVideoElement);
+    //         //get screen share position
+    //         const screenShareVideoElement = document.querySelector('.greatape-share-screen-video');
+    //         if (screenShareVideoElement) {
+    //             const computedStyles = getComputedStyle(screenShareVideoElement);
 
-                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+    //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
 
-                //get screen share Stream
-                const screenShareStream = () => {
-                    const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && s.isShareScreen);
-                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-                };
+    //             //get screen share Stream
+    //             const screenShareStream = () => {
+    //                 const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && s.isShareScreen);
+    //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+    //             };
 
-                if (screenShareStream) {
-                    let stream = screenShareStream()
+    //             if (screenShareStream) {
+    //                 let stream = screenShareStream()
 
-                    meetingStore.streamers = {
-                        ...meetingStore.streamers,
-                        [stream.id]: {
-                            ...meetingStore.streamers[stream.id],
-                            position: positionValue,
-                        },
-                    };
-                }
+    //                 meetingStore.streamers = {
+    //                     ...meetingStore.streamers,
+    //                     [stream.id]: {
+    //                         ...meetingStore.streamers[stream.id],
+    //                         position: positionValue,
+    //                     },
+    //                 };
+    //             }
 
-            }
+    //         }
 
-            //get audience position
-            const audienceVideoElement = document.querySelector('.greatape-audience-video');
-            if (audienceVideoElement) {
-                const computedStyles = getComputedStyle(audienceVideoElement);
+    //         //get audience position
+    //         const audienceVideoElement = document.querySelector('.greatape-audience-video');
+    //         if (audienceVideoElement) {
+    //             const computedStyles = getComputedStyle(audienceVideoElement);
 
-                const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
+    //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
 
-                //get audience Stream
-                const audienceStream = () => {
-                    const hostStreamer = Object.values(snap.streamers).find((s) => !s.isHost && !s.isShareScreen);
-                    return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-                };
+    //             //get audience Stream
+    //             const audienceStream = () => {
+    //                 const hostStreamer = Object.values(snap.streamers).find((s) => !s.isHost && !s.isShareScreen);
+    //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
+    //             };
 
-                if (audienceStream) {
-                    let stream = audienceStream()
+    //             if (audienceStream) {
+    //                 let stream = audienceStream()
 
-                    meetingStore.streamers = {
-                        ...meetingStore.streamers,
-                        [stream.id]: {
-                            ...meetingStore.streamers.value[stream.id],
-                            position: positionValue,
-                        },
-                    };
-                }
+    //                 meetingStore.streamers = {
+    //                     ...meetingStore.streamers,
+    //                     [stream.id]: {
+    //                         ...meetingStore.streamers.value[stream.id],
+    //                         position: positionValue,
+    //                     },
+    //                 };
+    //             }
 
-            }
-        }, 500);
+    //         }
+    //     }, 500);
 
-        // Clear the interval when the component is unmounted
-        return () => clearInterval(intervalId);
-    }, []);
+    //     // Clear the interval when the component is unmounted
+    //     return () => clearInterval(intervalId);
+    // }, []);
 
     const sortStreamers = (a, b) => {
         if (customStyles) {
@@ -323,27 +353,31 @@ export const Stage = ({ customStyles }) => {
 
     }
 
+    const allStreamers = Object.values(snap.streamers);
+    const shareScreenStreamer = allStreamers.find(s => s.isShareScreen);
+    const otherStreamers = allStreamers.filter(s => !s.isShareScreen);
+
 
     try {
         return (
             <div className={`transition-all h-full lg:px-0 relative`} style={{ width: `calc(100% - ${snap.attendeesWidth}px)` }}>
                 {snap.broadcastIsInTheMeeting ? (
-                    <div className={clsx('relative h-full justify-end'
+                    <div className={clsx('relative h-full'
                         , {
-                            'flex': !customStyles,
+                            'flex': !customStyles || customStyles.trim() === '',
                         })}>
                         <div
-                            className={clsx('flex justify-start sm:justify-center items-center h-full transition-all', {
-                                'flex-wrap': !customStyles,
-                                'gap-4': !hasFullScreenedStream(),
-                                'gap-0': hasFullScreenedStream(),
-                                'w-1/2': !hasFullScreenedStream() && hasShareScreenStream() && deviceSize() !== 'xs' && !customStyles,
+                            className={clsx('flex flex-row justify-center sm:justify-center items-center h-full transition-all', {
+                                'flex-warp': !customStyles || customStyles.trim() === '',
+                                // 'gap-4': !hasFullScreenedStream(),
+                                // 'gap-0': hasFullScreenedStream(),
+                                // 'w-1/2': !hasFullScreenedStream() && hasShareScreenStream() && deviceSize() !== 'xs' && !customStyles,
                                 'w-full': hasFullScreenedStream() || !hasShareScreenStream() || deviceSize() === 'xs',
                             }, 'greatape-gap-in-videos')}
                         >
 
 
-                            {Object.values(snap.streamers)
+                            {/* {Object.values(snap.streamers)
                                 .map(item => ({ ...item })) // shallow copy
                                 .sort((a, b) => sortStreamers(a, b))
                                 .map((attendee, i) => {
@@ -357,13 +391,16 @@ export const Stage = ({ customStyles }) => {
                                         muted = snap.currentUser.isMeetingMuted
                                     }
 
+                                    const { width, height } = getVideoDimensions(attendee, i);
+
                                     return (
                                         <div
                                             id={`video_${attendee.isShareScreen ? 'sc' : attendee.name}`}
                                             key={i}
+                                            style={{ width, height }}
                                             className={clsx(
                                                 // Conditional customStyles width logic
-                                                customStyles ? '' : `width: ${getVideoWidth(attendee, i)}`,
+                                                // customStyles ? '' : `width: ${getVideoWidth(attendee, i)}`,
 
                                                 // Conditional inline-style-like class logic
                                                 !hasFullScreenedStream() && deviceSize() !== 'xs' && attendee.isShareScreen && !customStyles && 'absolute left-[25px]',
@@ -404,7 +441,30 @@ export const Stage = ({ customStyles }) => {
                                             />
                                         </div>
                                     )
-                                })}
+                                })} */}
+
+                            {/* Alternative to map block */}
+                            <div className="flex w-full h-full">
+                                {shareScreenStreamer && (
+                                    <div className="flex items-center justify-center gap-4" style={{ width: '70%' }}>
+                                        <VideoCard attendee={shareScreenStreamer}  customStyles={customStyles}/>
+                                    </div>
+
+                                )}  
+
+                                <div className={clsx(
+                                    shareScreenStreamer ? '' : 'w-full',
+                                    'flex flex-wrap justify-center items-center gap-4'
+                                )}
+                                style={shareScreenStreamer ? { width: '30%' } : {}}
+                                >
+                                    {otherStreamers.map((attendee) => (
+                                        <VideoCard key={attendee.streamId} attendee={attendee} customStyles={customStyles} />
+                                    ))}
+                                </div>
+                            </div>
+
+
                         </div>
                     </div>
                 ) : (
@@ -437,6 +497,51 @@ export const Stage = ({ customStyles }) => {
         return <div>Error</div>
     }
 }
+
+const VideoCard = ({ attendee, customStyles }) => {
+    const { width, height } = getVideoDimensions(attendee);
+    const stream = rawStreams.get(attendee.streamId);
+    const snap = useSnapshot(meetingStore);
+    const muted = attendee.isLocalStream || snap.currentUser.isMeetingMuted;
+
+    return (
+        <div
+            key={attendee.streamId}
+            id={`video_${attendee.isShareScreen ? 'sc' : attendee.name}`}
+            style={{ width, height }}
+            className={clsx(
+                'group transition-all aspect-video relative max-w-full text-white-f-9 bg-gray-1 rounded-lg min-w-10 dark:bg-gray-3 overflow-hidden',
+                attendee.isHost
+                    ? (attendee.isShareScreen
+                        ? 'greatape-share-screen-video'
+                        : 'greatape-host-video')
+                    : 'greatape-audience-video',
+                getValidClass(customStyles)
+            )}
+            onClick={(e) => {
+                if (attendee.streamId === meetingStore.fullScreenedStream) {
+                    meetingStore.bottomBarVisible = !meetingStore.bottomBarVisible;
+                }
+                e.stopPropagation();
+            }}
+        >
+            
+            <Video
+                stream={stream}
+                userId={attendee.userId}
+                isMuted={muted}
+                isUserMuted={attendee.muted}
+                name={attendee.name}
+                isHostStream={attendee.isHost}
+                isShareScreen={attendee.isShareScreen}
+                toggleScreen={attendee.toggleScreenId}
+                displayId={attendee.displayId}
+                customStyles={customStyles}
+            />
+        </div>
+    );
+};
+
 
 export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUserMuted, isShareScreen, toggleScreen, displayId, customStyles }: any) => {
 

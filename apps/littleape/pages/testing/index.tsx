@@ -32,19 +32,13 @@ const TestPage = () => {
     const snap = useSnapshot(meetingStore)
     const attendeesList = Object.values(snap.attendees);
 
-
-    attendeesList.map((attendee) => (
-        logger.log("Attendees lists is: ", attendee)
-
-    ))
-
     //get query param role from link
 
     const router = useRouter()
     const { role } = router.query
     const { name } = router.query
 
-    if (!role || !name) return null // or <Loader /> or <p>Loading...</p>
+    if (!role || !name) return <p>Please provide role and display name</p>
 
     logger.log("Role is: ", role)
     logger.log("Name is: ", name)
@@ -52,7 +46,8 @@ const TestPage = () => {
 
 
     return (
-        <div style={{ overflow: 'hidden' }}
+        <div 
+        // style={{ overflow: 'hidden' }}
         // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
         >
 
@@ -60,8 +55,8 @@ const TestPage = () => {
                 params={{
                     name: name.toString(),
                     // ...form.getValues(),
-                    room: "HELLO",
-                    meetingStartTime: 123333,
+                    room: "TEST_ROOM",
+                    meetingStartTime: 1750069023,
                     userRole: role.toString()
                 }}
             />

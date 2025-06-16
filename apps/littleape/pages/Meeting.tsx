@@ -16,6 +16,7 @@ import TopBar from 'components/vite-migrated/TopBar'
 import RecordingBar from 'components/vite-migrated/RecordingBar'
 import { MeetingBody } from 'components/vite-migrated/MeetingBody'
 import { useSnapshot } from 'valtio';
+import { log } from 'console';
 
 const PageNotFound = lazy(() => import('./404'))
 
@@ -264,6 +265,13 @@ export const getUserRaiseHandStatus = (userId) => {
 
 const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime, userRole } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any; userRole?: string } }) => {
     const snap = useSnapshot(meetingStore)
+
+    var isHost = true//!!displayName
+
+    if (userRole == "audience") {
+        isHost = false
+    }
+
     useEffect(() => {
         detectKeyPress(keyPressCallback)
     }, [])
@@ -388,11 +396,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         if (displayName[0] !== '@') return <PageNotFound />
     }
 
-    var isHost = true//!!displayName
 
-    if (userRole == "audience") {
-        isHost = false
-    }
 
     useEffect(() => {
         logger.log("Hook t setup cam")
@@ -417,9 +421,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
             })
 
             const setupSparkRTC = async () => {
-                logger.log(`Setup SparkRTC`)
+                logger.log(`Setup SparkRTC for role : `, role)
 
-                meetingStore.sparkRTC = createSparkRTC(role, {
+                meetingStore.sparkRTC = await createSparkRTC(role, {
                     onAudioStatusChange: (message) => {
                         logger.log('audioStatus: ', message)
                         if (message.stream != undefined && message.type != undefined && meetingStore.streamers != undefined) {
@@ -468,6 +472,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     },
                     remoteStreamCallback: async (stream) => {
 
+                        logger.log("remoteStreamCallback is called")
                         if (meetingStore.meetingIsEnded) {
                             //don't show remote video if meeting is ended (time is passed)
                             return
@@ -765,7 +770,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
 
                         meetingStore.attendees = usersTmp
-                        logger.log("meetingStore.attendees: ", meetingStore.attendees)
+                        // logger.log("meetingStore.attendees: ", meetingStore.attendees)
                     },
                     constraintResults: (constraints) => {
                         if (!constraints.audio) {
@@ -913,6 +918,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
             if (meetingStore.meetingStatus) {
 
+                logger.log("Giooing to setup for host")
                 // if (meetingStore.sparkRTC) {
                 //     if (meetingStore.meetingIsEnded) {
                 //         await meetingStore.sparkRTC.leaveMeeting()
@@ -922,8 +928,13 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                 //     return
                 // }
 
-                await setupSparkRTC()
-                if (snap.sparkRTC && role === Roles.BROADCAST) {
+                const rtc = await setupSparkRTC()
+                logger.log("RTC is : ", rtc)
+
+                logger.log("snap ƒRTC is : ", meetingStore.sparkRTC)
+
+                if (meetingStore.sparkRTC && role === Roles.BROADCAST) {
+                    logger.log("Inside Host and RTC check")
                     let stream = await meetingStore.sparkRTC.getAccessToLocalStream()
 
                     // showPreviewDialog(stream, host, name, room)
