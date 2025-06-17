@@ -214,23 +214,21 @@ export const onStopStream = async (stream) => {
 
 export const onInviteToStage = (participant: any) => {
     if (meetingStore.sparkRTC.raiseHands.length >= meetingStore.sparkRTC.maxRaisedHands) {
-        //fixme
-        // makeDialog('info', {
-        //     message: 'The stage is already full. try again later.',
-        //     icon: 'Close',
-        //     variant: 'danger',
-        // })
+        makeDialog('info', {
+            message: 'The stage is already full. try again later.',
+            icon: 'Close',
+            variant: 'danger',
+        })
     } else {
         //send invite
         logger.log('Send Intitation to ', participant)
         meetingStore.sparkRTC.inviteToStage(participant.userId)
         setUserActionLoading(participant.userId, true)
 
-        //fixme
-        // makeDialog('info', {
-        //     message: `You've sent the request.`,
-        //     icon: 'Check',
-        // })
+        makeDialog('info', {
+            message: `You've sent the request.`,
+            icon: 'Check',
+        })
     }
 }
 
@@ -684,12 +682,11 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                         if (!isStreamming) {
                             meetingStore.sparkRTC.onRaiseHandRejected()
-                            //fixme
-                            // makeDialog('info', {
-                            //     message: 'You’ve been Rejected',
-                            //     icon: 'Close',
-                            //     variant: 'danger',
-                            // })
+                            makeDialog('info', {
+                                message: 'You’ve been Rejected',
+                                icon: 'Close',
+                                variant: 'danger',
+                            })
                             updateUser({
                                 ableToRaiseHand: true,
                             })
@@ -711,11 +708,10 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                         ableToRaiseHand: true,
                                     })
                                     meetingStore.sparkRTC.joinStage(data)
-                                    //fixme
-                                    // makeDialog('info', {
-                                    //     message: 'You’ve been added to the stage',
-                                    //     icon: 'Check',
-                                    // })
+                                    makeDialog('info', {
+                                        message: 'You’ve been added to the stage',
+                                        icon: 'Check',
+                                    })
 
                                     //send user mute status to everyone to update the Ui
                                     setTimeout(() => {
@@ -748,17 +744,15 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             isMicrophoneOn: true,
                             isCameraOn: true,
                         })
-                        //fixme
-                        // makeDialog('info', {
-                        //     message: 'You just removed from stage',
-                        //     icon: 'Close',
-                        //     variant: 'danger',
-                        // })
+                        makeDialog('info', {
+                            message: 'You just removed from stage',
+                            icon: 'Close',
+                            variant: 'danger',
+                        })
                         meetingStore.sparkRTC.leaveStage()
                     },
                     maxLimitReached: (message) => {
-                        //fixme
-                        // makeDialog('info', { message, icon: 'Close' })
+                        makeDialog('info', { message, icon: 'Close' })
                         updateUser({
                             isStreamming: false,
                             ableToRaiseHand: true,
@@ -827,12 +821,11 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         })
                     },
                     parentDcMessage: () => {
-                        //fixme
-                        // makeDialog('info', {
-                        //     message: `For some unexpected reason, you've gotten disconnected. please wait some seconds to reconnect again.`,
-                        //     icon: 'Close',
-                        //     variant: 'danger',
-                        // })
+                        makeDialog('info', {
+                            message: `For some unexpected reason, you've gotten disconnected. please wait some seconds to reconnect again.`,
+                            icon: 'Close',
+                            variant: 'danger',
+                        })
                     },
                     userLoweredHand: (data, name) => {
                         //@ts-ignore
@@ -853,12 +846,11 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
 
                         if (name) {
-                            //fixme
-                            // makeDialog('info', {
-                            //     message: `${name} has rejected your request to join stage.`,
-                            //     icon: 'Close',
-                            //     variant: 'danger',
-                            // })
+                            makeDialog('info', {
+                                message: `${name} has rejected your request to join stage.`,
+                                icon: 'Close',
+                                variant: 'danger',
+                            })
                         }
                     },
 
@@ -873,11 +865,10 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             ableToRaiseHand: true,
                         })
                         meetingStore.sparkRTC.joinStage(msg.data)
-                        //fixme
-                        // makeDialog('info', {
-                        //     message: 'You’ve been added to the stage',
-                        //     icon: 'Check',
-                        // })
+                        makeDialog('info', {
+                            message: 'You’ve been added to the stage',
+                            icon: 'Check',
+                        })
 
                         //send user mute status to everyone to update the Ui
                         setTimeout(() => {

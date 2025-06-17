@@ -1,4 +1,5 @@
 import Camera from '../../../public/vite-migrated/icons/Camera.svg'
+import Check from '../../../public/vite-migrated/icons/Check.svg'
 import CameraLight from '../../../public/vite-migrated/icons/CameraLight.svg'
 import CameraOff from '../../../public/vite-migrated/icons/CameraOff.svg'
 import Close from '../../../public/vite-migrated/icons/Close.svg'
@@ -945,6 +946,13 @@ export const NotAbleToStartRecordingDialog = ({
 }
 
 export const InfoDialog = ({ onOk, onClose, message: { message, icon, variant }, pointer }) => {
+
+  const iconMap = {
+    Check: <Check />,
+    Close: <Close/>,
+    
+  }
+
   return (
     <div
       className={clsx('select-none py-4 px-6 flex justify-between items-center text-medium-12 min-w-full sm:min-w-[350px] rounded-md', {
@@ -955,7 +963,7 @@ export const InfoDialog = ({ onOk, onClose, message: { message, icon, variant },
       onClick={onClose}
     >
       <div className="text-left" dangerouslySetInnerHTML={{ __html: message }}></div>
-      <Icon icon={icon} width="24" height="24" />
+      <Icon icon={iconMap[icon] || <Check />} width="24" height="24" />
     </div>
   )
 }
@@ -1025,6 +1033,7 @@ export const DialogPool = () => {
 
 
 export enum DialogTypes {
+  INFO = "info",
   CONFIRM = "confirm",
   PREVIEW = "preview",
   IO_SETTINGS = "io-settings",
