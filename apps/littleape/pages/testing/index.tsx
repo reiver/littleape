@@ -37,16 +37,24 @@ const TestPage = () => {
     const router = useRouter()
     const { role } = router.query
     const { name } = router.query
+    const { room } = router.query
+    const { time } = router.query
 
-    if (!role || !name) return <p>Please provide role and display name</p>
+    if (!role || !name || !room) return <p>Please provide role and display name</p>
 
     logger.log("Role is: ", role)
     logger.log("Name is: ", name)
+    logger.log("Room is: ", room)
 
+    var meetingStartTime = null;
+
+    if (time != null && time != undefined) {
+        meetingStartTime = time
+    }
 
 
     return (
-        <div 
+        <div
         // style={{ overflow: 'hidden' }}
         // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
         >
@@ -54,9 +62,8 @@ const TestPage = () => {
             <Meeting
                 params={{
                     name: name.toString(),
-                    // ...form.getValues(),
-                    room: "TEST_ROOM",
-                    meetingStartTime: 1750069023,
+                    room: room.toString(),
+                    meetingStartTime: meetingStartTime,
                     userRole: role.toString()
                 }}
             />

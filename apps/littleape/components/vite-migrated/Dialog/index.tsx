@@ -29,7 +29,7 @@ import { VideoBackground } from '../../../lib/videoBackground/videoBackground'
 import { isMobile } from 'lib/webrtc/common.js'
 import logger from 'lib/logger/logger.js'
 
-import { meetingStore } from  '../../../lib/store'
+import { meetingStore } from '../../../lib/store'
 
 import { updateUser } from '../../../pages/Meeting'
 import Button from '../common/Button'
@@ -177,7 +177,7 @@ export const IOSettingsDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
 
@@ -310,7 +310,7 @@ export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backg
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" icon={<Close/>} onClick={onClose} />
+          <Icon className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" icon={<Close />} onClick={onClose} />
         </div>
         <div className="overflow-y-auto h-96">
           <style>
@@ -524,7 +524,7 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:pt-8 pt-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -695,7 +695,7 @@ export const PreviewDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -704,7 +704,7 @@ export const PreviewDialog = ({
           <div className={clsx('h-[48px] absolute top-1 right-6 gap-2 flex justify-center items-center')}>
             {!isMicrophoneOn && (
               <div className="pr-2">
-                <Icon icon={<MicrophoneOff/>} width="20px" height="20px" />
+                <Icon icon={<MicrophoneOff />} width="20px" height="20px" />
               </div>
             )}
           </div>
@@ -714,21 +714,21 @@ export const PreviewDialog = ({
             <Tooltip label={!isCameraOn ? 'Turn Camera On' : 'Turn Camera Off'}>
               <IconButton variant={!isCameraOn ? 'danger' : undefined} onClick={toggleCamera}>
                 {' '}
-                <Icon icon={!isCameraOn ? <CameraOff/> : <Camera/>} />{' '}
+                <Icon icon={!isCameraOn ? <CameraOff /> : <Camera />} />{' '}
               </IconButton>
             </Tooltip>
           )}
           {hasMic && (
             <Tooltip label={!isMicrophoneOn ? 'Turn Microphone On' : 'Turn Microphone Off'}>
               <IconButton variant={!isMicrophoneOn ? 'danger' : undefined} onClick={toggleMicrophone}>
-                <Icon icon={!isMicrophoneOn ? <MicrophoneOff/> : <Microphone/>} />
+                <Icon icon={!isMicrophoneOn ? <MicrophoneOff /> : <Microphone />} />
               </IconButton>
             </Tooltip>
           )}
           {hasCamera && hasMic && (
             <Tooltip key="Settings" label="Settings">
               <IconButton onClick={openDeviceSettings}>
-                <Icon icon={<Settings/>} />
+                <Icon icon={<Settings />} />
               </IconButton>
             </Tooltip>
           )}
@@ -780,7 +780,7 @@ export const InviteDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -830,7 +830,7 @@ export const ConfirmDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -880,7 +880,7 @@ export const StartRecordingDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -928,7 +928,7 @@ export const NotAbleToStartRecordingDialog = ({
       >
         <div className="flex justify-center items-center p-5 relative">
           <span className="dark:text-white text-black text-bold-12">{title}</span>
-          <Icon icon={<Close/>} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
+          <Icon icon={<Close />} className="absolute top-1/2 sm:right-5 right-[unset] left-5 sm:left-[unset] transform -translate-y-1/2 cursor-pointer" onClick={onClose} />
         </div>
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
@@ -960,29 +960,69 @@ export const InfoDialog = ({ onOk, onClose, message: { message, icon, variant },
   )
 }
 
+// export const DialogPool = () => {
+//   const snap = useSnapshot(meetingStore)
+//   return (
+//     <>
+//       <div className="absolute right-0 left-0 md:left-[unset] md:right-10 bottom-[5.5rem] flex flex-col justify-end gap-2 px-4 sm:px-0">
+//         {Object.values(snap.dialogs).map((dialog) => {
+//           if (dialog.type === 'info') return <InfoDialog {...dialog} />
+//         })}
+//       </div>
+
+//       {Object.values(snap.dialogs).map((dialog) => {
+//         if (dialog.type === DialogTypes.CONFIRM) return <ConfirmDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.PREVIEW) return <PreviewDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.IO_SETTINGS) return <IOSettingsDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.IO_DEVICES) return <IODevicesDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.VIDEO_BACKGROUND) return <VideoBackgroundDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.INVITE) return <InviteDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.START_RECORDING) return <StartRecordingDialog {...dialog} />
+//         else if (dialog.type === DialogTypes.RECORDING_NOT_STARTED) return <NotAbleToStartRecordingDialog {...dialog} />
+//       })}
+//     </>
+//   )
+// }
+
 export const DialogPool = () => {
   const snap = useSnapshot(meetingStore)
+  const dialogs = Object.values(snap.dialogs)
+
   return (
     <>
       <div className="absolute right-0 left-0 md:left-[unset] md:right-10 bottom-[5.5rem] flex flex-col justify-end gap-2 px-4 sm:px-0">
-        {Object.values(snap.dialogs).map((dialog) => {
-          if (dialog.type === 'info') return <InfoDialog {...dialog} />
+        {dialogs.map((dialog, index) => {
+          if (dialog.type === 'info') {
+            return <InfoDialog key={dialog.id ?? `info-${index}`} {...dialog} />
+          }
         })}
       </div>
 
-      {Object.values(snap.dialogs).map((dialog) => {
-        if (dialog.type === DialogTypes.CONFIRM) return <ConfirmDialog {...dialog} />
-        else if (dialog.type === DialogTypes.PREVIEW) return <PreviewDialog {...dialog} />
-        else if (dialog.type === DialogTypes.IO_SETTINGS) return <IOSettingsDialog {...dialog} />
-        else if (dialog.type === DialogTypes.IO_DEVICES) return <IODevicesDialog {...dialog} />
-        else if (dialog.type === DialogTypes.VIDEO_BACKGROUND) return <VideoBackgroundDialog {...dialog} />
-        else if (dialog.type === DialogTypes.INVITE) return <InviteDialog {...dialog} />
-        else if (dialog.type === DialogTypes.START_RECORDING) return <StartRecordingDialog {...dialog} />
-        else if (dialog.type === DialogTypes.RECORDING_NOT_STARTED) return <NotAbleToStartRecordingDialog {...dialog} />
+      {dialogs.map((dialog, index) => {
+        const key = dialog.id ?? `${dialog.type}-${index}`
+        switch (dialog.type) {
+          case DialogTypes.CONFIRM:
+            return <ConfirmDialog key={key} {...dialog} />
+          case DialogTypes.PREVIEW:
+            return <PreviewDialog key={key} {...dialog} />
+          case DialogTypes.IO_SETTINGS:
+            return <IOSettingsDialog key={key} {...dialog} />
+          case DialogTypes.IO_DEVICES:
+            return <IODevicesDialog key={key} {...dialog} />
+          case DialogTypes.VIDEO_BACKGROUND:
+            return <VideoBackgroundDialog key={key} {...dialog} />
+          case DialogTypes.INVITE:
+            return <InviteDialog key={key} {...dialog} />
+          case DialogTypes.START_RECORDING:
+            return <StartRecordingDialog key={key} {...dialog} />
+          case DialogTypes.RECORDING_NOT_STARTED:
+            return <NotAbleToStartRecordingDialog key={key} {...dialog} />
+        }
       })}
     </>
   )
 }
+
 
 export enum DialogTypes {
   CONFIRM = "confirm",

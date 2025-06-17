@@ -213,7 +213,25 @@ export const onStopStream = async (stream) => {
 }
 
 export const onInviteToStage = (participant: any) => {
+    if (meetingStore.sparkRTC.raiseHands.length >= meetingStore.sparkRTC.maxRaisedHands) {
+        //fixme
+        // makeDialog('info', {
+        //     message: 'The stage is already full. try again later.',
+        //     icon: 'Close',
+        //     variant: 'danger',
+        // })
+    } else {
+        //send invite
+        logger.log('Send Intitation to ', participant)
+        meetingStore.sparkRTC.inviteToStage(participant.userId)
+        setUserActionLoading(participant.userId, true)
 
+        //fixme
+        // makeDialog('info', {
+        //     message: `You've sent the request.`,
+        //     icon: 'Check',
+        // })
+    }
 }
 
 export const onUserRaisedHand = (userId, raisedHand, actionLoading: boolean, acceptRaiseHand?: any) => {
@@ -396,10 +414,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
         if (displayName[0] !== '@') return <PageNotFound />
     }
 
+    const [socketIsSetupForHost, setSocketIsSetupForHost] = useState(false)
+
 
 
     useEffect(() => {
-        logger.log("Hook t setup cam")
+        logger.log("Hook to setup cam: meetingStatus: ", meetingStore.meetingStatus, " meetingIsEnded: ", meetingStore.meetingIsEnded)
 
         const fetchData = async () => {
 
@@ -590,6 +610,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             //restart for broadcaster [zaid]
                             if (role === Roles.BROADCAST) {
                                 if (closeSocket) {
+                                    logger.log("setupSignalingSocket for HOST Restarting")
                                     await setupSignalingSocket(host, name, room, meetingStore.isDebugMode)
                                 }
                                 else {
@@ -649,6 +670,8 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                     startAgain: async () => {
                         if (meetingStore.sparkRTC) {
+                            logger.log("setupSignalingSocket for StartAgain")
+
                             //Init socket and start sparkRTC
                             await setupSignalingSocket(host, name, room, meetingStore.isDebugMode)
                         }
@@ -661,11 +684,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                         if (!isStreamming) {
                             meetingStore.sparkRTC.onRaiseHandRejected()
-                            makeDialog('info', {
-                                message: 'You’ve been Rejected',
-                                icon: 'Close',
-                                variant: 'danger',
-                            })
+                            //fixme
+                            // makeDialog('info', {
+                            //     message: 'You’ve been Rejected',
+                            //     icon: 'Close',
+                            //     variant: 'danger',
+                            // })
                             updateUser({
                                 ableToRaiseHand: true,
                             })
@@ -687,10 +711,11 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                         ableToRaiseHand: true,
                                     })
                                     meetingStore.sparkRTC.joinStage(data)
-                                    makeDialog('info', {
-                                        message: 'You’ve been added to the stage',
-                                        icon: 'Check',
-                                    })
+                                    //fixme
+                                    // makeDialog('info', {
+                                    //     message: 'You’ve been added to the stage',
+                                    //     icon: 'Check',
+                                    // })
 
                                     //send user mute status to everyone to update the Ui
                                     setTimeout(() => {
@@ -723,15 +748,17 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             isMicrophoneOn: true,
                             isCameraOn: true,
                         })
-                        makeDialog('info', {
-                            message: 'You just removed from stage',
-                            icon: 'Close',
-                            variant: 'danger',
-                        })
+                        //fixme
+                        // makeDialog('info', {
+                        //     message: 'You just removed from stage',
+                        //     icon: 'Close',
+                        //     variant: 'danger',
+                        // })
                         meetingStore.sparkRTC.leaveStage()
                     },
                     maxLimitReached: (message) => {
-                        makeDialog('info', { message, icon: 'Close' })
+                        //fixme
+                        // makeDialog('info', { message, icon: 'Close' })
                         updateUser({
                             isStreamming: false,
                             ableToRaiseHand: true,
@@ -800,11 +827,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         })
                     },
                     parentDcMessage: () => {
-                        makeDialog('info', {
-                            message: `For some unexpected reason, you've gotten disconnected. please wait some seconds to reconnect again.`,
-                            icon: 'Close',
-                            variant: 'danger',
-                        })
+                        //fixme
+                        // makeDialog('info', {
+                        //     message: `For some unexpected reason, you've gotten disconnected. please wait some seconds to reconnect again.`,
+                        //     icon: 'Close',
+                        //     variant: 'danger',
+                        // })
                     },
                     userLoweredHand: (data, name) => {
                         //@ts-ignore
@@ -825,11 +853,12 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
 
                         if (name) {
-                            makeDialog('info', {
-                                message: `${name} has rejected your request to join stage.`,
-                                icon: 'Close',
-                                variant: 'danger',
-                            })
+                            //fixme
+                            // makeDialog('info', {
+                            //     message: `${name} has rejected your request to join stage.`,
+                            //     icon: 'Close',
+                            //     variant: 'danger',
+                            // })
                         }
                     },
 
@@ -838,51 +867,73 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         //show preview dialog to Join stage
                         const localStream = await meetingStore.sparkRTC.getAccessToLocalStream()
 
-                        previewDialogId = makePreviewDialog(
-                            true,
-                            DialogTypes.PREVIEW,
-                            localStream,
-                            {
-                                message: 'The host has <strong>invited you</strong> to come on stage. Set the default state of your “Video” and “Audio” before joining, please.',
-                                title: 'Are You Ready To Join?',
-                                yesButton: 'Join Now',
-                                noButton: 'Not Now!',
-                            },
-                            () => {
-                                //onOk
-                                updateUser({
-                                    isStreamming: true,
-                                    ableToRaiseHand: true,
-                                })
-                                meetingStore.sparkRTC.joinStage(msg.data)
-                                makeDialog('info', {
-                                    message: 'You’ve been added to the stage',
-                                    icon: 'Check',
-                                })
+                        //onOk
+                        updateUser({
+                            isStreamming: true,
+                            ableToRaiseHand: true,
+                        })
+                        meetingStore.sparkRTC.joinStage(msg.data)
+                        //fixme
+                        // makeDialog('info', {
+                        //     message: 'You’ve been added to the stage',
+                        //     icon: 'Check',
+                        // })
 
-                                //send user mute status to everyone to update the Ui
-                                setTimeout(() => {
-                                    if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
-                                        meetingStore.sparkRTC.sendAudioStatus(false)
-                                    } else {
-                                        meetingStore.sparkRTC.sendAudioStatus(true)
-                                    }
-                                }, 2000)
-                            },
-                            () => {
-                                logger.log('audience-broadcasting cancelling..')
-                                //onClose
-                                updateUser({
-                                    ableToRaiseHand: true,
-                                    isMicrophoneOn: true,
-                                    isCameraOn: true,
-                                })
-
-                                meetingStore.sparkRTC.resetAudioVideoState()
-                                meetingStore.sparkRTC.cancelJoinStage(msg.data, true)
-                                meetingStore.sparkRTC.onRaiseHandRejected()
+                        //send user mute status to everyone to update the Ui
+                        setTimeout(() => {
+                            if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
+                                meetingStore.sparkRTC.sendAudioStatus(false)
+                            } else {
+                                meetingStore.sparkRTC.sendAudioStatus(true)
                             }
-                        )
+                        }, 2000)
+
+                        //FIXME
+                        // previewDialogId = makePreviewDialog(
+                        //     true,
+                        //     DialogTypes.PREVIEW,
+                        //     localStream,
+                        //     {
+                        //         message: 'The host has <strong>invited you</strong> to come on stage. Set the default state of your “Video” and “Audio” before joining, please.',
+                        //         title: 'Are You Ready To Join?',
+                        //         yesButton: 'Join Now',
+                        //         noButton: 'Not Now!',
+                        //     },
+                        //     () => {
+                        //         //onOk
+                        //         updateUser({
+                        //             isStreamming: true,
+                        //             ableToRaiseHand: true,
+                        //         })
+                        //         meetingStore.sparkRTC.joinStage(msg.data)
+                        //         makeDialog('info', {
+                        //             message: 'You’ve been added to the stage',
+                        //             icon: 'Check',
+                        //         })
+
+                        //         //send user mute status to everyone to update the Ui
+                        //         setTimeout(() => {
+                        //             if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
+                        //                 meetingStore.sparkRTC.sendAudioStatus(false)
+                        //             } else {
+                        //                 meetingStore.sparkRTC.sendAudioStatus(true)
+                        //             }
+                        //         }, 2000)
+                        //     },
+                        //     () => {
+                        //         logger.log('audience-broadcasting cancelling..')
+                        //         //onClose
+                        //         updateUser({
+                        //             ableToRaiseHand: true,
+                        //             isMicrophoneOn: true,
+                        //             isCameraOn: true,
+                        //         })
+
+                        //         meetingStore.sparkRTC.resetAudioVideoState()
+                        //         meetingStore.sparkRTC.cancelJoinStage(msg.data, true)
+                        //         meetingStore.sparkRTC.onRaiseHandRejected()
+                        //     }
+                        // )
                     },
                     updateVideosMuteStatus: (muted) => {
                         if (muted) {
@@ -911,12 +962,14 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                 })
 
                 if (meetingStore.sparkRTC && role == Roles.AUDIENCE) {
+                    logger.log("setupSignalingSocket for Audience")
+
                     //Init socket and start sparkRTC
                     await setupSignalingSocket(host, name, room, meetingStore.isDebugMode)
                 }
             }
 
-            if (meetingStore.meetingStatus) {
+            if (meetingStore.meetingStatus && !socketIsSetupForHost) {
 
                 logger.log("Giooing to setup for host")
                 // if (meetingStore.sparkRTC) {
@@ -939,7 +992,11 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                     // showPreviewDialog(stream, host, name, room)
 
+                    logger.log("setupSignalingSocket for HOST")
+
                     await setupSignalingSocket(host, name, room, null)
+
+                    setSocketIsSetupForHost(true)
 
                     // //send user mute status to everyone to update the Ui
                     // setTimeout(() => {
@@ -1035,6 +1092,7 @@ function showPreviewDialog(str, host, name, room) {
         },
         async () => {
             //onOK
+            logger.log("setupSignalingSocket for HOST Preview dialog")
 
             await setupSignalingSocket(host, name, room, null)
 
@@ -1055,6 +1113,8 @@ function showPreviewDialog(str, host, name, room) {
             })
             await meetingStore.sparkRTC.closeCamera(); //reset io devices
             await meetingStore.sparkRTC.resetAudioVideoState()
+            logger.log("setupSignalingSocket for preview dialog 2")
+
             await setupSignalingSocket(host, name, room, null)
         }
     )

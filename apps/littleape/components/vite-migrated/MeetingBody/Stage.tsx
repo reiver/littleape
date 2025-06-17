@@ -743,7 +743,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                                 </IconButton>
                                 {isHost && !isHostStream && (
                                     <IconButton onClick={handleOpenMenu} ref={menu} variant="nothing" className="w-[30px] h-[30px] p-0">
-                                        <Icon icon={verticalDots} width="20px" height="20px" />
+                                        <Icon icon={<verticalDots />} width="20px" height="20px" />
 
                                         {menuOpen && (
                                             <div className="absolute z-10 top-full right-0 h-full w-full">

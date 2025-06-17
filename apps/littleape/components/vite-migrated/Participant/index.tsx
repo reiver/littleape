@@ -53,7 +53,6 @@ const isMobile = false //window.self == window.top && window.parent.outerWidth <
 
 const Participant = ({ participant }) => {
     const snap = useSnapshot(meetingStore)
-    logger.log(participant)
 
     const handleRaiseHand = () => {
         //check multiple scenarios

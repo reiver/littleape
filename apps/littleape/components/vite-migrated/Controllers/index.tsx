@@ -60,7 +60,6 @@ export const Controllers = () => {
     const snap = useSnapshot(meetingStore);
 
     const { isHost, showControllers, hasCamera, hasMic, ableToRaiseHand, sharingScreenStreamId, isStreamming, isCameraOn, isMicrophoneOn, isMeetingMuted, isRecordingStarted } = snap.currentUser
-    logger.log('this user', isStreamming)
     const toggleMuteMeeting = () => {
         updateUser({
             isMeetingMuted: !isMeetingMuted,

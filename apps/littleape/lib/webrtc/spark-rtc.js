@@ -59,8 +59,8 @@ export class SparkRTC {
     audio: true,
     video: true,
   };
-  parentDC = true;
-  broadcasterDC = true;
+  parentDC = false;
+  broadcasterDC = false;
   leftMeeting = false;
 
   defaultSpeaker = null;
