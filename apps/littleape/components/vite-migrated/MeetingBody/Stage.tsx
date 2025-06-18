@@ -447,16 +447,16 @@ export const Stage = ({ customStyles }) => {
                             <div className="flex w-full h-full">
                                 {shareScreenStreamer && (
                                     <div className="flex items-center justify-center gap-4" style={{ width: '70%' }}>
-                                        <VideoCard attendee={shareScreenStreamer}  customStyles={customStyles}/>
+                                        <VideoCard attendee={shareScreenStreamer} customStyles={customStyles} />
                                     </div>
 
-                                )}  
+                                )}
 
                                 <div className={clsx(
                                     shareScreenStreamer ? '' : 'w-full',
                                     'flex flex-wrap justify-center items-center gap-4'
                                 )}
-                                style={shareScreenStreamer ? { width: '30%' } : {}}
+                                    style={shareScreenStreamer ? { width: '30%' } : {}}
                                 >
                                     {otherStreamers.map((attendee) => (
                                         <VideoCard key={attendee.streamId} attendee={attendee} customStyles={customStyles} />
@@ -503,7 +503,7 @@ const VideoCard = ({ attendee, customStyles }) => {
     const stream = rawStreams.get(attendee.streamId);
     const snap = useSnapshot(meetingStore);
     const muted = attendee.isLocalStream || snap.currentUser.isMeetingMuted;
-
+    logger.log("snap.currentUser.isMeetingMuted: ", snap.currentUser.isMeetingMuted)
     return (
         <div
             key={attendee.streamId}
@@ -525,7 +525,7 @@ const VideoCard = ({ attendee, customStyles }) => {
                 e.stopPropagation();
             }}
         >
-            
+
             <Video
                 stream={stream}
                 userId={attendee.userId}
@@ -545,12 +545,9 @@ const VideoCard = ({ attendee, customStyles }) => {
 
 export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUserMuted, isShareScreen, toggleScreen, displayId, customStyles }: any) => {
 
-    logger.log('stream type:', typeof stream, stream);
-
-
     const snap = useSnapshot(meetingStore)
 
-    const [muted, setMuted] = useState(true)
+    const [muted, setMuted] = useState(isMuted)
     const { isHost } = snap.currentUser
     const menu = useRef<any>()
     const videoRef = useRef<HTMLVideoElement>()
@@ -637,11 +634,6 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
         }
     }, [stream])
 
-    useEffect(() => {
-        if (snap.userInteractedWithDom) {
-            setMuted(isMuted)
-        }
-    }, [snap.userInteractedWithDom, isMuted])
     useEffect(() => {
         videoRef.current.playsInline = true
         // videoRef.current.play();

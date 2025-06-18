@@ -69,6 +69,9 @@ export const Controllers = () => {
     const handleShareScreen = async () => {
         if (!sharingScreenStreamId) {
             const stream = await snap.sparkRTC.startShareScreen()
+            if (stream == null || stream == undefined) {
+                return
+            }
             onStartShareScreen(stream)
             updateUser({
                 sharingScreenStreamId: stream.id,
@@ -243,7 +246,7 @@ export const MoreControllers = () => {
             })
 
             //save share screen stream
-            rawStreams.set(stream.id,stream)
+            rawStreams.set(stream.id, stream)
 
         } else {
             const stream = rawStreams.get(sharingScreenStreamId)
