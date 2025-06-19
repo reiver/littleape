@@ -4,6 +4,12 @@ import { SparkRTC } from './webrtc/spark-rtc';
 export const rawStreams = new Map<string, MediaStream>();
 
 export const meetingStore = proxy({
+    TopWindowURL:null as any,
+    selectedImage:null as any,
+    thumbnailUrl:null as any,
+    selectedCssFile:null as any,
+    selectedImageFile:null as any,
+    cssList:null as any,
     deviceSize:'md',
     attendeesWidth:0,
     userInteractedWithDom:false,

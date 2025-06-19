@@ -52,6 +52,10 @@ const TestPage = () => {
         meetingStartTime = time
     }
 
+    var isHost = true
+    if (role == "audience") {
+        isHost = false
+    }
 
     return (
         <div
@@ -64,7 +68,7 @@ const TestPage = () => {
                     name: name.toString(),
                     room: room.toString(),
                     meetingStartTime: meetingStartTime,
-                    userRole: role.toString()
+                    isHost: isHost
                 }}
             />
 

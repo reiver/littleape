@@ -16,6 +16,8 @@ import { useAuthStore } from "store";
 import { SWRConfig } from "swr";
 import "../styles/global.css";
 import "../styles/styles.css";
+import { muiTheme } from "theme";
+import { ThemeProvider } from "@mui/material/styles";
 
 const config = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -32,28 +34,30 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <AuthKitProvider config={config}>
-      <WalletProvider>
-        <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
-          <SWRConfig
-            value={{
-              provider: () => new Map(),
-              fetcher,
-              revalidateOnFocus: false,
-              revalidateIfStale: false,
-              fallback: {
-                [API_PROFILE]: pageProps.user,
-                ...pageProps.swrFallback,
-              },
-            }}
-          >
-            <ChakraProvider theme={theme}>
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </SWRConfig>
-        </ThirdwebProvider>
-      </WalletProvider>
-    </AuthKitProvider>
+    <ThemeProvider theme={muiTheme}>
+      <AuthKitProvider config={config}>
+        <WalletProvider>
+          <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
+            <SWRConfig
+              value={{
+                provider: () => new Map(),
+                fetcher,
+                revalidateOnFocus: false,
+                revalidateIfStale: false,
+                fallback: {
+                  [API_PROFILE]: pageProps.user,
+                  ...pageProps.swrFallback,
+                },
+              }}
+            >
+              <ChakraProvider theme={theme}>
+                <Component {...pageProps} />
+              </ChakraProvider>
+            </SWRConfig>
+          </ThirdwebProvider>
+        </WalletProvider>
+      </AuthKitProvider>
+    </ThemeProvider>
 
   );
 }

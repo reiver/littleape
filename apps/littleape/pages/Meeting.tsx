@@ -279,14 +279,9 @@ export const getUserRaiseHandStatus = (userId) => {
     return meetingStore.attendees[userId]?.raisedHand || false
 }
 
-const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime, userRole } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any; userRole?: string } }) => {
+const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStartTime, isHost } }: { params?: { room?: string; displayName?: string; name?: string, _customStyles?: any; meetingStartTime?: any; isHost?: Boolean } }) => {
     const snap = useSnapshot(meetingStore)
 
-    var isHost = true//!!displayName
-
-    if (userRole == "audience") {
-        isHost = false
-    }
 
     useEffect(() => {
         detectKeyPress(keyPressCallback)
