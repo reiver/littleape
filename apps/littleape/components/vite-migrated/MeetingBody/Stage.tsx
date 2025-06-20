@@ -111,14 +111,15 @@ let iw = getItemsWidth(
 )
 
 const getVideoDimensions = (attendee) => {
-    let width, height;
     const availableHeight = meetingStore.windowHeight - topBarBottomBarHeight();
 
     if (hasFullScreenedStream()) {
-        if (attendee.stream?.id === meetingStore.fullScreenedStream) {
-            return { width: '100%', height: `${availableHeight}px` };
+        if (attendee.streamId === meetingStore.fullScreenedStream) {
+            const wh = { width: '100%', height: `${availableHeight}px` }
+            return wh;
         } else {
-            return { width: '0px', height: '0px' };
+            const wh = { width: '0px', height: '0px' };
+            return wh;
         }
     }
 
@@ -134,7 +135,7 @@ const getVideoDimensions = (attendee) => {
         iw = stageWidth() / 2;
     }
 
-    height = (iw * 9) / 16;
+    let height = (iw * 9) / 16;
     const wh = { width: `${iw}px`, height: `${height}px` };
     return wh
 };
@@ -331,27 +332,27 @@ export const Stage = ({ customStyles }) => {
     //     return () => clearInterval(intervalId);
     // }, []);
 
-    const sortStreamers = (a, b) => {
-        if (customStyles) {
-            if (a.position && b.position && a.position != undefined && b.position != undefined) {
-                return a.position - b.position;
-            }
-            return 0;
-        } else {
-            logger.log("Original Sorting Logic: aHost is: ", a.isHost, " bHost is: ", b.isHost, " a screen: ", a.isShareScreen, " b screen: ", b.isShareScreen)
+    // const sortStreamers = (a, b) => {
+    //     if (customStyles) {
+    //         if (a.position && b.position && a.position != undefined && b.position != undefined) {
+    //             return a.position - b.position;
+    //         }
+    //         return 0;
+    //     } else {
+    //         logger.log("Original Sorting Logic: aHost is: ", a.isHost, " bHost is: ", b.isHost, " a screen: ", a.isShareScreen, " b screen: ", b.isShareScreen)
 
 
-            //original Logic
-            let aScore = 0
-            let bScore = 0
-            if (a.isHost) aScore += 10
-            if (a.isShareScreen) aScore += 20
-            if (b.isHost) bScore += 10
-            if (b.isShareScreen) bScore += 20
-            return bScore - aScore
-        }
+    //         //original Logic
+    //         let aScore = 0
+    //         let bScore = 0
+    //         if (a.isHost) aScore += 10
+    //         if (a.isShareScreen) aScore += 20
+    //         if (b.isHost) bScore += 10
+    //         if (b.isShareScreen) bScore += 20
+    //         return bScore - aScore
+    //     }
 
-    }
+    // }
 
     const allStreamers = Object.values(snap.streamers);
     const shareScreenStreamer = allStreamers.find(s => s.isShareScreen);
@@ -444,7 +445,7 @@ export const Stage = ({ customStyles }) => {
                                 })} */}
 
                             {/* Alternative to map block */}
-                            <div className="flex w-full h-full">
+                            <div className="flex flex-col sm:flex-row w-full h-full">
                                 {shareScreenStreamer && (
                                     <div className="flex items-center justify-center gap-4" style={{ width: '70%' }}>
                                         <VideoCard attendee={shareScreenStreamer} customStyles={customStyles} />
@@ -573,6 +574,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
             meetingStore.fullScreenedStream = null
         } else meetingStore.fullScreenedStream = stream.id
 
+        logger.log("FullScreen is:", meetingStore.fullScreenedStream)
         //hide tooltips
         setHoveredOnFullScreenIcon(false)
 
