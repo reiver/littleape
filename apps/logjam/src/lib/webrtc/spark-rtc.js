@@ -259,7 +259,8 @@ export class SparkRTC {
     );
   };
 
-  joinStage = async (data) => {
+  joinStage = async (targetReceiver, data) => {
+    console.log(`[target_receiver] ${targetReceiver}`)
     await this.startBroadcasting("alt-broadcast");
 
     this.lastBroadcasterId = data.toString();
@@ -273,7 +274,7 @@ export class SparkRTC {
           joinedStage: true,
         })
       );
-      this.sendStreamTo(data, this.localStream);
+      this.sendStreamTo(targetReceiver, this.localStream);
     }
   };
 
@@ -434,7 +435,7 @@ export class SparkRTC {
           this.broadcastingApproved = true;
           //show preview
           if (this.altBroadcastApprove) {
-            this.altBroadcastApprove(msg.result, msg.data);
+            this.altBroadcastApprove(msg.result, msg.data, msg.goldgorillaID);
           }
         }
         break;

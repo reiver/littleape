@@ -553,7 +553,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles } }: { param
               await setupSignalingSocket(host, name, room, isDebugMode.value)
             }
           },
-          altBroadcastApprove: async (isStreamming, data) => {
+          altBroadcastApprove: async (isStreamming, data, goldgorillaID) => {
             //@ts-ignore
             setUserActionLoading(currentUser.value.userId, false)
 
@@ -586,7 +586,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles } }: { param
                     isStreamming,
                     ableToRaiseHand: true,
                   })
-                  sparkRTC.value.joinStage(data)
+                  sparkRTC.value.joinStage(goldgorillaID ?? data, data)
                   makeDialog('info', {
                     message: 'You’ve been added to the stage',
                     icon: 'Check',
@@ -753,7 +753,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles } }: { param
                   isStreamming: true,
                   ableToRaiseHand: true,
                 })
-                sparkRTC.value.joinStage(msg.data)
+                sparkRTC.value.joinStage(msg.goldgorillaID ?? msg.data, msg.data)
                 makeDialog('info', {
                   message: 'You’ve been added to the stage',
                   icon: 'Check',
