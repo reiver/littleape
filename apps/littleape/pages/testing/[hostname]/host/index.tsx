@@ -32,10 +32,14 @@ import { Tooltip } from 'components/Tooltip'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Cookies from 'js-cookie'
-import { USER_COOKIE } from 'constants/app'
+import { clearCookies, FORCE_LOGIN, USER_COOKIE } from 'constants/app'
 import { HostToastProvider, makeCssFilesDialog, makeMetaImageDialog } from './hostDialogs'
 import { useSnapshot } from 'valtio';
 import { DatePicker, LocalizationProvider, renderTimeViewClock, TimePicker } from '@mui/x-date-pickers'
+import { useToast } from '@chakra-ui/react'
+
+export const isMvpMode = process.env.NEXT_PUBLIC_MVP_MODE === "true"
+export const isFediverseMvpMode = process.env.NEXT_PUBLIC_FEDIVCERSE_MVP_MODE === "true"
 
 const PageNotFound = lazy(() => import('../../../404'))
 var resetThumbnail = false
@@ -140,6 +144,7 @@ export const HostPage = () => {
 
     logger.log("Hostname is: ", hostname)
 
+    const [shouldRedirect, setShouldRedirect] = useState(true)
     const [started, setStarted] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [showProfileModal, setShowProfileModal] = useState(false)
@@ -158,8 +163,45 @@ export const HostPage = () => {
     const [eventTimeInUnix, setEventTimeInUnix] = useState(0)
     const [dateTimeFromUnix, setDateTimeFromUnix] = useState("")
     const [userProfile, setUserProfile] = useState(new User())
+    const [justLoggedOut, setJustLoggedOut] = useState(false)
+
 
     const snap = useSnapshot(meetingStore)
+
+    const toast = useToast();
+
+    let _user = Cookies.get(USER_COOKIE);
+
+    useEffect(() => {
+        if (!hostname) return; // wait until hostname is ready
+
+        const user = _user ? JSON.parse(_user) : null;
+        const prefix = "@";
+        const hostNameWithoutPrefix = hostname.toString()?.startsWith(prefix)
+            ? hostname.slice(prefix.length)
+            : hostname;
+
+        const direct = (isMvpMode || isFediverseMvpMode) &&
+            (!user || user.username !== hostNameWithoutPrefix) && !justLoggedOut;
+
+        setShouldRedirect(direct)
+
+        if (direct) {
+            Cookies.set(FORCE_LOGIN, "true")
+            toast({
+                title: "403 Forbidden access",
+                description: "Please Login to continue using GreatApe",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+
+            router.push("/");
+        } else {
+            Cookies.set(FORCE_LOGIN, "false")
+        }
+    }, [router, _user, hostname, isMvpMode, isFediverseMvpMode]);
+
 
 
     useEffect(() => {
@@ -199,119 +241,6 @@ export const HostPage = () => {
         logger.log("Formated Date: ", formattedDate); // Output: Formated date
 
     }, [selectedDate, selectedTime])
-
-
-    useEffect(() => {
-        if (!displayName) return;
-        if (displayName[0] !== '@') return;
-
-        fetchHostData();
-    }, [displayName]);
-
-
-    useEffect(() => {
-        if (startNewRoomFromIframe && hostLink != "" && audienceLink != "") {
-            logger.log("handleRedirectBackToGreatApe from USE EFECT")
-            handleRedirectBackToGreatApe()
-        }
-    }, [startNewRoomFromIframe, hostLink, audienceLink]);
-
-
-    useEffect(() => {
-        if (showModal || showEventLinksModal) {
-            generateBothUrls()
-        }
-    }, [showModal, showEventLinksModal, form])
-
-    useEffect(() => {
-        if (hostname != undefined) {
-            setRoomName(hostname.toString())
-            setDisplayName(hostname.toString())
-
-            form.setValue('displayName', hostname.toString().replace('@', '')); // ✅ update RHF field
-
-        }
-    }, [hostname])
-
-    if (hostname == null || hostname == undefined) {
-        return <></>
-    }
-
-    if (!displayName.startsWith('@')) {
-        return <PageNotFound />
-    }
-
-
-
-    //handle message from Iframe
-    // useEffect(() => {
-    //     window.addEventListener("message", (event) => {
-    //         logger.log("Got message : ", event)
-    //         if (event.data?.type === "FROMIFRAME") {
-    //             logger.log("TOP Window URL:", event.origin);
-    //             if (event.data?.payload == "start") {
-    //                 //let user to start the meeting
-    //                 meetingStore.TopWindowURL = event.origin
-    //                 setAllowedToStartMeeting(true)
-    //             }
-    //         } else if (event.data?.type === "USERPROFILE") {
-    //             logger.log("GOT USER PROFILE: ", event.data?.payload)
-    //             const _user = event.data?.payload
-    //             const user = _user ? JSON.parse(_user) : null;
-
-    //             setUserProfile(new User(user.name, user.username, user.socialplatform, user.avatar))
-    //             meetingStore.TopWindowURL = event.origin
-    //         }
-    //     });
-    // }, []);
-
-    // if (isInsideIframe()) {
-    //     logger.log("This page is loaded inside an iframe.");
-    // } else {
-    //     logger.log("This page is not loaded inside an iframe.");
-    // }
-
-    // useEffect(() => {
-    //     const hashData = window.location.hash.split("#start-meeting=")[1];
-
-    //     logger.log("data received: ", hashData)
-    //     if (hashData) {
-    //         try {
-    //             const receivedData = JSON.parse(decodeURIComponent(hashData));
-    //             form.setValue("displayName", receivedData.username)
-    //             form.setValue("room", receivedData.roomname);
-    //             meetingStore.TopWindowURL = receivedData.topWindowUrl;
-    //             setStarted(true)
-    //         } catch (error) {
-
-    //         }
-    //         window.location.hash = "";
-    //     }
-
-    // })
-
-    // useEffect(() => {
-    //     // On page load, parse the hash for data
-    //     const hashData = window.location.hash.split("#data=")[1];
-
-    //     if (hashData) {
-    //         try {
-    //             // Decode and parse the received data
-    //             const receivedData = JSON.parse(decodeURIComponent(hashData));
-
-    //             if (receivedData.from == "greatape") {
-    //                 setGaUrl(receivedData.url)
-    //             }
-
-    //             window.location.hash = "";
-    //         } catch (error) {
-    //             logger.error("Failed to parse hash data:", error);
-    //             window.location.hash = "";
-    //         }
-    //     } else {
-    //         logger.log("No data received in URL hash.");
-    //     }
-    // }, [])
 
     //fecth Host From DB
     const fetchHostData = async () => {
@@ -381,9 +310,45 @@ export const HostPage = () => {
         }
     }
 
+    useEffect(() => {
+        if (!displayName) return;
+        if (displayName[0] !== '@') return;
+
+        fetchHostData();
+    }, [displayName]);
 
 
+    useEffect(() => {
+        if (startNewRoomFromIframe && hostLink != "" && audienceLink != "") {
+            logger.log("handleRedirectBackToGreatApe from USE EFECT")
+            handleRedirectBackToGreatApe()
+        }
+    }, [startNewRoomFromIframe, hostLink, audienceLink]);
 
+
+    useEffect(() => {
+        if (showModal || showEventLinksModal) {
+            generateBothUrls()
+        }
+    }, [showModal, showEventLinksModal, form])
+
+    useEffect(() => {
+        if (hostname != undefined) {
+            setRoomName(hostname.toString())
+            setDisplayName(hostname.toString())
+
+            form.setValue('displayName', hostname.toString().replace('@', '')); // ✅ update RHF field
+
+        }
+    }, [hostname])
+
+    if (hostname == null || hostname == undefined || shouldRedirect) {
+        return <></>
+    }
+
+    if (displayName != "" && !displayName.startsWith('@')) {
+        return <PageNotFound />
+    }
 
 
     const onSubmit = async () => {
@@ -552,8 +517,10 @@ export const HostPage = () => {
         logger.log("Logout user: ", gaUrl)
         setShowLogoutModal(false)
         setShowProfileModal(false)
+        setJustLoggedOut(true)
 
-        window.parent.postMessage({ type: "HANDLE_LOGOUT", data: true }, meetingStore.TopWindowURL);
+        clearCookies()
+        router.push("/")
     }
 
     const handleStayLoggedIn = () => {
@@ -589,7 +556,7 @@ export const HostPage = () => {
         )
     }
 
-    if (!started)
+    if (!started && !shouldRedirect)
         return (
             <div className="w-full justify-center items-center px-4 min-h-full flex flex-col min-h-screen">
                 <div className="w-full max-w-[632px] mx-auto mt-10 border rounded-md border-gray-300">
