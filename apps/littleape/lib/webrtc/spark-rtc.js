@@ -1,5 +1,5 @@
 import { iceServers } from "../webrtc/config";
-import { videoBackGround } from "../webrtc/common";
+// import { videoBackGround } from "../webrtc/common";
 import MeetingRecorder from "../meetingRecorder/videoRecorder.js";
 import MultiStreamRecorder from "../meetingRecorder/multiStreamRecorder.js";
 import logger from "../logger/logger";
@@ -2841,9 +2841,11 @@ export class SparkRTC {
 
   closeCamera = async () => {
     logger.log("Closing camera");
-    if (videoBackGround) {
-      await videoBackGround.stopProcessing();
-    }
+    //fixme enable it later
+
+    // if (videoBackGround) {
+    //   await videoBackGround.stopProcessing();
+    // }
 
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => {
