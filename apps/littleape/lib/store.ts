@@ -4,15 +4,17 @@ import { SparkRTC } from './webrtc/spark-rtc';
 export const rawStreams = new Map<string, MediaStream>();
 
 export const meetingStore = proxy({
-    TopWindowURL:null as any,
-    selectedImage:null as any,
-    thumbnailUrl:null as any,
-    selectedCssFile:null as any,
-    selectedImageFile:null as any,
-    cssList:null as any,
-    deviceSize:'md',
-    attendeesWidth:0,
-    userInteractedWithDom:false,
+    hostDialogs: [],
+    selectedFileIndex: null,
+    TopWindowURL: null as any,
+    selectedImage: null as any,
+    thumbnailUrl: null as any,
+    selectedCssFile: null as any,
+    selectedImageFile: null as any,
+    cssList: null as any,
+    deviceSize: 'md',
+    attendeesWidth: 0,
+    userInteractedWithDom: false,
     windowHeight: 0,
     windowWidth: 0,
     bottomBarVisible: true,
@@ -61,7 +63,7 @@ export const meetingStore = proxy({
         isMicrophoneOn: true,
         isCameraOn: true,
         isMeetingMuted: false,
-        sharingScreenStreamId:null,
+        sharingScreenStreamId: null,
         ableToRaiseHand: true,
         hasMic: true,
         hasCamera: true,
@@ -87,9 +89,9 @@ export const meetingStore = proxy({
 
 
 export const isRecordingInProgress = () => {
-  return (
-    meetingStore.meetingStatus &&
-    meetingStore.broadcastIsInTheMeeting &&
-    meetingStore.recordingStatus
-  )
+    return (
+        meetingStore.meetingStatus &&
+        meetingStore.broadcastIsInTheMeeting &&
+        meetingStore.recordingStatus
+    )
 }

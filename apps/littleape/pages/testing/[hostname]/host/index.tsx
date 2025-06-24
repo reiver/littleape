@@ -5,9 +5,7 @@ import LinkIcon from '../../../../public/vite-migrated/icons/Link.svg'
 import CalenderIcon from '../../../../public/vite-migrated/icons/Calendar.svg'
 import ClockIcon from '../../../../public/vite-migrated/icons/Clock.svg'
 
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { LocalizationProvider, renderTimeViewClock, TimePicker } from '@mui/x-date-pickers';
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import LogoIcon from '../../../../public/vite-migrated/images/Greatapelogo.png'
 import Logo from '../../../../public/vite-migrated/images/logo.svg'
@@ -35,6 +33,9 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Cookies from 'js-cookie'
 import { USER_COOKIE } from 'constants/app'
+import { HostToastProvider, makeCssFilesDialog, makeMetaImageDialog } from './hostDialogs'
+import { useSnapshot } from 'valtio';
+import { DatePicker, LocalizationProvider, renderTimeViewClock, TimePicker } from '@mui/x-date-pickers'
 
 const PageNotFound = lazy(() => import('../../../404'))
 var resetThumbnail = false
@@ -158,6 +159,9 @@ export const HostPage = () => {
     const [dateTimeFromUnix, setDateTimeFromUnix] = useState("")
     const [userProfile, setUserProfile] = useState(new User())
 
+    const snap = useSnapshot(meetingStore)
+
+
     useEffect(() => {
         const userFromCookie = Cookies.get(USER_COOKIE)
 
@@ -168,7 +172,9 @@ export const HostPage = () => {
                 return
             }
             logger.log("User object is: ", userObj)
-            setUserProfile(userObj)
+            setUserProfile(
+                new User(userObj.name, userObj.username, userObj.socialplatform, userObj.avatar)
+            )
 
         }
     }, [])
@@ -482,64 +488,64 @@ export const HostPage = () => {
 
     const showCssFilesDialog = (cssFiles) => {
 
-        logger.log("inside showCssFilesDialog")
+        logger.log("inside showCssFilesDialog: ", cssFiles)
         //fixme
-        // makeCssFilesDialog(
-        //   cssFiles,
-        //   hostId,
-        //   oldIndex,
-        //   'css-files',
-        //   {
-        //     title: 'Layout',
-        //   },
-        //   async () => {
+        makeCssFilesDialog(
+            cssFiles,
+            hostId,
+            oldIndex,
+            'css-files',
+            {
+                title: 'Layout',
+            },
+            async () => {
 
-        //   },
-        //   async (cssFile, index) => {
-        //     oldIndex = index
-        //     meetingStore.selectedCssFile = cssFile
-        //     logger.log("Selected CSS FILE: ", meetingStore.selectedCssFile)
-        //     if (meetingStore.selectedCssFile != null) {
-        //       customStyles = meetingStore.selectedCssFile.style
-        //     } else {
-        //       customStyles = null;
-        //     }
+            },
+            async (cssFile, index) => {
+                oldIndex = index
+                meetingStore.selectedCssFile = cssFile
+                logger.log("Selected CSS FILE: ", meetingStore.selectedCssFile)
+                if (meetingStore.selectedCssFile != null) {
+                    customStyles = meetingStore.selectedCssFile.style
+                } else {
+                    customStyles = null;
+                }
 
-        //     //fetch latest css files
-        //     meetingStore.cssList = await pbApi.getFullListOfCssBYHostId(hostId)
-        //   }
-        // )
+                //fetch latest css files
+                meetingStore.cssList = await pbApi.getFullListOfCssBYHostId(hostId)
+            }
+        )
     }
 
     const showMetaImageDialog = (oldImage) => {
         logger.log("Inside showMetaImageDialog")
 
         //fixme
-        // makeMetaImageDialog(
-        //   oldImage,
-        //   'meta-image',
-        //   {
-        //     title: 'Room Link Thumbnail',
-        //   },
-        //   async () => {
+        makeMetaImageDialog(
+            oldImage,
+            'meta-image',
+            {
+                title: 'Room Link Thumbnail',
+            },
+            async () => {
 
-        //   },
-        //   async (image, imageFile) => {
-        //     logger.log("selectedImage: ", image)
-        //     logger.log("thumbnailUrl: ", meetingStore.thumbnailUrl)
+            },
+            async (image, imageFile) => {
+                logger.log("selectedImage: ", image)
+                logger.log("thumbnailUrl: ", meetingStore.thumbnailUrl)
 
-        //     meetingStore.selectedImage = image
-        //     meetingStore.selectedImageFile = imageFile
+                meetingStore.selectedImage = image
+                meetingStore.selectedImageFile = imageFile
 
-        //     if (meetingStore.selectedImage == null) {
-        //       resetThumbnail = true
-        //     } else {
-        //       resetThumbnail = false
-        //     }
+                if (meetingStore.selectedImage == null) {
+                    resetThumbnail = true
+                } else {
+                    resetThumbnail = false
+                }
 
-        //     meetingStore.thumbnailUrl = null
-        //   }
-        // )
+                meetingStore.thumbnailUrl = null
+            }
+        )
     }
 
     const handleLogout = () => {
@@ -589,14 +595,28 @@ export const HostPage = () => {
                 <div className="w-full max-w-[632px] mx-auto mt-10 border rounded-md border-gray-300">
                     <form className="flex flex-col w-full">
                         <div className="flex items-center justify-between mt-3 px-4">
-                            {/* Left: Profile Image */}
-                            <ProfileButton onClick={() => {
-                                logger.log("Profile Button clicked")
-                                setShowProfileModal(true)
-                            }}>
-                                <Avatar />
-                            </ProfileButton>
-                            {/* Center: Logo */}
+
+                            {userProfile.image ? (
+                                <img
+                                    src={userProfile.image}
+                                    alt="User Avatar"
+                                    width={45}
+                                    height={45}
+                                    className="rounded-full object-cover cursor-pointer"
+                                    onClick={() => {
+                                        logger.log("Profile Button clicked")
+                                        setShowProfileModal(true)
+                                    }}
+                                />
+                            ) : (
+                                <ProfileButton onClick={() => {
+                                    logger.log("Profile Button clicked")
+                                    setShowProfileModal(true)
+                                }}>
+                                    <Avatar />
+                                </ProfileButton>
+                            )}
+
                             <Logo className="h-[24px] w-[93px]" />
 
                             {/* Right: Empty div to balance layout */}
@@ -641,8 +661,13 @@ export const HostPage = () => {
                                 <div className="my-0 flex items-center justify-between relative h-8">
                                     <div className={clsx('text-bold-12 text-gray-3')}>Layout</div>
                                     <div className="text-bold-12 text-gray-1 cursor-pointer float-right cursor-pointer" onClick={() => {
-                                        logger.log("CSS LIST: ", meetingStore.cssList)
-                                        showCssFilesDialog(meetingStore.cssList)
+                                        if (snap.cssList != null && snap.cssList != undefined) {
+                                            const cssList = Object.values(snap.cssList)
+                                            logger.log("CSS LIST: ", cssList)
+                                            showCssFilesDialog(cssList)
+                                        } else {
+                                            showCssFilesDialog([])
+                                        }
                                     }}>{meetingStore.selectedCssFile != null ? meetingStore.selectedCssFile.name : 'Default'} </div>
                                 </div>
                                 <hr className="h-px my-0" />
@@ -676,15 +701,24 @@ export const HostPage = () => {
                         <div className="p-5 flex flex-col gap-5 pb-6">
                             <span className="text-bold-12 text-gray-2">Logged in as:</span>
                         </div>
+                        {
+                            logger.log("Image for USER is: ", userProfile.image)
+                        }
                         <div className="flex items-center space-x-3 mx-4">
-                            {
-                                userProfile.image &&
-                                <img src={userProfile.image} className="h-[45px] w-[45px] rounded-full object-cover" />
-                            }
+                            {userProfile.image ? (
+                                <img
+                                    src={userProfile.image}
+                                    alt="User Avatar"
+                                    width={45}
+                                    height={45}
+                                    className="rounded-full object-cover"
+                                />
+                            ) : (
+                                <ProfileButton>
+                                    <Avatar />
+                                </ProfileButton>
+                            )}
 
-                            {
-                                !userProfile.image && <ProfileButton> <Avatar /></ProfileButton>
-                            }
 
                             <div className="flex flex-col justify-center">
                                 <div className="flex space-x-2 items-center sm:w-[500px]">
@@ -742,78 +776,78 @@ export const HostPage = () => {
                                 <div className="flex flex-col gap-5">
                                     <div className="flex flex-col gap-3">
 
-                                        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <FormControl className="w-full">
-                        <DatePicker
-                          slotProps={{
-                            popper: { disablePortal: true },
-                            dialog: { disablePortal: true },
-                          }}
-                          label="Date"
-                          value={selectedDate}
-                          onChange={(newValue) => {
-                            setSelectedDate(newValue)
-                            logger.log("Selected date is: ", newValue)
-                          }}
-                          minDate={dayjs()}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              size="small"
-                              placeholder="MM/DD/YY"
-                              error={!!eventForm.formState.errors.date}
-                              helperText={eventForm.formState.errors.date?.message}
-                              InputProps={{
-                                ...params.InputProps,
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <CalenderIcon />
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          )}
-                        />
-                      </FormControl>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <FormControl className="w-full">
+                                                <DatePicker
+                                                    slotProps={{
+                                                        popper: { disablePortal: true },
+                                                        dialog: { disablePortal: true },
+                                                    }}
+                                                    label="Date"
+                                                    value={selectedDate}
+                                                    onChange={(newValue) => {
+                                                        setSelectedDate(newValue)
+                                                        logger.log("Selected date is: ", newValue)
+                                                    }}
+                                                    minDate={dayjs()}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            size="small"
+                                                            placeholder="MM/DD/YY"
+                                                            error={!!eventForm.formState.errors.date}
+                                                            helperText={eventForm.formState.errors.date?.message}
+                                                            InputProps={{
+                                                                ...params.InputProps,
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <CalenderIcon />
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    )}
+                                                />
+                                            </FormControl>
 
-                      <FormControl className="w-full">
-                        <TimePicker
-                          viewRenderers={{
-                            hours: renderTimeViewClock,
-                            minutes: renderTimeViewClock,
-                            seconds: renderTimeViewClock,
-                          }}
-                          slotProps={{
-                            popper: { disablePortal: true },
-                            dialog: { disablePortal: true },
-                          }}
-                          format="hh:mm A"
-                          label="Time"
-                          value={selectedTime}
-                          onChange={(newValue) => {
-                            setSelectedTime(newValue)
-                            logger.log("Selected time is: ", newValue)
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              size="small"
-                              placeholder="HH:MM"
-                              error={!!eventForm.formState.errors.time}
-                              helperText={eventForm.formState.errors.time?.message}
-                              InputProps={{
-                                ...params.InputProps,
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <ClockIcon />
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          )}
-                        />
-                      </FormControl>
-                    </LocalizationProvider> */}
+                                            <FormControl className="w-full">
+                                                <TimePicker
+                                                    viewRenderers={{
+                                                        hours: renderTimeViewClock,
+                                                        minutes: renderTimeViewClock,
+                                                        seconds: renderTimeViewClock,
+                                                    }}
+                                                    slotProps={{
+                                                        popper: { disablePortal: true },
+                                                        dialog: { disablePortal: true },
+                                                    }}
+                                                    format="hh:mm A"
+                                                    label="Time"
+                                                    value={selectedTime}
+                                                    onChange={(newValue) => {
+                                                        setSelectedTime(newValue)
+                                                        logger.log("Selected time is: ", newValue)
+                                                    }}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            size="small"
+                                                            placeholder="HH:MM"
+                                                            error={!!eventForm.formState.errors.time}
+                                                            helperText={eventForm.formState.errors.time?.message}
+                                                            InputProps={{
+                                                                ...params.InputProps,
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <ClockIcon />
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    )}
+                                                />
+                                            </FormControl>
+                                        </LocalizationProvider>
 
                                     </div>
 
@@ -851,8 +885,7 @@ export const HostPage = () => {
                     <Footer />
                 </div>
 
-                {/* fixme */}
-                {/* <HostToastProvider /> */}
+                <HostToastProvider />
 
             </div>
         )
