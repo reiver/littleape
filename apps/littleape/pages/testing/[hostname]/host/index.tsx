@@ -33,6 +33,8 @@ import { Icon } from 'components/vite-migrated'
 import { Tooltip } from 'components/Tooltip'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import Cookies from 'js-cookie'
+import { USER_COOKIE } from 'constants/app'
 
 const PageNotFound = lazy(() => import('../../../404'))
 var resetThumbnail = false
@@ -155,6 +157,21 @@ export const HostPage = () => {
     const [eventTimeInUnix, setEventTimeInUnix] = useState(0)
     const [dateTimeFromUnix, setDateTimeFromUnix] = useState("")
     const [userProfile, setUserProfile] = useState(new User())
+
+    useEffect(() => {
+        const userFromCookie = Cookies.get(USER_COOKIE)
+
+        logger.log("userFromCookie: ", userFromCookie)
+        if (userFromCookie != null && userFromCookie != undefined) {
+            const userObj: User = JSON.parse(userFromCookie);
+            if (userObj == null) {
+                return
+            }
+            logger.log("User object is: ", userObj)
+            setUserProfile(userObj)
+
+        }
+    }, [])
 
     useEffect(() => {
         // Combine date from dateObj and time from timeObj
@@ -683,7 +700,7 @@ export const HostPage = () => {
                         <div className="flex items-center space-x-3 mx-4 mb-4 cursor-pointer" onClick={() => {
                             setShowLogoutModal(true)
                         }}>
-                            <Icon icon={ExitIcon} />
+                            <Icon icon={<ExitIcon />} />
                             <span className="ml-2 text-bold-12 text-gray-2">Logout</span>
                         </div>
 

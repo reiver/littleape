@@ -1,7 +1,7 @@
 import { Drawer, Modal } from '@mui/material'
 import CloseIcon from '../../../public/vite-migrated/icons/Close.svg'
 import IconButton from '../common/IconButton'
-import { Icon } from 'components/Icon'
+import Icon from '../common/Icon'
 
 export const ResponsiveModal = ({ open, onClose, children, maxWidth = '400px', modalProps = {},
 }) => {
@@ -17,7 +17,7 @@ export const ResponsiveModal = ({ open, onClose, children, maxWidth = '400px', m
         }}
       >
         <IconButton onClick={onClose} variant="nothing" className="absolute top-4 left-4">
-          <Icon icon={<CloseIcon/>} width="24px" className="text-gray-1" />
+          <Icon icon={<CloseIcon />} width="24px" className="text-gray-1" />
         </IconButton>
 
         {children}
