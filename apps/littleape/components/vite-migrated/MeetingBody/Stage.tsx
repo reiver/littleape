@@ -21,6 +21,7 @@ import { IconButton } from '../common/IconButton';
 import Icon from '../common/Icon';
 import { meetingDerivedState } from 'hooks/useMeetingDerivedState';
 import { useDeviceSize } from 'hooks/useDeviceSize';
+import { useBreakpointValue } from '@chakra-ui/react';
 
 export const streamersLength = () => meetingDerivedState.streamersLength
 export const hasHostStream = () => meetingDerivedState.hasHostStream
@@ -53,12 +54,6 @@ export const getItemsWidth = (
     streamersLength: number,
     windowHeight: number,
 ): number => {
-    // logger.log("getItemsWidth: stageWidth: ", stageWidth)
-    // logger.log("getItemsWidth: deviceSize: ", deviceSize)
-    // logger.log("getItemsWidth: hasShareScreenStream: ", hasShareScreenStream)
-    // logger.log("getItemsWidth: streamersLength: ", streamersLength)
-    // logger.log("getItemsWidth: windowHeight: ", windowHeight)
-
     let sw = stageWidth
     if (deviceSize !== 'xs' && hasShareScreenStream) {
         sw /= 2
@@ -140,52 +135,17 @@ const getVideoDimensions = (attendee) => {
     return wh
 };
 
-
-const getVideoWidth = (attendee, index) => {
-
-    logger.log("getVideoWidth: full screen stream is: ", meetingStore.fullScreenedStream)
-    logger.log("getVideoWidth: hasFullScreenedStream is: ", hasFullScreenedStream())
-
-
-    if (deviceSize() === 'xs') {
-        let availableHeight = meetingStore.windowHeight - topBarBottomBarHeight()
-        if (hasFullScreenedStream()) {
-            if (attendee.stream.id === meetingStore.fullScreenedStream) {
-                return `100%; height: ${availableHeight}px`
-            } else return `0px; height: 0px;`
-        }
-        const lines = Math.ceil(streamersLength() / 2)
-        const gapHeight = (lines - 1) * 16 + 16
-        availableHeight -= gapHeight
-        if (index == 0) {
-            if (streamersLength() === 1) {
-                return `calc(100%); height: ${availableHeight}px`
-            }
-            return `calc(100%); height: ${availableHeight / 2}px`
-        } else {
-            const lines = Math.ceil((streamersLength() - 1) / 2)
-            availableHeight = availableHeight / 2
-            let rowHeight = availableHeight / lines
-            const columns = streamersLength() - 1 > 1 && lines >= 1 ? 2 : 1
-
-            return `calc(${100 / columns}% - ${columns > 1 ? '8px' : '0px'}); height: ${rowHeight}px`
-        }
-    }
-    let availableHeight = meetingStore.windowHeight - topBarBottomBarHeight()
-    logger.log("availableHeight is: ", availableHeight)
-    if (hasFullScreenedStream()) {
-        if (attendee.stream != undefined && attendee.stream.id === meetingStore.fullScreenedStream) {
-            return `100%; height: ${availableHeight}px`
-        } else {
-            return `0px; height: 0px;`
-        }
-    }
-    if (attendee.isShareScreen) {
-        iw = stageWidth() / 2
-    }
-    let height = (iw * 9) / 16
-    logger.log("availableHeight, iw is: ", iw, " height is: ", height)
-    return `${iw}px;height: ${height}px;`
+function useWindowHeight() {
+    const [h, setH] = useState(
+        typeof window !== "undefined" ? window.innerHeight : 0
+    );
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const onResize = () => setH(window.innerHeight);
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, []);
+    return h;
 }
 
 export const Stage = ({ customStyles }) => {
@@ -354,179 +314,284 @@ export const Stage = ({ customStyles }) => {
 
     // }
 
+    const isXs = useBreakpointValue({ base: true, sm: false });
+    const windowH = useWindowHeight();
+
     const allStreamers = Object.values(snap.streamers);
     const shareScreenStreamer = allStreamers.find(s => s.isShareScreen);
     const otherStreamers = allStreamers.filter(s => !s.isShareScreen);
 
 
+    const all = Object.values(snap.streamers);
+    const share = all.find(s => s.isShareScreen);
+    const others = all.filter(s => !s.isShareScreen);
+    const count = all.length;
+
+
     try {
+
         return (
-            <div className={`transition-all h-full lg:px-0 relative`} style={{ width: `calc(100% - ${snap.attendeesWidth}px)` }}>
-                {snap.broadcastIsInTheMeeting ? (
-                    <div className={clsx('relative h-full'
-                        , {
-                            'flex': !customStyles || customStyles.trim() === '',
-                        })}>
-                        <div
-                            className={clsx('flex flex-row justify-center sm:justify-center items-center h-full transition-all', {
-                                'flex-warp': !customStyles || customStyles.trim() === '',
-                                // 'gap-4': !hasFullScreenedStream(),
-                                // 'gap-0': hasFullScreenedStream(),
-                                // 'w-1/2': !hasFullScreenedStream() && hasShareScreenStream() && deviceSize() !== 'xs' && !customStyles,
-                                'w-full': hasFullScreenedStream() || !hasShareScreenStream() || deviceSize() === 'xs',
-                            }, 'greatape-gap-in-videos')}
-                        >
+            <div
+                className="relative transition-all mx-3 my-2"
+                style={{
+                    width: `calc(100% - ${snap.attendeesWidth}px)`,
+                    height: `calc(100% - ${topBarBottomBarHeight()}px)`,
+                }}
+            >
 
+                {
+                    meetingStore.broadcastIsInTheMeeting ? (
+                        <>
+                            {/* ─── MOBILE INLINE SIZING ( <640px ) ─── */}
 
-                            {/* {Object.values(snap.streamers)
-                                .map(item => ({ ...item })) // shallow copy
-                                .sort((a, b) => sortStreamers(a, b))
-                                .map((attendee, i) => {
-                                    let muted = false
+                            {isXs && (() => {
+                                const availH = windowH - topBarBottomBarHeight();
+                                const halfH = availH / 2;
+                                // pick top video: screen share if present, else the first streamer (host)
+                                const topAtt = share ?? all[0];
+                                // bottom videos: all others after the topAtt
+                                const bottomAtts = share ? others : all.slice(1);
+                                const bottomCount = bottomAtts.length;
 
-                                    //mute the stream if it's my local stream
-                                    if (attendee.isLocalStream === true) {
-                                        muted = true
-                                    } else {
-                                        //mute it based on meeting status
-                                        muted = snap.currentUser.isMeetingMuted
-                                    }
-
-                                    const { width, height } = getVideoDimensions(attendee, i);
-
-                                    return (
-                                        <div
-                                            id={`video_${attendee.isShareScreen ? 'sc' : attendee.name}`}
-                                            key={i}
-                                            style={{ width, height }}
-                                            className={clsx(
-                                                // Conditional customStyles width logic
-                                                // customStyles ? '' : `width: ${getVideoWidth(attendee, i)}`,
-
-                                                // Conditional inline-style-like class logic
-                                                !hasFullScreenedStream() && deviceSize() !== 'xs' && attendee.isShareScreen && !customStyles && 'absolute left-[25px]',
-
-                                                // Static and dynamic style classes
-                                                'group transition-all aspect-video relative max-w-full text-white-f-9',
-                                                'bg-gray-1 rounded-lg min-w-10',
-                                                'dark:bg-gray-3 overflow-hidden',
-
-                                                // Conditional class for host / audience
-                                                attendee.isHost
-                                                    ? (attendee.isShareScreen && hasCustomStyleClass(customStyles, 'greatape-share-screen-video')
-                                                        ? 'greatape-share-screen-video'
-                                                        : hasCustomStyleClass(customStyles, 'greatape-host-video')
-                                                            ? 'greatape-host-video'
-                                                            : '')
-                                                    : hasCustomStyleClass(customStyles, 'greatape-audience-video')
-                                                        ? 'greatape-audience-video'
-                                                        : '',
-
-                                                // Final fallback class
-                                                getValidClass(customStyles)
-                                            )}
-
-                                            onClick={(e) => handleOnClick(e, attendee.streamId)}
-                                        >
-                                            <Video
-                                                stream={rawStreams.get(attendee.streamId)}
-                                                userId={attendee.userId}
-                                                isMuted={muted}
-                                                isUserMuted={attendee.muted}
-                                                name={attendee.name}
-                                                isHostStream={attendee.isHost}
-                                                isShareScreen={attendee.isShareScreen}
-                                                toggleScreen={attendee.toggleScreenId}
-                                                displayId={attendee.displayId}
+                                return (
+                                    <div className="flex flex-col w-full h-full gap-2">
+                                        {/* Top half: one VideoCard */}
+                                        <div style={{ height: `${halfH}px`, width: '100%' }}>
+                                            <VideoCard
+                                                attendee={topAtt}
                                                 customStyles={customStyles}
+                                                index={0}
+                                                totalCount={count}
+                                                mobileAvailHeight={availH}
+                                                isXs={true}
                                             />
                                         </div>
-                                    )
-                                })} */}
 
-                            {/* Alternative to map block */}
-                            <div className="flex flex-col sm:flex-row w-full h-full">
-                                {shareScreenStreamer && (
-                                    <div className="flex items-center justify-center gap-4" style={{ width: '70%' }}>
-                                        <VideoCard attendee={shareScreenStreamer} customStyles={customStyles} />
+                                        {/* Bottom half: varies by number of bottomAtts */}
+                                        <div className="w-full" style={{ height: `${halfH}px` }}>
+                                            {bottomCount === 0 ? null : bottomCount <= 2 ? (
+                                                // 1 or 2 videos: side-by-side (or centered when just one)
+                                                <div className="flex w-full h-full gap-2">
+                                                    {bottomAtts.map((att, i) => (
+                                                        <div
+                                                            key={att.streamId}
+                                                            className="h-full"
+                                                            style={{ width: `${100 / bottomCount}%` }}
+                                                        >
+                                                            <VideoCard
+                                                                attendee={att}
+                                                                customStyles={customStyles}
+                                                                index={i + 1}
+                                                                totalCount={count}
+                                                                mobileAvailHeight={availH}
+                                                                isXs={true}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                // 3 or more: 2×2 grid, leave empty if no 4th
+                                                <div
+                                                    className="grid w-full h-full gap-2"
+                                                    style={{
+                                                        gridTemplateRows: '1fr 1fr',
+                                                        gridTemplateColumns: '1fr 1fr',
+                                                    }}
+                                                >
+                                                    {/* First row: bottomAtts[0] & bottomAtts[1] */}
+                                                    {bottomAtts.slice(0, 2).map((att, i) => (
+                                                        <div key={att.streamId} className="h-full">
+                                                            <VideoCard
+                                                                attendee={att}
+                                                                customStyles={customStyles}
+                                                                index={i + 1}
+                                                                totalCount={count}
+                                                                mobileAvailHeight={availH}
+                                                                isXs={true}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                    {/* Second row: bottomAtts[2] and (maybe) bottomAtts[3] */}
+                                                    <div className="h-full">
+                                                        {bottomAtts[2] && (
+                                                            <VideoCard
+                                                                attendee={bottomAtts[2]}
+                                                                customStyles={customStyles}
+                                                                index={3}
+                                                                totalCount={count}
+                                                                mobileAvailHeight={availH}
+                                                                isXs={true}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <div className="h-full">
+                                                        {bottomAtts[3] && (
+                                                            <VideoCard
+                                                                attendee={bottomAtts[3]}
+                                                                customStyles={customStyles}
+                                                                index={4}
+                                                                totalCount={count}
+                                                                mobileAvailHeight={availH}
+                                                                isXs={true}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                );
+                            })()}
 
-                                )}
 
-                                <div className={clsx(
-                                    shareScreenStreamer ? '' : 'w-full',
-                                    'flex flex-wrap justify-center items-center gap-4'
-                                )}
-                                    style={shareScreenStreamer ? { width: '30%' } : {}}
-                                >
-                                    {otherStreamers.map((attendee) => (
-                                        <VideoCard key={attendee.streamId} attendee={attendee} customStyles={customStyles} />
-                                    ))}
+                            {/* ─── DESKTOP GRID/FLEX ( ≥640px ) ─── */}
+                            {!isXs && (
+                                <div className="hidden sm:flex flex-col sm:flex-row w-full h-full">
+                                    {/* 1) screen-share (if any) */}
+                                    {share && (
+                                        <div
+                                            className="flex items-center justify-center gap-4"
+                                            style={{ width: '70%' }}
+                                        >
+                                            <VideoCard
+                                                attendee={share}
+                                                customStyles={customStyles}
+                                                index={0}               // share is always the first
+                                                totalCount={count}
+                                                mobileAvailHeight={0}   // ignored when isXs=false
+                                                isXs={false}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* 2) the rest */}
+                                    <div
+                                        className={clsx(
+                                            share ? '' : 'w-full',
+                                            'flex flex-wrap justify-center items-center gap-4'
+                                        )}
+                                        style={share ? { width: '30%' } : {}}
+                                    >
+                                        {otherStreamers.map((attendee, i) => (
+                                            <VideoCard
+                                                key={attendee.streamId}
+                                                attendee={attendee}
+                                                customStyles={customStyles}
+                                                index={share ? i + 1 : i}
+                                                totalCount={count}
+                                                mobileAvailHeight={0}
+                                                isXs={false}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                ) : (
-                    snap.meetingIsNotStarted && snap.meetingStartRemainingTime !== "" ? (
-                        <div>
-                            <img src={GreatApeImageBeforeMeetingStarted.src} className="mx-auto" />
-                            <span className="inline-block w-full text-center text-bold-18">The live conversation has not started yet.<br />Please stand by, and thank you for your patience.</span>
-                            <span className="inline-block w-full text-center text-bold-14 mt-3">{snap.meetingStartRemainingTime} to go</span>
-                        </div>
-
+                            )}
+                        </>
                     ) : (
-                        snap.meetingIsEnded == true ? (
-                            <div>
-                                <img src={GreatApeImageAfterMeetingEnded.src} className="mx-auto" />
-                                <span className="inline-block w-full text-center text-bold-14">This conversation has ended.</span>
-                            </div>
-                        ) : (
+                        meetingStore.meetingIsNotStarted && meetingStore.meetingStartRemainingTime !== "" ? (
                             <div>
                                 <img src={GreatApeImageBeforeMeetingStarted.src} className="mx-auto" />
-                                <span className="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>
+                                <span className="inline-block w-full text-center text-bold-18">The live conversation has not started yet.<br />Please stand by, and thank you for your patience.</span>
+                                <span className="inline-block w-full text-center text-bold-14 mt-3">{meetingStore.meetingStartRemainingTime} to go</span>
                             </div>
+
+                        ) : (
+                            meetingStore.meetingIsEnded == true ? (
+                                <div>
+                                    <img src={GreatApeImageAfterMeetingEnded.src} className="mx-auto" />
+                                    <span className="inline-block w-full text-center text-bold-14">This conversation has ended.</span>
+                                </div>
+                            ) : (
+                                <div>
+                                    <img src={GreatApeImageBeforeMeetingStarted.src} className="mx-auto" />
+                                    <span className="inline-block w-full text-center text-bold-14">The host has not arrived yet. Please stand by.</span>
+                                </div>
+                            )
                         )
                     )
-                )
                 }
-            </div >
-        )
+
+
+            </div>
+        );
+
     } catch (error) {
         logger.error("Error on Stage loading: ", error)
         return <div>Error</div>
     }
 }
 
-const VideoCard = ({ attendee, customStyles }) => {
+interface VideoCardProps {
+    attendee: any;
+    customStyles: string;
+    index: number;
+    totalCount: number;
+    mobileAvailHeight: number;
+    isXs: boolean;
+}
+
+const VideoCard: React.FC<VideoCardProps> = ({
+    attendee,
+    customStyles,
+    index,
+    totalCount,
+    mobileAvailHeight,
+    isXs,
+}) => {
+    if (attendee == undefined)
+        return
+    
+    // desktop dims
     const { width, height } = getVideoDimensions(attendee);
-    const stream = rawStreams.get(attendee.streamId);
+
+    // mobile override: top row gets half-stage height; bottom grid cells fill their cell
+    let mobileStyle: React.CSSProperties = {};
+    if (isXs) {
+        // bottom-half grid items (for 3+ videos, index > 0) should fill their grid cell
+        if (totalCount >= 3 && index > 0) {
+            mobileStyle = { width: "100%", height: "100%" };
+        } else {
+            // top row (or 1–2 videos) get half of the available stage height
+            const h = mobileAvailHeight;
+            let cardH: number;
+            // single video fills full height
+            if (totalCount === 1) {
+                cardH = h;
+            } else {
+                // 2, 3, or 4+ videos split half the height
+                cardH = h / 2;
+            }
+            mobileStyle = { width: "100%", height: `${cardH}px` };
+        }
+    }
+
+
     const snap = useSnapshot(meetingStore);
+    const stream = rawStreams.get(attendee.streamId);
     const muted = attendee.isLocalStream || snap.currentUser.isMeetingMuted;
-    logger.log("snap.currentUser.isMeetingMuted: ", snap.currentUser.isMeetingMuted)
+
     return (
         <div
             key={attendee.streamId}
-            id={`video_${attendee.isShareScreen ? 'sc' : attendee.name}`}
-            style={{ width, height }}
+            id={`video_${attendee.isShareScreen ? "sc" : attendee.name}`}
+            style={isXs ? mobileStyle : { width, height }}
             className={clsx(
-                'group transition-all aspect-video relative max-w-full text-white-f-9 bg-gray-1 rounded-lg min-w-10 dark:bg-gray-3 overflow-hidden',
+                "group transition-all relative overflow-hidden rounded-lg",
+                customStyles,
                 attendee.isHost
-                    ? (attendee.isShareScreen
-                        ? 'greatape-share-screen-video'
-                        : 'greatape-host-video')
-                    : 'greatape-audience-video',
-                getValidClass(customStyles)
+                    ? attendee.isShareScreen
+                        ? "greatape-share-screen-video"
+                        : "greatape-host-video"
+                    : "greatape-audience-video"
             )}
             onClick={(e) => {
                 if (attendee.streamId === meetingStore.fullScreenedStream) {
-                    meetingStore.bottomBarVisible = !meetingStore.bottomBarVisible;
+                    meetingStore.bottomBarVisible =
+                        !meetingStore.bottomBarVisible;
                 }
                 e.stopPropagation();
             }}
         >
-
             <Video
                 stream={stream}
                 userId={attendee.userId}
@@ -542,7 +607,6 @@ const VideoCard = ({ attendee, customStyles }) => {
         </div>
     );
 };
-
 
 export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUserMuted, isShareScreen, toggleScreen, displayId, customStyles }: any) => {
 
