@@ -3,6 +3,8 @@ import { SparkRTC } from './webrtc/spark-rtc';
 
 export const rawStreams = new Map<string, MediaStream>();
 
+export const RawStreamRefInPreviewDialog = new Array<MediaStream>();
+
 export const meetingStore = proxy({
     hostDialogs: [],
     selectedFileIndex: null,

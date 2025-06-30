@@ -1,7 +1,7 @@
 'use client'
 
 import logger from '../../../lib/logger/logger'
-import { meetingStore, rawStreams } from '../../../lib/store'
+import { meetingStore, RawStreamRefInPreviewDialog, rawStreams } from '../../../lib/store'
 import { onStartShareScreen, onStopShareScreen, setUserActionLoading, updateUser } from 'pages/Meeting'
 import { useEffect, useState } from 'react'
 import { Tooltip } from '../common/Tooltip'
@@ -28,7 +28,7 @@ import { isMobile } from 'lib/webrtc/common'
 import { DialogTypes, makeDialog } from '../Dialog'
 import { useSnapshot } from 'valtio';
 
-const disableRaiseHandFeat = true
+const disableRaiseHandFeat = false
 
 
 export const toggleMoreOptions = () => {
@@ -114,6 +114,7 @@ export const Controllers = () => {
                         isCameraOn: true,
                     })
                     snap.sparkRTC.leaveStage()
+                    RawStreamRefInPreviewDialog.length = 0
                 },
                 () => { },
                 false,

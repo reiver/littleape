@@ -17,40 +17,6 @@ import clsx from 'clsx'
 //FIXME
 const isMobile = false //window.self == window.top && window.parent.outerWidth <= 400 && window.parent.outerHeight <= 850
 
-
-// meetingStore.attendees = {
-//     "user1": {
-//         name: "Alice Khan",
-//         isHost: true,
-//         raisedHand: new Date(),
-//         hasCamera: true,
-//         userId: 101,
-//         actionLoading: false,
-//         acceptRaiseHand: null,
-//         isRecordingTheMeeting: true,
-//     },
-//     "user2": {
-//         name: "Bilal Ahmed",
-//         isHost: false,
-//         raisedHand: new Date(),
-//         hasCamera: false,
-//         userId: 102,
-//         actionLoading: false,
-//         acceptRaiseHand: null,
-//         isRecordingTheMeeting: false,
-//     },
-//     "user3": {
-//         name: "Sara Malik",
-//         isHost: false,
-//         raisedHand: new Date(),
-//         hasCamera: true,
-//         userId: 103,
-//         actionLoading: true,
-//         acceptRaiseHand: null,
-//         isRecordingTheMeeting: false,
-//     },
-// };
-
 const Participant = ({ participant }) => {
     const snap = useSnapshot(meetingStore)
 
@@ -69,7 +35,7 @@ const Participant = ({ participant }) => {
                     participant.acceptRaiseHand(true)
                     onUserRaisedHand(participant.userId, false, true)
 
-                    snap.sparkRTC.acceptedRequests.push(participant.userId.toString())
+                    meetingStore.sparkRTC.acceptedRequests.push(participant.userId.toString())
                 },
                 () => { },
                 false,
@@ -177,7 +143,7 @@ const Participant = ({ participant }) => {
                     <img src={participant.avatar} className="w-9 h-9 rounded-full object-cover" />
                 ) : (
                     <div className="dark:bg-gray-300 min-w-[36px] min-h-[36px] dark:bg-opacity-30 bg-opacity-30 bg-gray-400 rounded-full w-9 h-9 flex justify-center items-center">
-                        <Icon icon={<AvatarIcon />} width="20px" height="20px" className="greatape-attendees-item" />
+                        <Icon icon={<AvatarIcon />} width="24px" height="24px" className="greatape-attendees-item" />
                     </div>
                 )}
 
@@ -232,7 +198,7 @@ const Participant = ({ participant }) => {
                 )}
                 {(raisedHand || participant.hasCamera || participant.actionLoading) && (
                     <div>
-                        <Icon icon={participant.actionLoading ? <Loader/> : raisedHand ? <Hand/> : participant.hasCamera ? <Camera/> : ''} className="greatape-attendees-item" width="25" height="25px" />
+                        <Icon icon={participant.actionLoading ? <Loader /> : raisedHand ? <Hand /> : participant.hasCamera ? <Camera /> : ''} className="greatape-attendees-item" width="25" height="25px" />
                     </div>
                 )}
 

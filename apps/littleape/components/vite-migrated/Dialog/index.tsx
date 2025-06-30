@@ -11,8 +11,6 @@ import Settings from '../../../public/vite-migrated/icons/Settings.svg'
 import Smartphone from '../../../public/vite-migrated/icons/Smartphone.svg'
 import { clsx } from 'clsx'
 // import { videoBackGround } from 'lib/webrtc/common.js' //FIXME; Enable later on
-import { Fragment } from 'preact'
-import { useEffect, useRef } from 'preact/compat'
 import { v4 as uuidv4 } from 'uuid'
 import { IODevices } from '../../../lib/ioDevices/io-devices'
 import back1 from '../../../public/vite-migrated/images/back1.jpg'
@@ -30,7 +28,7 @@ import { VideoBackground } from '../../../lib/videoBackground/videoBackground'
 import { isMobile } from 'lib/webrtc/common.js'
 import logger from 'lib/logger/logger.js'
 
-import { meetingStore } from '../../../lib/store'
+import { meetingStore, RawStreamRefInPreviewDialog } from '../../../lib/store'
 
 import { updateUser } from '../../../pages/Meeting'
 import Button from '../common/Button'
@@ -38,6 +36,7 @@ import Icon from '../common/Icon'
 import { IconButton } from '../common/IconButton'
 import { Tooltip } from '../common/Tooltip'
 import { useSnapshot } from 'valtio';
+import { useEffect, useRef } from 'react'
 
 const blurTxt = "Blur";
 const noneTxt = "None"
@@ -544,7 +543,7 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
                           ? CameraLight
                           : deviceType === 'speaker'
                             ? Headphone
-                            : Fragment
+                            : <></>
                   }
                   className="ml-5"
                   width="20px"
@@ -577,6 +576,9 @@ export const PreviewDialog = ({
   className,
   contentClassName,
 }) => {
+
+  const hostVideoStream = RawStreamRefInPreviewDialog[0]
+
   useEffect(() => {
     meetingStore.selectedCamera = null;
     meetingStore.selectedMic = null;
@@ -587,8 +589,9 @@ export const PreviewDialog = ({
   const { hasCamera, hasMic, isCameraOn, isMicrophoneOn } = meetingStore.currentUser
 
   useEffect(() => {
-    videoRef.current.srcObject = videoStream
-  }, [videoStream])
+    logger.log("Stream in useEffeyct is: ", hostVideoStream)
+    videoRef.current.srcObject = hostVideoStream
+  }, [hostVideoStream])
 
   useEffect(() => {
     videoRef.current.playsInline = true
@@ -605,7 +608,7 @@ export const PreviewDialog = ({
     meetingStore.sparkRTC.disableVideo(!isCameraOn)
 
     if (isIphone() && videoRef.current && videoRef.current.srcObject === null) {
-      videoRef.current.srcObject = videoStream
+      videoRef.current.srcObject = hostVideoStream
       videoRef.current.style.backgroundColor = '';
     }
 
@@ -657,10 +660,10 @@ export const PreviewDialog = ({
           //FIXME; Enable Video Background later on
           if (meetingStore.selectedBackground === blurTxt) {
             //Blur the Video Background
-            processedStr = videoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[0], videoStream, true)
+            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[0], hostVideoStream, true)
           } else {
             //Set background to video
-            processedStr = videoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[meetingStore.selectedBackground], videoStream)
+            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[meetingStore.selectedBackground], hostVideoStream)
           }
           meetingStore.sparkRTC.localStream = processedStr
           videoStream = processedStr
@@ -673,7 +676,7 @@ export const PreviewDialog = ({
           }
         } else {
           if (videoRef.current) {
-            videoRef.current.srcObject = videoStream
+            videoRef.current.srcObject = hostVideoStream
           } else {
             logger.log('No video ref')
           }
@@ -701,7 +704,7 @@ export const PreviewDialog = ({
         <hr className="dark:border-gray-2 border-gray-0 sm:block hidden" />
         <div className={clsx(contentClassName, 'text-left text-bold-12 sm:py-8 py-5 p-5')} dangerouslySetInnerHTML={{ __html: message }}></div>
         <div className="px-5 relative">
-          <video ref={videoRef} autoplay playsinline muted={true} className="aspect-video object-cover rounded-lg" />
+          <video ref={videoRef} autoPlay playsInline muted={true} className="aspect-video object-cover rounded-lg" />
           <div className={clsx('h-[48px] absolute top-1 right-6 gap-2 flex justify-center items-center')}>
             {!isMicrophoneOn && (
               <div className="pr-2">
@@ -949,8 +952,8 @@ export const InfoDialog = ({ onOk, onClose, message: { message, icon, variant },
 
   const iconMap = {
     Check: <Check />,
-    Close: <Close/>,
-    
+    Close: <Close />,
+
   }
 
   return (
@@ -1111,6 +1114,9 @@ export const destroyDialog = (id) => {
 }
 
 export const makePreviewDialog = (showCaneclButton = true, type, videoStream, message, onOk, onClose, options = {}) => {
+
+  RawStreamRefInPreviewDialog.push(videoStream)
+
   const id = uuidv4()
   const destroy = () => {
     const dialogsTmp = { ...meetingStore.dialogs }
