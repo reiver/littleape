@@ -42,7 +42,8 @@ const nextConfig = {
         },
         {
           source: '/:roomname/conf/:timestamp',
-          destination: '/log/:roomname/:timestamp',
+          // destination: '/log/:roomname/:timestamp',
+          destination: '/testing/conf/:roomname/:timestamp',
         },
         {
           source: '/:roomname/log/:timestamp',
@@ -55,7 +56,8 @@ const nextConfig = {
         {
           source:'/:hostname/host',
           destination:'/testing/:hostname/host'
-        }
+        },
+
       ],
     };
   },

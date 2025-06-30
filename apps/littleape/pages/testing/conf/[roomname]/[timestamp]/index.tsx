@@ -29,6 +29,7 @@ export const AudiencePage = () => {
 
     useEffect(() => {
         if (router.isReady && typeof roomname === 'string') {
+            meetingStore.roomNameSignal = roomname;
             setRoom(roomname)
         }
     }, [router.isReady, roomname])
