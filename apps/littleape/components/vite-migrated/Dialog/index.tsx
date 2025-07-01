@@ -10,7 +10,6 @@ import MicrophoneOff from '../../../public/vite-migrated/icons/MicrophoneOff.svg
 import Settings from '../../../public/vite-migrated/icons/Settings.svg'
 import Smartphone from '../../../public/vite-migrated/icons/Smartphone.svg'
 import { clsx } from 'clsx'
-// import { videoBackGround } from 'lib/webrtc/common.js' //FIXME; Enable later on
 import { v4 as uuidv4 } from 'uuid'
 import { IODevices } from '../../../lib/ioDevices/io-devices'
 import back1 from '../../../public/vite-migrated/images/back1.jpg'
@@ -20,10 +19,6 @@ import back4 from '../../../public/vite-migrated/images/back4.jpg'
 import back5 from '../../../public/vite-migrated/images/back5.jpg'
 import back6 from '../../../public/vite-migrated/images/back6.jpg'
 
-import CheckCircle from '../../../public/vite-migrated/icons/CheckCircle.svg'
-
-import blurIcon from '../../../public/vite-migrated/icons/Blur.svg'
-import noBackgroundIcon from '../../../public/vite-migrated/icons/NoBackground.svg'
 import { VideoBackground } from '../../../lib/videoBackground/videoBackground'
 import { isMobile } from 'lib/webrtc/common.js'
 import logger from 'lib/logger/logger.js'
@@ -591,6 +586,14 @@ export const PreviewDialog = ({
   contentClassName,
 }) => {
 
+  const vbRef = useRef<VideoBackground | null>(null)
+
+  useEffect(() => {
+    // this runs only in the browser
+    vbRef.current = new VideoBackground()
+    // …now you can call vbRef.current.setBackVideoBackground(…) etc.
+  }, [])
+
   const hostVideoStream = RawStreamRefInPreviewDialog[0]
 
   useEffect(() => {
@@ -674,10 +677,10 @@ export const PreviewDialog = ({
           //FIXME; Enable Video Background later on
           if (selectedBackground.value === blurTxt) {
             //Blur the Video Background
-            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[0], hostVideoStream, true)
+            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[0], hostVideoStream, true)
           } else {
             //Set background to video
-            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[selectedBackground.value], hostVideoStream)
+            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[selectedBackground.value], hostVideoStream)
           }
           meetingStore.sparkRTC.localStream = processedStr
           videoStream = processedStr

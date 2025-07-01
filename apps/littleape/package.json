@@ -33,6 +33,7 @@
     "@farcaster/auth-kit": "^0.3.1",
     "@heroicons/react": "^2.0.8",
     "@hookform/resolvers": "^2.9.7",
+    "@mediapipe/selfie_segmentation": "^0.1.1675465747",
     "@mui/material": "^7.1.2",
     "@mui/system": "^7.1.1",
     "@mui/x-date-pickers": "^8.5.2",

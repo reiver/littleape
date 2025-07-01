@@ -1,4 +1,5 @@
 import logger from "../logger/logger";
+import { SelfieSegmentation } from '@mediapipe/selfie_segmentation'
 
 export class VideoBackground {
   setBackVideoBackground = async (image, videoStream, blur = false) => {
@@ -7,18 +8,30 @@ export class VideoBackground {
       this.bgImage.src = image;
       this.blur = blur;
 
-      //stop previous Original stream
-      await this.stopStream(this.originalStream);
+
+      // ▶️ Swap in the new stream, then stop the old one
+      const oldStream = this.originalStream;
       this.originalStream = videoStream;
+      //fixme
+      // if (oldStream) {
+      //   await this.stopStream(oldStream);
+      // }
+
+      // ▶️ Get tracks and ensure the video track is live (clone if ended)
+      const origVideoTrack = videoStream.getVideoTracks()[0];
+      const videoTrack =
+        origVideoTrack.readyState === 'ended'
+          ? origVideoTrack.clone()
+          : origVideoTrack;
+      const audioTrack = videoStream.getAudioTracks()[0];
+
+      logger.log("Video Track is: ", videoTrack.readyState)
+      logger.log("Audio track is: ", audioTrack)
 
       if (this.selfieSegmentation) {
         this.selfieSegmentation.close();
         this.selfieSegmentation = null;
       }
-
-      //get Tracks
-      const videoTrack = videoStream.getVideoTracks()[0];
-      const audioTrack = videoStream.getAudioTracks()[0];
 
       // instance of SelfieSegmentation object
       this.selfieSegmentation = new SelfieSegmentation({
@@ -35,10 +48,16 @@ export class VideoBackground {
       // set the callback function for when it finishes segmenting
       this.selfieSegmentation.onResults(this.onResults.bind(this));
 
+      logger.log("videoTrack status: ",videoTrack.readyState)
+
       // definition of track processor and generator
       const trackProcessor = new MediaStreamTrackProcessor({
         track: videoTrack,
       });
+
+      logger.log("Track processer is: ", trackProcessor);
+
+
       const trackGenerator = new MediaStreamTrackGenerator({ kind: "video" });
 
       const _this = this; //save ref to this
@@ -140,7 +159,7 @@ export class VideoBackground {
     this._height = 1920;
     this._width = 1440;
 
-    
+
     // the background image
     this.bgImage = new Image(this._height, this._width);
 
