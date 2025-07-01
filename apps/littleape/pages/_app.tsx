@@ -34,30 +34,30 @@ function App({ Component, pageProps }) {
   if (pageProps.user) setAuth(pageProps.token, pageProps.user);
 
   return (
-    <ThemeProvider theme={muiTheme}>
-      <AuthKitProvider config={config}>
-        <WalletProvider>
-          <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
-            <SWRConfig
-              value={{
-                provider: () => new Map(),
-                fetcher,
-                revalidateOnFocus: false,
-                revalidateIfStale: false,
-                fallback: {
-                  [API_PROFILE]: pageProps.user,
-                  ...pageProps.swrFallback,
-                },
-              }}
-            >
-              <ChakraProvider theme={theme}>
+    <ChakraProvider theme={theme}>
+      <ThemeProvider theme={muiTheme}>
+        <AuthKitProvider config={config}>
+          <WalletProvider>
+            <ThirdwebProvider clientId={process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT_ID}>
+              <SWRConfig
+                value={{
+                  provider: () => new Map(),
+                  fetcher,
+                  revalidateOnFocus: false,
+                  revalidateIfStale: false,
+                  fallback: {
+                    [API_PROFILE]: pageProps.user,
+                    ...pageProps.swrFallback,
+                  },
+                }}
+              >
                 <Component {...pageProps} />
-              </ChakraProvider>
-            </SWRConfig>
-          </ThirdwebProvider>
-        </WalletProvider>
-      </AuthKitProvider>
-    </ThemeProvider>
+              </SWRConfig>
+            </ThirdwebProvider>
+          </WalletProvider>
+        </AuthKitProvider>
+      </ThemeProvider>
+    </ChakraProvider>
 
   );
 }

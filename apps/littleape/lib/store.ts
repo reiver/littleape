@@ -1,9 +1,18 @@
-import { proxy } from 'valtio'
+import { proxy, ref } from 'valtio'
 import { SparkRTC } from './webrtc/spark-rtc';
+import { signal } from '@preact/signals-core';
 
 export const rawStreams = new Map<string, MediaStream>();
 
 export const RawStreamRefInPreviewDialog = new Array<MediaStream>();
+
+export const ioDevicesInDialog = new Array();
+
+export const selectedMic = signal(null)
+export const selectedSpeaker = signal(null)
+export const selectedCamera = signal(null)
+export const selectedBackground = signal(null)
+
 
 export const meetingStore = proxy({
     hostDialogs: [],
@@ -22,10 +31,6 @@ export const meetingStore = proxy({
     bottomBarVisible: true,
     isDebugMode: false,
     dialogs: [],
-    selectedMic: null as any,
-    selectedSpeaker: null as any,
-    selectedCamera: null as any,
-    selectedBackground: null as any,
     statsDataOpen: false,
     statsData: '',
     sparkRTC: null as SparkRTC,

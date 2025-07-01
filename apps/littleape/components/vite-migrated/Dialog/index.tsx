@@ -28,7 +28,7 @@ import { VideoBackground } from '../../../lib/videoBackground/videoBackground'
 import { isMobile } from 'lib/webrtc/common.js'
 import logger from 'lib/logger/logger.js'
 
-import { meetingStore, RawStreamRefInPreviewDialog } from '../../../lib/store'
+import { ioDevicesInDialog, meetingStore, RawStreamRefInPreviewDialog, selectedBackground, selectedCamera, selectedMic, selectedSpeaker } from '../../../lib/store'
 
 import { updateUser } from '../../../pages/Meeting'
 import Button from '../common/Button'
@@ -80,7 +80,7 @@ export const IOSettingsDialog = ({
       (device) => {
         setTimeout(() => {
           if (device && device.label) {
-            meetingStore.selectedSpeaker = device
+            selectedSpeaker.value = device
           }
         }, 100)
       } //on close
@@ -104,7 +104,7 @@ export const IOSettingsDialog = ({
       (device) => {
         setTimeout(() => {
           if (device && device.label) {
-            meetingStore.selectedMic = device
+            selectedMic.value = device
           }
         }, 100)
       } //on close
@@ -128,7 +128,7 @@ export const IOSettingsDialog = ({
       (device) => {
         setTimeout(() => {
           if (device && device.label) {
-            meetingStore.selectedCamera = device
+            selectedCamera.value = device
           }
         }, 100)
       } //on close
@@ -145,18 +145,17 @@ export const IOSettingsDialog = ({
       {
         title: 'Background'
       },
-      backgroundsList,
       (backgroundMode, index) => {
         logger.log("backgroundMode: ", backgroundMode);
 
         logger.log("backgroundImage: ", backgroundsList[index])
 
         if (backgroundMode === "backgroundimage") {
-          meetingStore.selectedBackground = index
+          selectedBackground.value = index
         } else if (backgroundMode === "blurbackground") {
-          meetingStore.selectedBackground = "Blur"
+          selectedBackground.value = "Blur"
         } else if (backgroundMode === "nobackground") {
-          meetingStore.selectedBackground = null
+          selectedBackground.value = null
         }
         //on Close
       }
@@ -165,6 +164,11 @@ export const IOSettingsDialog = ({
 
 
   logger.log('Resetting..')
+
+  const snap = useSnapshot(meetingStore)
+  logger.log("Selected Speaker is: ", selectedSpeaker.value)
+  logger.log("Selected Speaker label is: ", selectedSpeaker.value?.label)
+
 
   return (
     <div className="absolute top-0 left-0 w-full h-full">
@@ -186,7 +190,7 @@ export const IOSettingsDialog = ({
             <div className="sm:py-4 py-2 flex rounded-md mx-2 cursor-pointer" onClick={selectAudioOutputDevice}>
               <div className="text-left text-bold-12 px-5 flex-1">Audio Output</div>
               <div id="selectedSpeaker" className="text-right text-bold-12 px-5 flex-1 text-gray-1 cursor-pointer">
-                {meetingStore.selectedSpeaker && meetingStore.selectedSpeaker.label ? isDefaultSpeaker(meetingStore.selectedSpeaker.label) ? builtInLabel : meetingStore.selectedSpeaker.label : builtInLabel}
+                {selectedSpeaker.value && selectedSpeaker.value?.label ? isDefaultSpeaker(selectedSpeaker.value.label) ? builtInLabel : selectedSpeaker.value.label : builtInLabel}
               </div>
             </div>
           )}
@@ -194,29 +198,29 @@ export const IOSettingsDialog = ({
           <div className="sm:py-4 py-2 rounded-md mx-2 flex cursor-pointer" onClick={selectAudioInputDevice}>
             <div className="text-left text-bold-12 px-5 flex-1">Microphone</div>
             <div id="selectedMic" className="text-right text-bold-12 px-5 flex-1 text-gray-1">
-              {meetingStore.selectedMic && meetingStore.selectedMic.label ? isDefaultMic(meetingStore.selectedMic.label) ? builtInLabel : meetingStore.selectedMic.label : builtInLabel}
+              {selectedMic.value && selectedMic.value.label ? isDefaultMic(selectedMic.value.label) ? builtInLabel : selectedMic.value.label : builtInLabel}
             </div>
           </div>
 
           <div className="sm:py-4 py-2 rounded-md mx-2 flex cursor-pointer" onClick={selectVideoInputDevice}>
             <div className="text-left text-bold-12 px-5 flex-1">Video Input</div>
             <div id="selectedCamera" className="text-right text-bold-12 px-5 flex-1 text-gray-1">
-              {meetingStore.selectedCamera && meetingStore.selectedCamera.label ? isDefaultCamera(meetingStore.selectedCamera.label) ? builtInLabel : meetingStore.selectedCamera.label : builtInLabel}
+              {selectedCamera.value && selectedCamera.value.label ? isDefaultCamera(selectedCamera.value.label) ? builtInLabel : selectedCamera.value.label : builtInLabel}
             </div>
           </div>
           {isMobile() === false && (<div className="sm:py-4 py-2 rounded-md mx-2 flex cursor-pointer items-center" onClick={selectVideoBackground}>
             <div className="text-left text-bold-12 px-5 flex-1">Background</div>
             <div id="selectedBackground" className="text-right text-bold-12 px-5 flex-1 text-gray-1">
               {(() => {
-                if (meetingStore.selectedBackground != null) {
-                  if (meetingStore.selectedBackground === blurTxt) {
+                if (selectedBackground.value != null) {
+                  if (selectedBackground.value === blurTxt) {
                     return blurTxt
                   }
                   return (
                     <>
-                      {/* Display image if meetingStore.selectedBackground is not blurTxt */}
+                      {/* Display image if selectedBackground.value is not blurTxt */}
                       <img
-                        src={backgroundsList[meetingStore.selectedBackground]}
+                        src={backgroundsList[selectedBackground.value].src}
                         alt="Selected Background Image"
                         className="w-11 h-8 rounded-md float-right"
                       />
@@ -250,8 +254,8 @@ export const IOSettingsDialog = ({
               variant={okButtonVariant}
               className="w-full flex-grow-1"
               onClick={() => {
-                logger.log("meetingStore.selectedBackground onOK : ", meetingStore.selectedBackground)
-                onOk(meetingStore.selectedMic, meetingStore.selectedCamera, meetingStore.selectedSpeaker, meetingStore.selectedBackground)
+                logger.log("selectedBackground.value onOK : ", selectedBackground.value)
+                onOk(selectedMic.value, selectedCamera.value, selectedSpeaker.value, selectedBackground.value)
               }}
             >
               {okText}
@@ -278,7 +282,7 @@ const isDefaultSpeaker = (label) => {
   return ["default"].some(keyword => lowerLabel.includes(keyword));
 };
 
-export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backgroundsList, className, contentClassName }) => {
+export const VideoBackgroundDialog = ({ onClose, message: { title }, type, className, contentClassName }) => {
 
   var selectedBackgroundMode = "nobackground"
   var selectedBackgroundImageIndex = null
@@ -335,10 +339,10 @@ export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backg
           <div className="sm:pb-2 pb-1 mx-3 flex">
             {/* Image 1 */}
             <div className={`max-w-80px max-h-80px mx-2 cursor-pointer bg-gray-200 rounded-md
-            ${meetingStore.selectedBackground == null ? "border border-black border-2" : ""}
+            ${selectedBackground.value == null ? "border border-black border-2" : ""}
             `}> {/* Add bg-gray-200 for a light gray background */}
               <img
-                src={noBackgroundIcon}
+                src="/vite-migrated/icons/NoBackground.svg"
                 alt="First Image"
                 className="w-full h-full p-2"
                 onClick={handleClickNoBackgroundIcon}
@@ -347,10 +351,10 @@ export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backg
 
             {/* Image 2 */}
             <div className={`max-w-80px max-h-80px mx-2 cursor-pointer bg-gray-200 rounded-md
-            ${meetingStore.selectedBackground && meetingStore.selectedBackground === blurTxt ? "border border-black border-2" : ""}
+            ${selectedBackground.value && selectedBackground.value === blurTxt ? "border border-black border-2" : ""}
             `}> {/* Add bg-gray-200 for a light gray background */}
               <img
-                src={blurIcon}
+                src="/vite-migrated/icons/Blur.svg"
                 alt="Second Image"
                 className="w-full h-full p-2"
                 onClick={handleClickBlurIcon}
@@ -367,21 +371,21 @@ export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backg
                 style={{ width: '100%', height: 'auto', maxWidth: '369px', maxHeight: '207px' }}
                 className={"mb-3 relative"}
               >
-                {meetingStore.selectedBackground === index && (<img
-                  src={CheckCircle}
+                {selectedBackground.value === index && (<img
+                  src="/vite-migrated/icons/CheckCircle.svg"
                   alt="Check Icon"
                   className="w-6 h-6 ml-80 -mt-3 absolute"
                 />)}
                 <img
                   key={index}
-                  src={background}
+                  src={background.src}
                   alt={`Background ${index + 1}`}
                   onClick={() => {
                     handleClickBackgroundImage(index)
                   }}
                   style={{ width: '100%', height: 'auto', maxWidth: '369px', maxHeight: '207px' }}
                   className={`cursor-pointer rounded-md
-                  ${meetingStore.selectedBackground === index ? "border border-black border-2" : ""}
+                  ${selectedBackground.value === index ? "border border-black border-2" : ""}
                 `}
                 />
 
@@ -396,7 +400,11 @@ export const VideoBackgroundDialog = ({ onClose, message: { title }, type, backg
 };
 
 
-export const IODevicesDialog = ({ onClose, message: { message, title }, devices, deviceType, className, contentClassName }) => {
+export const IODevicesDialog = ({ onClose, message: { message, title }, _devices, deviceType, className, contentClassName }) => {
+
+  const devices = ioDevicesInDialog.flat()
+
+
   let selectedDeviceIndex = -1
   const handleDeviceClick = (index = -1, vanish = true) => {
     //mark built-in / default devices checked by defualt on initial load
@@ -447,37 +455,41 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
 
   // mark default device selected on inital display
   setTimeout(() => {
-    if (deviceType === 'speaker' && !meetingStore.selectedSpeaker) {
+    if (deviceType === 'speaker' && !selectedSpeaker.value) {
       handleDeviceClick(-1, false)
-    } else if (deviceType === 'microphone' && !meetingStore.selectedMic) {
+    } else if (deviceType === 'microphone' && !selectedMic.value) {
       handleDeviceClick(-1, false)
-    } else if (deviceType === 'camera' && !meetingStore.selectedCamera) {
+    } else if (deviceType === 'camera' && !selectedCamera.value) {
       handleDeviceClick(-1, false)
     }
   }, 50)
 
   //check selected devices and make it selected on radio button too
   if (devices && devices.length > 0) {
-    devices.forEach((value, index) => {
+    logger.log("Audio Devices are ", devices)
+    const flatDevices = devices.flat();
+    logger.log("flat Devices are ", flatDevices)
+
+    flatDevices.forEach((value, index) => {
       logger.log('Device: ', value, ' index: ', index)
       if (value.kind === 'audioinput') {
-        if (meetingStore.selectedMic && meetingStore.selectedMic.deviceId === value.deviceId) {
-          logger.log('selectedMicis: ', meetingStore.selectedMic)
+        if (selectedMic.value && selectedMic.value.deviceId === value.deviceId) {
+          logger.log('selectedMicis: ', selectedMic.value)
           setTimeout(() => {
             handleDeviceClick(index, false)
           }, 250)
         }
       } else if (value.kind === 'videoinput') {
-        if (meetingStore.selectedCamera && meetingStore.selectedCamera.deviceId === value.deviceId) {
-          logger.log('selectedCamis: ', meetingStore.selectedCamera)
+        if (selectedCamera.value && selectedCamera.value.deviceId === value.deviceId) {
+          logger.log('selectedCamis: ', selectedCamera.value)
 
           setTimeout(() => {
             handleDeviceClick(index, false)
           }, 250)
         }
       } else if (value.kind === 'audiooutput') {
-        if (meetingStore.selectedSpeaker && meetingStore.selectedSpeaker.deviceId === value.deviceId) {
-          logger.log('selectedSpeakeris: ', meetingStore.selectedSpeaker)
+        if (selectedSpeaker.value && selectedSpeaker.value.deviceId === value.deviceId) {
+          logger.log('selectedSpeakeris: ', selectedSpeaker.value)
 
           setTimeout(() => {
             handleDeviceClick(index, false)
@@ -488,6 +500,9 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
   }
 
   const isBuiltInDevice = (deviceType, device) => {
+    logger.log("Device is: ", device)
+    logger.log("Device type is: ", deviceType)
+
     switch (deviceType) {
       case 'speaker':
         if (device.label.toLowerCase().includes('default')) {
@@ -511,7 +526,6 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
 
     return false
   }
-  logger.log(devices)
 
   return (
     <div className="absolute top-0 left-0 w-full h-full">
@@ -536,18 +550,18 @@ export const IODevicesDialog = ({ onClose, message: { message, title }, devices,
                 <Icon
                   icon={
                     isBuiltInDevice(deviceType, device)
-                      ? Smartphone
+                      ? <Smartphone />
                       : deviceType === 'microphone'
-                        ? MicrophoneLight
+                        ? <MicrophoneLight />
                         : deviceType === 'camera'
-                          ? CameraLight
+                          ? <CameraLight />
                           : deviceType === 'speaker'
-                            ? Headphone
+                            ? <Headphone />
                             : <></>
                   }
                   className="ml-5"
-                  width="20px"
-                  height="20px"
+                  width="24px"
+                  height="24px"
                 />
                 <div className="text-left px-2 text-bold-12 flex-1">{isBuiltInDevice(deviceType, device) ? builtInThisDevice : device.label}</div>
                 <label className="flex items-right px-5 flex-0">
@@ -580,9 +594,9 @@ export const PreviewDialog = ({
   const hostVideoStream = RawStreamRefInPreviewDialog[0]
 
   useEffect(() => {
-    meetingStore.selectedCamera = null;
-    meetingStore.selectedMic = null;
-    meetingStore.selectedSpeaker = null;
+    selectedCamera.value = null;
+    selectedMic.value = null;
+    selectedSpeaker.value = null;
   }, []);
 
   const videoRef = useRef<HTMLVideoElement>()
@@ -615,7 +629,7 @@ export const PreviewDialog = ({
     updateUser({
       isCameraOn: !isCameraOn,
     })
-    logger.log("Selected Camera: ", meetingStore.selectedCamera)
+    logger.log("Selected Camera: ", selectedCamera.value)
   }
 
   const toggleMicrophone = () => {
@@ -645,7 +659,7 @@ export const PreviewDialog = ({
         videoStream = stream
 
         //Update Video Background
-        if (meetingStore.selectedBackground != null) {
+        if (selectedBackground.value != null) {
 
           //if camera is turned Off, TURN it ON
           if (meetingStore.sparkRTC.lastVideoState === meetingStore.sparkRTC.LastState.DISABLED) {
@@ -658,12 +672,12 @@ export const PreviewDialog = ({
 
           var processedStr = null;
           //FIXME; Enable Video Background later on
-          if (meetingStore.selectedBackground === blurTxt) {
+          if (selectedBackground.value === blurTxt) {
             //Blur the Video Background
             processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[0], hostVideoStream, true)
           } else {
             //Set background to video
-            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[meetingStore.selectedBackground], hostVideoStream)
+            processedStr = hostVideoStream; //await videoBackGround.setBackVideoBackground(backgroundsList[selectedBackground.value], hostVideoStream)
           }
           meetingStore.sparkRTC.localStream = processedStr
           videoStream = processedStr
@@ -1151,7 +1165,7 @@ export const makePreviewDialog = (showCaneclButton = true, type, videoStream, me
   return id
 }
 
-export const makeVideoBackgroundDialog = (type, message, backgroundsList, onClose, options = {}) => {
+export const makeVideoBackgroundDialog = (type, message, onClose, options = {}) => {
   const id = uuidv4()
   const destroy = () => {
     const dialogsTmp = { ...meetingStore.dialogs }
@@ -1165,7 +1179,6 @@ export const makeVideoBackgroundDialog = (type, message, backgroundsList, onClos
       id,
       type,
       message,
-      backgroundsList,
       onClose: (backgroundMode, image) => {
         onClose && onClose(backgroundMode, image)
         destroy()
@@ -1176,6 +1189,10 @@ export const makeVideoBackgroundDialog = (type, message, backgroundsList, onClos
 }
 
 export const makeIODevicesDialog = (type, message, devices, deviceType, onClose, options = {}) => {
+
+  ioDevicesInDialog.length = 0
+  ioDevicesInDialog.push(devices)
+
   const id = uuidv4()
   const destroy = () => {
     const dialogsTmp = { ...meetingStore.dialogs }
