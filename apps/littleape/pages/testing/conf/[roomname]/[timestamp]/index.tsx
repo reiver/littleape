@@ -19,7 +19,13 @@ const schema = z.object({
 
 export const AudiencePage = () => {
     const router = useRouter()
-    const { roomname } = router.query;
+
+    const [roomname, setRoomName] = useState("")
+
+    useEffect(() => {
+        if (!router.isReady) return;                  // wait for router.query to populate
+        setRoomName((router.query.roomname as string) || ''); // now safe to read
+    }, [router.isReady, router.query]);
 
     logger.log("roomname is: ", roomname)
 

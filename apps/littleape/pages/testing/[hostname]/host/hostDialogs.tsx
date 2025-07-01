@@ -1,3 +1,5 @@
+'use client'
+
 import logger from "lib/logger/logger"
 import { v4 as uuidv4 } from 'uuid'
 import { clsx } from 'clsx'
@@ -491,3 +493,5 @@ export const HostToastProvider = () => {
         </div>
     )
 }
+
+export default HostToastProvider

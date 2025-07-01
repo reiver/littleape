@@ -119,7 +119,13 @@ class User {
 export const HostPage = () => {
 
     const router = useRouter()
-    const { hostname } = router.query;
+    const [hostname, setHostName] = useState<string>('');
+
+    useEffect(() => {
+        if (!router.isReady) return;                  // wait for router.query to populate
+        setHostName((router.query.hostname as string) || ''); // now safe to read
+    }, [router.isReady, router.query]);
+
     const [displayName, setDisplayName] = useState("")
 
     const form = useForm({
