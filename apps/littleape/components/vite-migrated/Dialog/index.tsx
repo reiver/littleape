@@ -25,7 +25,7 @@ import logger from 'lib/logger/logger.js'
 
 import { ioDevicesInDialog, meetingStore, RawStreamRefInPreviewDialog, selectedBackground, selectedCamera, selectedMic, selectedSpeaker } from '../../../lib/store'
 
-import { updateUser } from '../../../pages/Meeting'
+import { sparkRtcSignal, updateUser } from '../../../pages/Meeting'
 import Button from '../common/Button'
 import Icon from '../common/Icon'
 import { IconButton } from '../common/IconButton'
@@ -622,7 +622,7 @@ export const PreviewDialog = ({
   }, [])
 
   const toggleCamera = () => {
-    meetingStore.sparkRTC.disableVideo(!isCameraOn)
+    sparkRtcSignal.value.disableVideo(!isCameraOn)
 
     if (isIphone() && videoRef.current && videoRef.current.srcObject === null) {
       videoRef.current.srcObject = hostVideoStream
@@ -636,7 +636,7 @@ export const PreviewDialog = ({
   }
 
   const toggleMicrophone = () => {
-    meetingStore.sparkRTC.disableAudio(!isMicrophoneOn)
+    sparkRtcSignal.value.disableAudio(!isMicrophoneOn)
     updateUser({
       isMicrophoneOn: !isMicrophoneOn,
     })
@@ -655,7 +655,7 @@ export const PreviewDialog = ({
         logger.log('mic: ', mic, 'cam: ', cam, 'speaker: ', speaker, 'background: ', backgroundIndex)
 
         //now change the Audio, Video and Speaker devices
-        const stream = await meetingStore.sparkRTC.changeIODevices(mic, cam, speaker)
+        const stream = await sparkRtcSignal.value.changeIODevices(mic, cam, speaker)
 
         logger.log('New Stream: ', stream.getTracks())
         //check if video is enable or disabled
@@ -665,8 +665,8 @@ export const PreviewDialog = ({
         if (selectedBackground.value != null) {
 
           //if camera is turned Off, TURN it ON
-          if (meetingStore.sparkRTC.lastVideoState === meetingStore.sparkRTC.LastState.DISABLED) {
-            videoStream = await meetingStore.sparkRTC.disableVideo(true)
+          if (sparkRtcSignal.value.lastVideoState === sparkRtcSignal.value.LastState.DISABLED) {
+            videoStream = await sparkRtcSignal.value.disableVideo(true)
             updateUser({
               isCameraOn: true,
             })
@@ -677,23 +677,28 @@ export const PreviewDialog = ({
           //FIXME; Enable Video Background later on
           if (selectedBackground.value === blurTxt) {
             //Blur the Video Background
-            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[0], hostVideoStream, true)
+            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[0], videoStream, true)
           } else {
             //Set background to video
-            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[selectedBackground.value], hostVideoStream)
+            processedStr = await vbRef.current.setBackVideoBackground(backgroundsList[selectedBackground.value], videoStream)
           }
-          meetingStore.sparkRTC.localStream = processedStr
+          logger.log("Processed Stream is: ", processedStr)
+
+          sparkRtcSignal.value.setLocalStream(processedStr);
+
+          logger.log("sparkRTC Stream is: ", sparkRtcSignal.value.localStream)
+
           videoStream = processedStr
         }
 
-        if (meetingStore.sparkRTC.lastVideoState === meetingStore.sparkRTC.LastState.DISABLED && isIphone()) {
+        if (sparkRtcSignal.value.lastVideoState === sparkRtcSignal.value.LastState.DISABLED && isIphone()) {
           if (videoRef.current) {
             videoRef.current.srcObject = null
             videoRef.current.style.backgroundColor = 'black';
           }
         } else {
           if (videoRef.current) {
-            videoRef.current.srcObject = hostVideoStream
+            videoRef.current.srcObject = videoStream
           } else {
             logger.log('No video ref')
           }
@@ -1155,8 +1160,8 @@ export const makePreviewDialog = (showCaneclButton = true, type, videoStream, me
         destroy()
       },
       onClose: async () => {
-        if (meetingStore.sparkRTC.role === meetingStore.sparkRTC.Roles.AUDIENCE) {
-          await meetingStore.sparkRTC.closeCamera()
+        if (sparkRtcSignal.value.role === sparkRtcSignal.value.Roles.AUDIENCE) {
+          await sparkRtcSignal.value.closeCamera()
         }
         onClose && onClose()
         destroy()

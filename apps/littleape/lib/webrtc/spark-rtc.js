@@ -177,6 +177,11 @@ export class SparkRTC {
     CAMERA: "camera",
   };
 
+  setLocalStream(stream) {
+    this.localStream = stream
+    logger.log("local Stream is upated: ", this.localStream)
+  }
+
   /**
    * to get all the codecs and select H264 only
    */
@@ -920,7 +925,7 @@ export class SparkRTC {
       for (const userId in this.myPeerConnectionArray) {
         const apeerConnection = this.myPeerConnectionArray[userId];
 
-        logger.log("Screen share stream before stop is: ",stream)
+        logger.log("Screen share stream before stop is: ", stream)
         stream.getTracks().forEach((track) => {
           const sender = apeerConnection
             .getSenders()

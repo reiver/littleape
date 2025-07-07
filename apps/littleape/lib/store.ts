@@ -33,7 +33,6 @@ export const meetingStore = proxy({
     dialogs: [],
     statsDataOpen: false,
     statsData: '',
-    sparkRTC: null as SparkRTC,
     isAttendeesOpen: false,
     attendeesBadge: false,
     meetingStatus: true,

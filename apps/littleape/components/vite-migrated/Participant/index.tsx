@@ -11,7 +11,7 @@ import { meetingStore } from 'lib/store'
 import { useSnapshot } from 'valtio'
 import logger from 'lib/logger/logger';
 import { DialogTypes, makeDialog, makeInviteDialog } from '../Dialog';
-import { onInviteToStage, onUserRaisedHand } from 'pages/Meeting';
+import { onInviteToStage, onUserRaisedHand, sparkRtcSignal } from 'pages/Meeting';
 import clsx from 'clsx'
 
 //FIXME
@@ -35,7 +35,7 @@ const Participant = ({ participant }) => {
                     participant.acceptRaiseHand(true)
                     onUserRaisedHand(participant.userId, false, true)
 
-                    meetingStore.sparkRTC.acceptedRequests.push(participant.userId.toString())
+                    sparkRtcSignal.value.acceptedRequests.push(participant.userId.toString())
                 },
                 () => { },
                 false,
@@ -53,9 +53,9 @@ const Participant = ({ participant }) => {
         //check multiple scenarios for messages
 
         //people on stage + sent requests + accepted requests ==  maxraisehands
-        if (snap.sparkRTC.sentRequests.length > 0 && snap.sparkRTC.acceptedRequests.length > 0 && snap.sparkRTC.raiseHands.length >= snap.sparkRTC.maxRaisedHands) {
+        if (sparkRtcSignal.value.sentRequests.length > 0 && sparkRtcSignal.value.acceptedRequests.length > 0 && sparkRtcSignal.value.raiseHands.length >= sparkRtcSignal.value.maxRaisedHands) {
             makeDialog('info', {
-                message: `You can accept upto ${snap.sparkRTC.maxRaisedHands} people on stage.`,
+                message: `You can accept upto ${sparkRtcSignal.value.maxRaisedHands} people on stage.`,
                 icon: 'Close',
                 variant: 'danger',
             })
@@ -64,7 +64,7 @@ const Participant = ({ participant }) => {
 
         //people on stage + accepted requests == maxrasiehand
 
-        if (snap.sparkRTC.acceptedRequests.length > 0 && snap.sparkRTC.raiseHands.length >= snap.sparkRTC.maxRaisedHands) {
+        if (sparkRtcSignal.value.acceptedRequests.length > 0 && sparkRtcSignal.value.raiseHands.length >= sparkRtcSignal.value.maxRaisedHands) {
             makeDialog('info', {
                 message: `You've already accepted some requests. Please wait!`,
                 icon: 'Close',
@@ -74,7 +74,7 @@ const Participant = ({ participant }) => {
         }
 
         //people on stage + send requests == maxraisehands
-        if (snap.sparkRTC.sentRequests.length > 0 && snap.sparkRTC.raiseHands.length >= snap.sparkRTC.maxRaisedHands) {
+        if (sparkRtcSignal.value.sentRequests.length > 0 && sparkRtcSignal.value.raiseHands.length >= sparkRtcSignal.value.maxRaisedHands) {
             makeDialog('info', {
                 message: `You've already sent some requests. Please wait!`,
                 icon: 'Close',
@@ -84,7 +84,7 @@ const Participant = ({ participant }) => {
         }
 
         //people on stage === maxraisehands
-        if (snap.sparkRTC.raiseHands.length >= snap.sparkRTC.maxRaisedHands) {
+        if (sparkRtcSignal.value.raiseHands.length >= sparkRtcSignal.value.maxRaisedHands) {
             makeDialog('info', {
                 message: 'The stage is already full. try again later.',
                 icon: 'Close',

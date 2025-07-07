@@ -13,6 +13,7 @@ import Controllers, { MoreControllers, toggleMoreOptions } from '../Controllers'
 import { LinkCopyComponent } from 'components/LinkCopyComponent'
 import { BottomSheet } from '../BottomSheet'
 import { useEffect, useState } from 'react'
+import { sparkRtcSignal } from 'pages/Meeting'
 
 export const BottomBar = () => {
 
@@ -21,7 +22,7 @@ export const BottomBar = () => {
   const [audienceUrl, setAudienceUrl] = useState('');
 
   useEffect(() => {
-    const roomName = state.roomNameSignal || state.sparkRTC?.roomName || '';
+    const roomName = state.roomNameSignal || sparkRtcSignal.value?.roomName || '';
     const url = `${window.location.origin}/${roomName}/conf/${meetingStore.meetingStartTimeInUnix}`;
     setAudienceUrl(url);
   }, []);
@@ -86,7 +87,7 @@ export const BottomBarBottomSheet = () => {
   const [audienceUrl, setAudienceUrl] = useState('');
 
   useEffect(() => {
-    const roomName = state.roomNameSignal || state.sparkRTC?.roomName || '';
+    const roomName = state.roomNameSignal || sparkRtcSignal.value?.roomName || '';
     const url = `${window.location.origin}/${roomName}/conf/${meetingStore.meetingStartTimeInUnix}`;
     setAudienceUrl(url);
   }, []);

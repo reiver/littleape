@@ -2,7 +2,7 @@
 
 import logger from '../../../lib/logger/logger'
 import { meetingStore, RawStreamRefInPreviewDialog, rawStreams } from '../../../lib/store'
-import { onStartShareScreen, onStopShareScreen, setUserActionLoading, updateUser } from 'pages/Meeting'
+import { onStartShareScreen, onStopShareScreen, setUserActionLoading, sparkRtcSignal, updateUser } from 'pages/Meeting'
 import { useEffect, useState } from 'react'
 import { Tooltip } from '../common/Tooltip'
 import { IconButton } from '../common/IconButton'
@@ -68,7 +68,7 @@ export const Controllers = () => {
 
     const handleShareScreen = async () => {
         if (!sharingScreenStreamId) {
-            const stream = await snap.sparkRTC.startShareScreen()
+            const stream = await sparkRtcSignal.value.startShareScreen()
             if (stream == null || stream == undefined) {
                 return
             }
@@ -81,19 +81,19 @@ export const Controllers = () => {
             rawStreams.set(stream.id, stream)
         } else {
             const stream = rawStreams.get(sharingScreenStreamId)
-            await snap.sparkRTC.stopShareScreen(stream)
+            await sparkRtcSignal.value.stopShareScreen(stream)
             onStopShareScreen(stream)
         }
     }
     const toggleCamera = () => {
-        snap.sparkRTC.disableVideo(!isCameraOn)
+        sparkRtcSignal.value.disableVideo(!isCameraOn)
         updateUser({
             isCameraOn: !isCameraOn,
         })
     }
     const toggleMicrophone = () => {
         logger.log("Toggle MicroPhone: ", isMicrophoneOn)
-        snap.sparkRTC.disableAudio(!isMicrophoneOn)
+        sparkRtcSignal.value.disableAudio(!isMicrophoneOn)
         updateUser({
             isMicrophoneOn: !isMicrophoneOn,
         })
@@ -113,7 +113,7 @@ export const Controllers = () => {
                         isMicrophoneOn: true,
                         isCameraOn: true,
                     })
-                    snap.sparkRTC.leaveStage()
+                    sparkRtcSignal.value.leaveStage()
                     RawStreamRefInPreviewDialog.length = 0
                 },
                 () => { },
@@ -132,7 +132,7 @@ export const Controllers = () => {
                 })
 
                 setUserActionLoading(snap.currentUser.userId, true)
-                snap.sparkRTC.raiseHand()
+                sparkRtcSignal.value.raiseHand()
                 makeDialog('info', {
                     message: 'Raise hand request has been sent.',
                     icon: 'Check',
@@ -145,7 +145,7 @@ export const Controllers = () => {
                     isMicrophoneOn: true,
                     isCameraOn: true,
                 })
-                snap.sparkRTC.lowerHand()
+                sparkRtcSignal.value.lowerHand()
                 setUserActionLoading(snap.currentUser.userId, false)
             }
         }
@@ -156,7 +156,7 @@ export const Controllers = () => {
     const handleReload = () => {
         if (reconnectable) {
             setReconnectable(false)
-            snap.sparkRTC.startProcedure(true)
+            sparkRtcSignal.value.startProcedure(true)
             setTimeout(() => {
                 setReconnectable(true)
             }, 2500)
@@ -240,7 +240,7 @@ export const MoreControllers = () => {
 
     const handleShareScreen = async () => {
         if (!sharingScreenStreamId) {
-            const stream = await snap.sparkRTC.startShareScreen()
+            const stream = await sparkRtcSignal.value.startShareScreen()
             onStartShareScreen(stream)
             updateUser({
                 sharingScreenStreamId: stream.id,
@@ -251,7 +251,7 @@ export const MoreControllers = () => {
 
         } else {
             const stream = rawStreams.get(sharingScreenStreamId)
-            await snap.sparkRTC.stopShareScreen(stream)
+            await sparkRtcSignal.value.stopShareScreen(stream)
             onStopShareScreen(stream)
         }
     }
@@ -260,7 +260,7 @@ export const MoreControllers = () => {
         logger.log("Handle Recording: isRecordingStarted: ", isRecordingStarted)
 
         if (isRecordingStarted) {
-            snap.sparkRTC.stopRecording();
+            sparkRtcSignal.value.stopRecording();
             updateUser({
                 isRecordingStarted: !isRecordingStarted
             })
@@ -278,7 +278,7 @@ export const MoreControllers = () => {
             },
             async () => {
                 //on ok
-                const res = await snap.sparkRTC.startRecording()
+                const res = await sparkRtcSignal.value.startRecording()
                 if (res === true) {
                     updateUser({
                         isRecordingStarted: !isRecordingStarted

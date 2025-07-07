@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 import logger from "lib/logger/logger"
 import { toggleAttendees } from '../Attendees'
-import { updateUser } from "pages/Meeting"
+import { sparkRtcSignal, updateUser } from "pages/Meeting"
 import { DialogTypes, makeDialog } from '../Dialog'
 import { meetingStore } from "lib/store"
 import { useDeviceSize } from "hooks/useDeviceSize"
@@ -43,7 +43,7 @@ export const MoreOptions = () => {
         logger.log("Handle Recording: isRecordingStarted: ", isRecordingStarted)
 
         if (isRecordingStarted) {
-            snap.sparkRTC.stopRecording();
+            sparkRtcSignal.value.stopRecording();
             updateUser({
                 isRecordingStarted: !isRecordingStarted
             })
@@ -61,7 +61,7 @@ export const MoreOptions = () => {
             },
             async () => {
                 //on ok
-                const res = await snap.sparkRTC.startRecording()
+                const res = await sparkRtcSignal.value.startRecording()
                 if (res === true) {
                     updateUser({
                         isRecordingStarted: !isRecordingStarted

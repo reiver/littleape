@@ -22,6 +22,7 @@ import Icon from '../common/Icon';
 import { meetingDerivedState } from 'hooks/useMeetingDerivedState';
 import { useDeviceSize } from 'hooks/useDeviceSize';
 import { useBreakpointValue } from '@chakra-ui/react';
+import { sparkRtcSignal } from 'pages/Meeting';
 
 export const streamersLength = () => meetingDerivedState.streamersLength
 export const hasHostStream = () => meetingDerivedState.hasHostStream
@@ -668,7 +669,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
 
     useEffect(() => {
 
-        if (isIphone() && snap.sparkRTC.localStream && snap.sparkRTC.localStream.id === stream.id) {
+        if (isIphone() && sparkRtcSignal.value.localStream && sparkRtcSignal.value.localStream.id === stream.id) {
             //localstream on Iphone only
             if (isVideoTrackDisabled(stream) === true) {
                 videoRef.current.srcObject = null
@@ -693,10 +694,10 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
 
         }
         //set default speaker
-        if (snap.sparkRTC.defaultSpeaker) {
+        if (sparkRtcSignal.value.defaultSpeaker) {
             logger.log('Changing speaker')
             var io = new IODevices()
-            io.attachSinkId(videoRef.current, snap.sparkRTC.defaultSpeaker)
+            io.attachSinkId(videoRef.current, sparkRtcSignal.value.defaultSpeaker)
         }
     }, [stream])
 
@@ -712,7 +713,7 @@ export const Video = memo(({ stream, isMuted, isHostStream, name, userId, isUser
                 title: 'Kick Audience Off The Stage',
             },
             () => {
-                snap.sparkRTC.disableAudienceBroadcast(String(userId))
+                sparkRtcSignal.value.disableAudienceBroadcast(String(userId))
             },
             () => { },
             false,

@@ -16,7 +16,9 @@ import TopBar from 'components/vite-migrated/TopBar'
 import RecordingBar from 'components/vite-migrated/RecordingBar'
 import { MeetingBody } from 'components/vite-migrated/MeetingBody'
 import { useSnapshot } from 'valtio';
-import { log } from 'console';
+import { signal } from '@preact/signals-react';
+
+export const sparkRtcSignal = signal(null)
 
 const PageNotFound = lazy(() => import('./404'))
 
@@ -35,8 +37,8 @@ export const setUserActionLoading = (userId, actionLoading) => {
 }
 
 export const leaveMeeting = () => {
-    if (meetingStore.sparkRTC) {
-        meetingStore.sparkRTC.leaveMeeting()
+    if (sparkRtcSignal.value) {
+        sparkRtcSignal.value.leaveMeeting()
         meetingStore.meetingStatus = false
         meetingStore.recordingStatus = false
         meetingStore.streamers = {}
@@ -54,8 +56,8 @@ export const updateUser = (props) => {
 
 
 export const stopRecording = () => {
-    if (meetingStore.sparkRTC) {
-        meetingStore.sparkRTC.stopRecording()
+    if (sparkRtcSignal.value) {
+        sparkRtcSignal.value.stopRecording()
         updateUser({
             isRecordingStarted: false
         })
@@ -70,7 +72,7 @@ export const onStartShareScreen = (stream) => {
     }
 
     stream.getTracks()[0].onended = async () => {
-        await meetingStore.sparkRTC.stopShareScreen(stream)
+        await sparkRtcSignal.value.stopShareScreen(stream)
         updateUser({
             sharingScreenStreamId: null,
         })
@@ -116,8 +118,8 @@ const toggleFullScreen = async (stream) => {
 
 const displayStream = async (stream, toggleFull = false) => {
     let local = false
-    if (meetingStore.sparkRTC.localStream) {
-        if (meetingStore.sparkRTC.localStream.id === stream.id) {
+    if (sparkRtcSignal.value.localStream) {
+        if (sparkRtcSignal.value.localStream.id === stream.id) {
             local = true
         }
     }
@@ -213,7 +215,7 @@ export const onStopStream = async (stream) => {
 }
 
 export const onInviteToStage = (participant: any) => {
-    if (meetingStore.sparkRTC.raiseHands.length >= meetingStore.sparkRTC.maxRaisedHands) {
+    if (sparkRtcSignal.value.raiseHands.length >= sparkRtcSignal.value.maxRaisedHands) {
         makeDialog('info', {
             message: 'The stage is already full. try again later.',
             icon: 'Close',
@@ -222,7 +224,7 @@ export const onInviteToStage = (participant: any) => {
     } else {
         //send invite
         logger.log('Send Intitation to ', participant)
-        meetingStore.sparkRTC.inviteToStage(participant.userId)
+        sparkRtcSignal.value.inviteToStage(participant.userId)
         setUserActionLoading(participant.userId, true)
 
         makeDialog('info', {
@@ -243,7 +245,7 @@ export const onUserRaisedHand = (userId, raisedHand, actionLoading: boolean, acc
         },
     }
     logger.log('LOWER HAND', userId, raisedHand)
-    meetingStore.sparkRTC.getLatestUserList('onUserRaiseHand')
+    sparkRtcSignal.value.getLatestUserList('onUserRaiseHand')
 }
 
 function keyPressCallback(key) {
@@ -268,11 +270,11 @@ function keyPressCallback(key) {
 }
 
 const setupSignalingSocket = async (host, name, room, debug) => {
-    logger.log("Spark RTC is: ", meetingStore.sparkRTC);
-    await meetingStore.sparkRTC.setupSignalingSocket(getWsUrl(host), JSON.stringify({ name, email: '' }), room, debug)
+    logger.log("Spark RTC is: ", sparkRtcSignal.value);
+    await sparkRtcSignal.value.setupSignalingSocket(getWsUrl(host), JSON.stringify({ name, email: '' }), room, debug)
 }
 const start = async () => {
-    return meetingStore.sparkRTC.start()
+    return sparkRtcSignal.value.start()
 }
 
 export const getUserRaiseHandStatus = (userId) => {
@@ -436,7 +438,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
             const setupSparkRTC = async () => {
                 logger.log(`Setup SparkRTC for role : `, role)
 
-                meetingStore.sparkRTC = await createSparkRTC(role, {
+                sparkRtcSignal.value = await createSparkRTC(role, {
                     onAudioStatusChange: (message) => {
                         logger.log('audioStatus: ', message)
                         if (message.stream != undefined && message.type != undefined && meetingStore.streamers != undefined) {
@@ -455,9 +457,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         await start()
 
                         //if host send Custom styles to room
-                        if (meetingStore.sparkRTC.role === meetingStore.sparkRTC.Roles.BROADCAST) {
+                        if (sparkRtcSignal.value.role === sparkRtcSignal.value.Roles.BROADCAST) {
                             logger.log("Send Meeting UI: ", customStyles)
-                            meetingStore.sparkRTC.sendCustomStylesToRoom(customStyles)
+                            sparkRtcSignal.value.sendCustomStylesToRoom(customStyles)
                         }
 
                     },
@@ -502,13 +504,13 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                         await displayStream(stream)
 
-                        if (!meetingStore.sparkRTC.broadcasterDC && role === Roles.AUDIENCE) {
+                        if (!sparkRtcSignal.value.broadcasterDC && role === Roles.AUDIENCE) {
                             meetingStore.broadcastIsInTheMeeting = true
-                            meetingStore.sparkRTC.getMetadata()
+                            sparkRtcSignal.value.getMetadata()
                         }
                     },
                     remoteStreamDCCallback: async (stream) => {
-                        meetingStore.sparkRTC.getLatestUserList(`remote stream DC`)
+                        sparkRtcSignal.value.getLatestUserList(`remote stream DC`)
 
                         logger.log(`remoteStreamDCCallback`, stream)
 
@@ -516,18 +518,18 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             onStopStream(stream)
                         } else {
                             //get all remote streams and stop them
-                            const streams = meetingStore.sparkRTC.remoteStreams
+                            const streams = sparkRtcSignal.value.remoteStreams
                             streams.forEach((str) => {
                                 onStopStream(str)
                             })
 
-                            meetingStore.sparkRTC.remoteStreams = []
+                            sparkRtcSignal.value.remoteStreams = []
                         }
 
                         //display broadcaster not in the meeting message after 1 sec, to avoid any issues
                         setTimeout(() => {
                             if (role === Roles.AUDIENCE) {
-                                if (meetingStore.sparkRTC.broadcasterDC || stream === 'no-stream') {
+                                if (sparkRtcSignal.value.broadcasterDC || stream === 'no-stream') {
                                     logger.log("NO STREAM AND BROADCASTER IS DC")
 
                                     if (meetingStore.twoHoursPassed) {
@@ -554,8 +556,8 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                         isCameraOn: true,
                                         isRecordingStarted: false,
                                     })
-                                    meetingStore.sparkRTC.resetAudioVideoState()
-                                    meetingStore.sparkRTC.stopRecording()
+                                    sparkRtcSignal.value.resetAudioVideoState()
+                                    sparkRtcSignal.value.stopRecording()
                                     logger.log(`broadcasterDC...`)
                                 }
                             }
@@ -573,7 +575,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         })
 
                         //only show message when limit is not reached
-                        if (meetingStore.sparkRTC.raiseHands.length < meetingStore.sparkRTC.maxRaisedHands) {
+                        if (sparkRtcSignal.value.raiseHands.length < sparkRtcSignal.value.maxRaisedHands) {
                             meetingStore.attendeesBadge = true
 
                             makeDialog(
@@ -597,7 +599,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     onStart: async (closeSocket = false) => {
                         if (meetingStore.meetingStatus) {
                             if (role === Roles.AUDIENCE) {
-                                await meetingStore.sparkRTC.restart(closeSocket)
+                                await sparkRtcSignal.value.restart(closeSocket)
                             }
 
                             //restart for broadcaster [zaid]
@@ -614,7 +616,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         }
                     },
                     updateMeetingUI: (styles) => {
-                        if (meetingStore.sparkRTC.role == meetingStore.sparkRTC.Roles.AUDIENCE) {
+                        if (sparkRtcSignal.value.role == sparkRtcSignal.value.Roles.AUDIENCE) {
                             // logger.log("Latest Meeting UI: ", styles)
                             setCustomStyles(styles)
                         }
@@ -662,7 +664,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     },
 
                     startAgain: async () => {
-                        if (meetingStore.sparkRTC) {
+                        if (sparkRtcSignal.value) {
                             logger.log("setupSignalingSocket for StartAgain")
 
                             //Init socket and start sparkRTC
@@ -676,7 +678,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         logger.log('altBroadcastApprove: data: ', data)
 
                         if (!isStreamming) {
-                            meetingStore.sparkRTC.onRaiseHandRejected()
+                            sparkRtcSignal.value.onRaiseHandRejected()
                             makeDialog('info', {
                                 message: 'You’ve been Rejected',
                                 icon: 'Close',
@@ -686,7 +688,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                 ableToRaiseHand: true,
                             })
                         } else {
-                            const localStream = await meetingStore.sparkRTC.getAccessToLocalStream()
+                            const localStream = await sparkRtcSignal.value.getAccessToLocalStream()
 
                             logger.log("Local stream in Alt Broadcast is: ", localStream)
                             previewDialogId = makePreviewDialog(
@@ -703,7 +705,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                         isStreamming,
                                         ableToRaiseHand: true,
                                     })
-                                    meetingStore.sparkRTC.joinStage(data)
+                                    sparkRtcSignal.value.joinStage(data)
                                     makeDialog('info', {
                                         message: 'You’ve been added to the stage',
                                         icon: 'Check',
@@ -711,10 +713,10 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                                     //send user mute status to everyone to update the Ui
                                     setTimeout(() => {
-                                        if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
-                                            meetingStore.sparkRTC.sendAudioStatus(false)
+                                        if (sparkRtcSignal.value.lastAudioState === sparkRtcSignal.value.LastState.DISABLED) {
+                                            sparkRtcSignal.value.sendAudioStatus(false)
                                         } else {
-                                            meetingStore.sparkRTC.sendAudioStatus(true)
+                                            sparkRtcSignal.value.sendAudioStatus(true)
                                         }
                                     }, 2000)
                                 },
@@ -726,9 +728,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                         isCameraOn: true,
                                     })
 
-                                    meetingStore.sparkRTC.resetAudioVideoState()
-                                    meetingStore.sparkRTC.cancelJoinStage(data)
-                                    meetingStore.sparkRTC.onRaiseHandRejected()
+                                    sparkRtcSignal.value.resetAudioVideoState()
+                                    sparkRtcSignal.value.cancelJoinStage(data)
+                                    sparkRtcSignal.value.onRaiseHandRejected()
                                     RawStreamRefInPreviewDialog.length = 0
                                 }
                             )
@@ -746,7 +748,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             icon: 'Close',
                             variant: 'danger',
                         })
-                        meetingStore.sparkRTC.leaveStage()
+                        sparkRtcSignal.value.leaveStage()
                         RawStreamRefInPreviewDialog.length = 0
                     },
                     maxLimitReached: (message) => {
@@ -757,7 +759,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             isMicrophoneOn: true,
                             isCameraOn: true,
                         })
-                        meetingStore.sparkRTC.resetAudioVideoState()
+                        sparkRtcSignal.value.resetAudioVideoState()
                     },
                     onUserListUpdate: (users) => {
                         // log(`[On Users List Update]`, users);
@@ -777,8 +779,8 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             }
                         }
                         //get latest raise hand count from sparkRTC
-                        if (meetingStore.sparkRTC.role === meetingStore.sparkRTC.Roles.BROADCAST) {
-                            meetingStore.raisedHandsCount = meetingStore.sparkRTC.raiseHands.length
+                        if (sparkRtcSignal.value.role === sparkRtcSignal.value.Roles.BROADCAST) {
+                            meetingStore.raisedHandsCount = sparkRtcSignal.value.raiseHands.length
                         } else {
                             //@ts-ignore
                             meetingStore.raisedHandsCount = Object.values(usersTmp).reduce((prev, user) => {
@@ -829,7 +831,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                         //@ts-ignore
                         onUserRaisedHand(data, false, false)
                         logger.log('userLoweredHand: ', data)
-                        meetingStore.sparkRTC.getLatestUserList('UserLowerHand')
+                        sparkRtcSignal.value.getLatestUserList('UserLowerHand')
 
                         //get raise hand count from attendees list
                         const rC = Object.values(meetingStore.attendees).reduce((prev, user) => {
@@ -855,7 +857,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     invitationToJoinStage: async (msg) => {
                         logger.log('invitationToJoinStage: ', msg)
                         //show preview dialog to Join stage
-                        const localStream = await meetingStore.sparkRTC.getAccessToLocalStream()
+                        const localStream = await sparkRtcSignal.value.getAccessToLocalStream()
 
                         previewDialogId = makePreviewDialog(
                             true,
@@ -873,7 +875,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                     isStreamming: true,
                                     ableToRaiseHand: true,
                                 })
-                                meetingStore.sparkRTC.joinStage(msg.data)
+                                sparkRtcSignal.value.joinStage(msg.data)
                                 makeDialog('info', {
                                     message: 'You’ve been added to the stage',
                                     icon: 'Check',
@@ -881,10 +883,10 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
 
                                 //send user mute status to everyone to update the Ui
                                 setTimeout(() => {
-                                    if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
-                                        meetingStore.sparkRTC.sendAudioStatus(false)
+                                    if (sparkRtcSignal.value.lastAudioState === sparkRtcSignal.value.LastState.DISABLED) {
+                                        sparkRtcSignal.value.sendAudioStatus(false)
                                     } else {
-                                        meetingStore.sparkRTC.sendAudioStatus(true)
+                                        sparkRtcSignal.value.sendAudioStatus(true)
                                     }
                                 }, 2000)
                             },
@@ -897,9 +899,9 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                                     isCameraOn: true,
                                 })
 
-                                meetingStore.sparkRTC.resetAudioVideoState()
-                                meetingStore.sparkRTC.cancelJoinStage(msg.data, true)
-                                meetingStore.sparkRTC.onRaiseHandRejected()
+                                sparkRtcSignal.value.resetAudioVideoState()
+                                sparkRtcSignal.value.cancelJoinStage(msg.data, true)
+                                sparkRtcSignal.value.onRaiseHandRejected()
                                 RawStreamRefInPreviewDialog.length = 0
                             }
                         )
@@ -909,7 +911,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                             // logger.log("MutedMap: ", muted)
                             for (const [streamID, isMuted] of Object.entries(muted)) {
 
-                                if (meetingStore.sparkRTC.localStream && streamID === meetingStore.sparkRTC.localStream.id) {
+                                if (sparkRtcSignal.value.localStream && streamID === sparkRtcSignal.value.localStream.id) {
                                     //we need to skip the Localstream
                                     continue
                                 }
@@ -930,7 +932,7 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                     }
                 })
 
-                if (meetingStore.sparkRTC && role == Roles.AUDIENCE) {
+                if (sparkRtcSignal.value && role == Roles.AUDIENCE) {
                     logger.log("setupSignalingSocket for Audience")
 
                     //Init socket and start sparkRTC
@@ -941,10 +943,10 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
             if (meetingStore.meetingStatus && !socketIsSetupForHost) {
 
                 logger.log("Giooing to setup for host")
-                // if (meetingStore.sparkRTC) {
+                // if (sparkRtcSignal.value) {
                 //     if (meetingStore.meetingIsEnded) {
-                //         await meetingStore.sparkRTC.leaveMeeting()
-                //         await meetingStore.sparkRTC.resetVariables(true)
+                //         await sparkRtcSignal.value.leaveMeeting()
+                //         await sparkRtcSignal.value.resetVariables(true)
                 //     }
                 //     //don't start again if setup already.. This check is for meeting time status and leave meeting immediatly if ended
                 //     return
@@ -953,20 +955,20 @@ const Meeting = ({ params: { room, displayName, name, _customStyles, meetingStar
                 const rtc = await setupSparkRTC()
                 logger.log("RTC is : ", rtc)
 
-                logger.log("snap ƒRTC is : ", meetingStore.sparkRTC)
+                logger.log("snap ƒRTC is : ", sparkRtcSignal.value)
 
-                if (meetingStore.sparkRTC && role === Roles.BROADCAST) {
+                if (sparkRtcSignal.value && role === Roles.BROADCAST) {
                     logger.log("Inside Host and RTC check")
-                    let stream = await meetingStore.sparkRTC.getAccessToLocalStream()
+                    let stream = await sparkRtcSignal.value.getAccessToLocalStream()
 
                     showPreviewDialog(stream, host, name, room)
 
                     //send user mute status to everyone to update the Ui
                     setTimeout(() => {
-                        if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
-                            meetingStore.sparkRTC.sendAudioStatus(false)
+                        if (sparkRtcSignal.value.lastAudioState === sparkRtcSignal.value.LastState.DISABLED) {
+                            sparkRtcSignal.value.sendAudioStatus(false)
                         } else {
-                            meetingStore.sparkRTC.sendAudioStatus(true)
+                            sparkRtcSignal.value.sendAudioStatus(true)
                         }
                     }, 2000)
                 }
@@ -1059,12 +1061,13 @@ function showPreviewDialog(str, host, name, room) {
 
             await setupSignalingSocket(host, name, room, null)
 
+
             //send user mute status to everyone to update the Ui
             setTimeout(() => {
-                if (meetingStore.sparkRTC.lastAudioState === meetingStore.sparkRTC.LastState.DISABLED) {
-                    meetingStore.sparkRTC.sendAudioStatus(false)
+                if (sparkRtcSignal.value.lastAudioState === sparkRtcSignal.value.LastState.DISABLED) {
+                    sparkRtcSignal.value.sendAudioStatus(false)
                 } else {
-                    meetingStore.sparkRTC.sendAudioStatus(true)
+                    sparkRtcSignal.value.sendAudioStatus(true)
                 }
             }, 2000)
         },
@@ -1074,8 +1077,8 @@ function showPreviewDialog(str, host, name, room) {
                 isMicrophoneOn: true,
                 isCameraOn: true,
             })
-            await meetingStore.sparkRTC.closeCamera(); //reset io devices
-            await meetingStore.sparkRTC.resetAudioVideoState()
+            await sparkRtcSignal.value.closeCamera(); //reset io devices
+            await sparkRtcSignal.value.resetAudioVideoState()
             logger.log("setupSignalingSocket for preview dialog 2")
 
             await setupSignalingSocket(host, name, room, null)

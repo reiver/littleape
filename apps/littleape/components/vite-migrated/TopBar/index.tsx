@@ -3,7 +3,7 @@
 import Container from 'components/vite-migrated/common/Container'
 import Logo from 'components/vite-migrated/common/Logo'
 import Button from 'components/vite-migrated/common/Button'
-import { leaveMeeting } from 'pages/Meeting'
+import { leaveMeeting, sparkRtcSignal } from 'pages/Meeting'
 
 import { meetingStore } from 'lib/store'
 import { useSnapshot } from 'valtio'
@@ -34,7 +34,7 @@ export const TopBar = ({ customStyles }) => {
           <div className="col-span-3 text-right">
             {state.meetingStatus && (
               <Button variant="red" onClick={handleLeaveMeeting}>
-                {state.sparkRTC?.role === state.sparkRTC?.Roles?.BROADCAST
+                {sparkRtcSignal.value?.role === sparkRtcSignal.value?.Roles?.BROADCAST
                   ? 'End Conference'
                   : 'Leave'}
               </Button>
