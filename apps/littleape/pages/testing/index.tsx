@@ -1,78 +1,81 @@
-"use client"
+"use client";
 
-
-import Button from 'components/vite-migrated/common/Button'
-import Container from 'components/vite-migrated/common/Container'
-import React from 'react'
-import Avatar from '../../public/vite-migrated/icons/Avatar.svg'
-import reset from "../../public/vite-migrated/images/Reset.png"
-import IconButton from 'components/vite-migrated/common/IconButton'
-import Icon from 'components/vite-migrated/common/Icon'
-import Logo from 'components/vite-migrated/common/Logo'
-import ProfileButton from 'components/vite-migrated/common/ProfileButton'
-import Microphone from "../../public/vite-migrated/icons/Microphone.svg"
-import RoundButton from 'components/vite-migrated/common/RoundButton'
-import { Tooltip } from 'components/vite-migrated/common/Tooltip'
-import TopBar from 'components/vite-migrated/TopBar'
-import BottomBar, { BottomBarBottomSheet } from 'components/vite-migrated/BottomBar'
-import { DialogTypes, makeDialog, makeIODevicesDialog, ToastProvider } from 'components/vite-migrated/Dialog'
-import Footer from 'components/vite-migrated/Footer'
-import { IODevices } from 'lib/ioDevices/io-devices'
-import logger from 'lib/logger/logger'
-import { meetingStore } from 'lib/store'
-import { MoreOptions } from 'components/vite-migrated/MoreOptions'
-import { useSnapshot } from 'valtio'
-import { Attendees, Participant } from 'components/vite-migrated';
-import { AttendeesBottomSheet } from 'components/vite-migrated/Attendees'
-import RecordingBar from 'components/vite-migrated/RecordingBar'
-import Meeting from 'pages/Meeting'
-import { useRouter } from 'next/router'
+import Button from "components/vite-migrated/common/Button";
+import Container from "components/vite-migrated/common/Container";
+import React from "react";
+import Avatar from "../../public/vite-migrated/icons/Avatar.svg";
+import reset from "../../public/vite-migrated/images/Reset.png";
+import IconButton from "components/vite-migrated/common/IconButton";
+import Icon from "components/vite-migrated/common/Icon";
+import Logo from "components/vite-migrated/common/Logo";
+import ProfileButton from "components/vite-migrated/common/ProfileButton";
+import Microphone from "../../public/vite-migrated/icons/Microphone.svg";
+import RoundButton from "components/vite-migrated/common/RoundButton";
+import { Tooltip } from "components/vite-migrated/common/Tooltip";
+import TopBar from "components/vite-migrated/TopBar";
+import BottomBar, { BottomBarBottomSheet } from "components/vite-migrated/BottomBar";
+import {
+  DialogTypes,
+  makeDialog,
+  makeIODevicesDialog,
+  ToastProvider,
+} from "components/vite-migrated/Dialog";
+import Footer from "components/vite-migrated/Footer";
+import { IODevices } from "lib/ioDevices/io-devices";
+import logger from "lib/logger/logger";
+import { meetingStore } from "lib/store";
+import { MoreOptions } from "components/vite-migrated/MoreOptions";
+import { useSnapshot } from "valtio";
+import { Attendees, Participant } from "components/vite-migrated";
+import { AttendeesBottomSheet } from "components/vite-migrated/Attendees";
+import RecordingBar from "components/vite-migrated/RecordingBar";
+import Meeting from "components/Meeting";
+import { useRouter } from "next/router";
 
 const TestPage = () => {
-    const snap = useSnapshot(meetingStore)
-    const attendeesList = Object.values(snap.attendees);
+  const snap = useSnapshot(meetingStore);
+  const attendeesList = Object.values(snap.attendees);
 
-    //get query param role from link
+  //get query param role from link
 
-    const router = useRouter()
-    const { role } = router.query
-    const { name } = router.query
-    const { room } = router.query
-    const { time } = router.query
+  const router = useRouter();
+  const { role } = router.query;
+  const { name } = router.query;
+  const { room } = router.query;
+  const { time } = router.query;
 
-    if (!role || !name || !room) return <p>Please provide role and display name</p>
+  if (!role || !name || !room) return <p>Please provide role and display name</p>;
 
-    logger.log("Role is: ", role)
-    logger.log("Name is: ", name)
-    logger.log("Room is: ", room)
+  logger.log("Role is: ", role);
+  logger.log("Name is: ", name);
+  logger.log("Room is: ", room);
 
-    var meetingStartTime = null;
+  var meetingStartTime = null;
 
-    if (time != null && time != undefined) {
-        meetingStartTime = time
-    }
+  if (time != null && time != undefined) {
+    meetingStartTime = time;
+  }
 
-    var isHost = true
-    if (role == "audience") {
-        isHost = false
-    }
+  var isHost = true;
+  if (role == "audience") {
+    isHost = false;
+  }
 
-    return (
-        <div
-        // style={{ overflow: 'hidden' }}
-        // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
-        >
+  return (
+    <div
+    // style={{ overflow: 'hidden' }}
+    // className="min-h-screen flex flex-col gap-4 items-center justify-center bg-gray-100 p-8"
+    >
+      <Meeting
+        params={{
+          name: name.toString(),
+          room: room.toString(),
+          meetingStartTime: meetingStartTime,
+          isHost: isHost,
+        }}
+      />
 
-            <Meeting
-                params={{
-                    name: name.toString(),
-                    room: room.toString(),
-                    meetingStartTime: meetingStartTime,
-                    isHost: isHost
-                }}
-            />
-
-            {/* <span>Top Bar</span>
+      {/* <span>Top Bar</span>
             <TopBar customStyles={null} />
 
             <RecordingBar customStyles={null} />
@@ -143,29 +146,24 @@ const TestPage = () => {
                 <BottomBarBottomSheet />
                 <AttendeesBottomSheet />
             </div>*/}
-
-        </div>
-
-
-    )
-}
+    </div>
+  );
+};
 
 const testDialogs = () => {
-
-    // makeDialog(DialogTypes.IO_DEVICES,
-    //     {
-    //         message: `Are you sure you want to start recording the screen?`,
-    //         title: 'Screen Recording',
-    //     },
-    //     async () => {
-
-    //     },
-    //     () => {
-    //         //on close
-    //     },
-    //     false
-    // )
-}
+  // makeDialog(DialogTypes.IO_DEVICES,
+  //     {
+  //         message: `Are you sure you want to start recording the screen?`,
+  //         title: 'Screen Recording',
+  //     },
+  //     async () => {
+  //     },
+  //     () => {
+  //         //on close
+  //     },
+  //     false
+  // )
+};
 
 // const selectVideoInputDevice = async () => {
 //     const io = new IODevices()
@@ -191,4 +189,4 @@ const testDialogs = () => {
 //     )
 // }
 
-export default TestPage
+export default TestPage;

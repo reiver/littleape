@@ -1,13 +1,10 @@
 {
-	"plugins": [
-		"prettier"
-	],
-	"extends": [
-		"next/core-web-vitals",
-		"prettier"
-	],
-	"rules": {
+  "plugins": [],
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "rules": {
     "prettier/prettier": "error",
-	"no-deprecated-methods": "off"
+    "no-deprecated-methods": "off"
   }
 }

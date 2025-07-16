@@ -17,7 +17,21 @@ const nextConfig = {
     // Add SVGR loader for SVG files
     config.module.rules.push({
       test: /\.svg$/,
-      use: ["@svgr/webpack"],
+      use: [
+        {
+          loader: "@svgr/webpack",
+          options: {
+            svgoConfig: {
+              plugins: [
+                {
+                  name: "removeViewBox",
+                  active: false,
+                },
+              ],
+            },
+          },
+        },
+      ],
     });
 
     return config;
@@ -41,23 +55,22 @@ const nextConfig = {
           destination: joinURL(process.env.NEXT_PUBLIC_HOST, "/u/:username/follow"),
         },
         {
-          source: '/:roomname/conf/:timestamp',
+          source: "/:roomname/conf/:timestamp",
           // destination: '/log/:roomname/:timestamp',
-          destination: '/testing/conf/:roomname/:timestamp',
+          destination: "/testing/conf/:roomname/:timestamp",
         },
         {
-          source: '/:roomname/log/:timestamp',
-          destination: '/log/:roomname/:timestamp',
+          source: "/:roomname/log/:timestamp",
+          destination: "/log/:roomname/:timestamp",
         },
         {
-          source: '/',
-          destination: '/auth/login',
+          source: "/",
+          destination: "/auth/login",
         },
         {
-          source:'/:hostname/host',
-          destination:'/testing/:hostname/host'
+          source: "/:hostname/host",
+          destination: "/testing/:hostname/host",
         },
-
       ],
     };
   },
