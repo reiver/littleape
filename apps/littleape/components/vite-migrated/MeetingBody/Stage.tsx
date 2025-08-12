@@ -13,7 +13,7 @@ import throttle from "lodash.throttle";
 import logger from "lib/logger/logger";
 let timeOut;
 import { snapshot, useSnapshot } from "valtio";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { DialogTypes, isIphone, makeDialog } from "../Dialog";
 import { IODevices } from "lib/ioDevices/io-devices";
 import { IconButton } from "../common/IconButton";
@@ -22,7 +22,8 @@ import { meetingDerivedState } from "hooks/useMeetingDerivedState";
 import { useDeviceSize } from "hooks/useDeviceSize";
 import { useBreakpointValue } from "@chakra-ui/react";
 import { sparkRtcSignal } from "components/Meeting";
-
+import layoutStreams from "components/vite-migrated/MeetingBody/stage-layout-calculator";
+import { DynamicLayout } from "components/DyanmicLayout";
 export const streamersLength = () => meetingDerivedState.streamersLength;
 export const hasHostStream = () => meetingDerivedState.hasHostStream;
 export const hasShareScreenStream = () => meetingDerivedState.hasShareScreenStream;
@@ -119,14 +120,6 @@ export const getValidClass = (customStyles) => {
   }
 };
 
-let iw = getItemsWidth(
-  stageWidth(),
-  deviceSize(),
-  hasShareScreenStream(),
-  streamersLength(),
-  meetingStore.windowHeight
-);
-
 const getVideoDimensions = (attendee) => {
   const availableHeight = meetingStore.windowHeight - topBarBottomBarHeight();
 
@@ -139,8 +132,6 @@ const getVideoDimensions = (attendee) => {
       return wh;
     }
   }
-
-  meetingStore.isMoreOptionsOpen;
 
   let moreOptionsWidth = 0;
   if (meetingStore.isAttendeesOpen || meetingStore.isMoreOptionsOpen) {
@@ -175,7 +166,7 @@ function useWindowHeight() {
   return h;
 }
 
-export const Stage = ({ customStyles }) => {
+export const StageOld = ({ customStyles }) => {
   //init device size and resize callback
   useDeviceSize();
 
@@ -219,6 +210,7 @@ export const Stage = ({ customStyles }) => {
       if (timeOut) clearTimeout(timeOut);
     }
   }, [hasFullScreenedStream()]);
+
   const handleOnClick = (e, streamId) => {
     if (streamId === snap.fullScreenedStream) {
       meetingStore.bottomBarVisible = !meetingStore.bottomBarVisible;
@@ -226,116 +218,6 @@ export const Stage = ({ customStyles }) => {
       e.stopPropagation();
     }
   };
-
-  // useEffect(() => {
-  //     const intervalId = setInterval(() => {
-
-  //         //get host video position
-  //         const hostVideoElement = document.querySelector('.greatape-host-video');
-  //         if (hostVideoElement) {
-  //             const computedStyles = getComputedStyle(hostVideoElement);
-
-  //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
-
-  //             //get Host Stream
-  //             const hostStream = () => {
-  //                 const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && !s.isShareScreen);
-  //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-  //             };
-
-  //             if (hostStream) {
-  //                 let stream = hostStream()
-  //                 meetingStore.streamers = {
-  //                     ...meetingStore.streamers,
-  //                     [stream.id]: {
-  //                         ...meetingStore.streamers[stream.id],
-  //                         position: positionValue,
-  //                     },
-  //                 };
-
-  //             }
-
-  //         }
-
-  //         //get screen share position
-  //         const screenShareVideoElement = document.querySelector('.greatape-share-screen-video');
-  //         if (screenShareVideoElement) {
-  //             const computedStyles = getComputedStyle(screenShareVideoElement);
-
-  //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
-
-  //             //get screen share Stream
-  //             const screenShareStream = () => {
-  //                 const hostStreamer = Object.values(snap.streamers).find((s) => s.isHost && s.isShareScreen);
-  //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-  //             };
-
-  //             if (screenShareStream) {
-  //                 let stream = screenShareStream()
-
-  //                 meetingStore.streamers = {
-  //                     ...meetingStore.streamers,
-  //                     [stream.id]: {
-  //                         ...meetingStore.streamers[stream.id],
-  //                         position: positionValue,
-  //                     },
-  //                 };
-  //             }
-
-  //         }
-
-  //         //get audience position
-  //         const audienceVideoElement = document.querySelector('.greatape-audience-video');
-  //         if (audienceVideoElement) {
-  //             const computedStyles = getComputedStyle(audienceVideoElement);
-
-  //             const positionValue = parseInt(computedStyles.getPropertyValue('--position'), 10);
-
-  //             //get audience Stream
-  //             const audienceStream = () => {
-  //                 const hostStreamer = Object.values(snap.streamers).find((s) => !s.isHost && !s.isShareScreen);
-  //                 return hostStreamer ? rawStreams.get(hostStreamer.streamId) : null;
-  //             };
-
-  //             if (audienceStream) {
-  //                 let stream = audienceStream()
-
-  //                 meetingStore.streamers = {
-  //                     ...meetingStore.streamers,
-  //                     [stream.id]: {
-  //                         ...meetingStore.streamers.value[stream.id],
-  //                         position: positionValue,
-  //                     },
-  //                 };
-  //             }
-
-  //         }
-  //     }, 500);
-
-  //     // Clear the interval when the component is unmounted
-  //     return () => clearInterval(intervalId);
-  // }, []);
-
-  // const sortStreamers = (a, b) => {
-  //     if (customStyles) {
-  //         if (a.position && b.position && a.position != undefined && b.position != undefined) {
-  //             return a.position - b.position;
-  //         }
-  //         return 0;
-  //     } else {
-  //         logger.log("Original Sorting Logic: aHost is: ", a.isHost, " bHost is: ", b.isHost, " a screen: ", a.isShareScreen, " b screen: ", b.isShareScreen)
-
-  //         //original Logic
-  //         let aScore = 0
-  //         let bScore = 0
-  //         if (a.isHost) aScore += 10
-  //         if (a.isShareScreen) aScore += 20
-  //         if (b.isHost) bScore += 10
-  //         if (b.isShareScreen) bScore += 20
-  //         return bScore - aScore
-  //     }
-
-  // }
 
   const isXs = useBreakpointValue({ base: true, sm: false });
   const windowH = useWindowHeight();
@@ -348,6 +230,20 @@ export const Stage = ({ customStyles }) => {
   const share = all.find((s) => s.isShareScreen);
   const others = all.filter((s) => !s.isShareScreen);
   const count = all.length;
+
+  const { windowWidth, windowHeight, streamers } = useSnapshot(meetingStore);
+  const streamsLayout = useMemo(() => {
+    return layoutStreams(
+      windowWidth,
+      windowHeight,
+      Object.entries(streamers).map(([id, stream]) => {
+        return {
+          id,
+          type: stream.isShareScreen ? "screen" : "camera",
+        };
+      })
+    );
+  }, [windowWidth, windowHeight, streamers]);
 
   try {
     return (
@@ -537,6 +433,103 @@ export const Stage = ({ customStyles }) => {
   }
 };
 
+export const Stage = ({ customStyles }) => {
+  //init device size and resize callback
+  useDeviceSize();
+
+  const snap = useSnapshot(meetingStore);
+
+  useEffect(() => {
+    if (customStyles) {
+      // Create a style element and append it to the head of the document
+      const styleElement = document.createElement("style");
+      styleElement.id = "customStyles";
+      document.head.appendChild(styleElement);
+
+      // Set the CSS content of the style element
+      styleElement.textContent = customStyles;
+      logger.log("Creating style elem Stage.js");
+    }
+  }, []);
+
+  const documentClick = () => {
+    if (timeOut) clearTimeout(timeOut);
+    if (hasFullScreenedStream()) {
+      meetingStore.bottomBarVisible = true;
+      handleMaximize();
+    }
+  };
+  const handleMaximize = () => {
+    if (timeOut) clearTimeout(timeOut);
+    timeOut = setTimeout(() => {
+      if (snap.bottomBarVisible) {
+        meetingStore.bottomBarVisible = false;
+      }
+    }, 2000);
+  };
+  useEffect(() => {
+    if (hasFullScreenedStream()) {
+      handleMaximize();
+      document.getElementsByTagName("body")[0].addEventListener("click", documentClick);
+    } else {
+      document.getElementsByTagName("body")[0].removeEventListener("click", documentClick);
+      meetingStore.bottomBarVisible = true;
+      if (timeOut) clearTimeout(timeOut);
+    }
+  }, [hasFullScreenedStream()]);
+
+  const { windowWidth, windowHeight, streamers } = useSnapshot(meetingStore);
+  const height = useMemo(() => windowHeight - topBarBottomBarHeight(), [windowHeight]);
+  const activeStreamsOnCanvas = useMemo(() => {
+    return layoutStreams(
+      windowWidth,
+      height,
+      Object.entries(streamers).map(([id, stream]) => {
+        return {
+          id,
+          type: stream.isShareScreen ? "screen" : "camera",
+        };
+      })
+    );
+  }, [windowWidth, windowHeight, streamers]);
+
+  const pinnedIndex = useMemo(() => {
+    if (!meetingStore.fullScreenedStream) return undefined;
+    return activeStreamsOnCanvas.findIndex(
+      (stream) => stream.id === meetingStore.fullScreenedStream
+    );
+  }, [activeStreamsOnCanvas, meetingStore.fullScreenedStream]);
+
+  try {
+    return (
+      <DynamicLayout
+        width={windowWidth - snap.attendeesWidth - 32}
+        height={height - 32}
+        pinnedIndex={pinnedIndex}
+        gap={16}
+      >
+        {activeStreamsOnCanvas.map((s, i) => {
+          return (
+            <div key={s.id} className="transition-all flex flex-col items-center justify-center">
+              <VideoCard
+                attendee={streamers[s.id]}
+                customStyles={customStyles}
+                index={i}
+                totalCount={1}
+                mobileAvailHeight={200}
+                isXs={true}
+              />
+            </div>
+          );
+        })}
+      </DynamicLayout>
+    );
+  } catch (error) {
+    logger.error("Error on Stage loading: ", error);
+    return <div>Error</div>;
+  }
+};
+
 interface VideoCardProps {
   attendee: any;
   customStyles: string;
@@ -588,9 +581,9 @@ const VideoCard: React.FC<VideoCardProps> = ({
     <div
       key={attendee.streamId}
       id={`video_${attendee.isShareScreen ? "sc" : attendee.name}`}
-      style={isXs ? mobileStyle : { width, height }}
+      // style={isXs ? mobileStyle : { width, height }}
       className={clsx(
-        "group transition-all relative overflow-hidden rounded-lg",
+        "group transition-all relative overflow-hidden rounded-lg w-full h-fit max-h-full flex flex-col",
         customStyles,
         attendee.isHost
           ? attendee.isShareScreen
@@ -635,7 +628,18 @@ export const Video = memo(
     customStyles,
   }: any) => {
     const snap = useSnapshot(meetingStore);
-
+    console.log(
+      stream,
+      isMuted,
+      isHostStream,
+      name,
+      userId,
+      isUserMuted,
+      isShareScreen,
+      toggleScreen,
+      displayId,
+      customStyles
+    );
     const [muted, setMuted] = useState(isMuted);
     const { isHost } = snap.currentUser;
     const menu = useRef<any>();
@@ -725,7 +729,7 @@ export const Video = memo(
     }, [stream]);
 
     useEffect(() => {
-      videoRef.current.playsInline = true;
+      if (videoRef.current) videoRef.current.playsInline = true;
       // videoRef.current.play();
     }, []);
     const handleRemoveStream = () => {
@@ -784,15 +788,18 @@ export const Video = memo(
 
     try {
       return (
-        <div onClick={handleOnClick} className="w-full h-full rounded-lg">
+        <div
+          onClick={handleOnClick}
+          className="w-full h-auto max-h-full overflow-hidden rounded-lg flex"
+        >
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted={muted}
-            className={`w-full h-full
-                    ${isShareScreen ? "" : "object-cover"}
-                         rounded-lg`}
+            className={`w-full h-auto max-w-full max-h-full ${
+              isShareScreen ? "" : "object-cover"
+            } rounded-lg`}
           />
           <div className="absolute top-0 left-0 flex justify-between w-full px-2 gap-2">
             <div
@@ -855,7 +862,6 @@ export const Video = memo(
                       className="w-[30px] h-[30px] p-0"
                     >
                       <Icon icon={<VerticalDots />} width="20px" height="20px" />
-
                       {menuOpen && (
                         <div className="absolute z-10 top-full right-0 h-full w-full">
                           <ul className="bg-white absolute top-0 right-0 mt-1 -ml-2 text-black rounded-sm p-1">
