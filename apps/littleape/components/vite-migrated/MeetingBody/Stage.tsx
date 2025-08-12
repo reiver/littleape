@@ -9,7 +9,6 @@ import VerticalDots from "../../../public/vite-migrated/icons/verticalDots.svg";
 import GreatApeImageBeforeMeetingStarted from "../../../public/vite-migrated/images/greatape-before-meeting-start.png";
 import GreatApeImageAfterMeetingEnded from "../../../public/vite-migrated/images/greatape-after-meeting-end.png";
 import clsx from "clsx";
-import throttle from "lodash.throttle";
 import logger from "lib/logger/logger";
 let timeOut;
 import { snapshot, useSnapshot } from "valtio";
@@ -232,18 +231,6 @@ export const StageOld = ({ customStyles }) => {
   const count = all.length;
 
   const { windowWidth, windowHeight, streamers } = useSnapshot(meetingStore);
-  const streamsLayout = useMemo(() => {
-    return layoutStreams(
-      windowWidth,
-      windowHeight,
-      Object.entries(streamers).map(([id, stream]) => {
-        return {
-          id,
-          type: stream.isShareScreen ? "screen" : "camera",
-        };
-      })
-    );
-  }, [windowWidth, windowHeight, streamers]);
 
   try {
     return (
