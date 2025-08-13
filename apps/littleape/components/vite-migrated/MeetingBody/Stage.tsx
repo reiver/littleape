@@ -11,7 +11,7 @@ import GreatApeImageAfterMeetingEnded from "../../../public/vite-migrated/images
 import clsx from "clsx";
 import logger from "lib/logger/logger";
 let timeOut;
-import { snapshot, useSnapshot } from "valtio";
+import { useSnapshot } from "valtio";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { DialogTypes, isIphone, makeDialog } from "../Dialog";
 import { IODevices } from "lib/ioDevices/io-devices";
@@ -570,7 +570,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
       id={`video_${attendee.isShareScreen ? "sc" : attendee.name}`}
       // style={isXs ? mobileStyle : { width, height }}
       className={clsx(
-        "group transition-all relative overflow-hidden rounded-lg w-full h-fit max-h-full flex flex-col",
+        "group transition-all relative overflow-hidden rounded-lg w-full h-fit min-h-full max-h-full flex flex-col",
         customStyles,
         attendee.isHost
           ? attendee.isShareScreen
@@ -777,7 +777,7 @@ export const Video = memo(
       return (
         <div
           onClick={handleOnClick}
-          className="w-full h-auto max-h-full overflow-hidden rounded-lg flex"
+          className="w-full h-auto max-h-full overflow-hidden rounded-lg flex min-h-full bg-gray-700/20"
         >
           <video
             ref={videoRef}
