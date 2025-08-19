@@ -1,56 +1,67 @@
 import Cookies from "js-cookie";
 import logger from "lib/logger/logger";
+import { getInstanceClientCredentials, setInstanceClientCredentials } from "lib/oauth.server";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const instance = req.query.instance as string;
+  const instance = req.query.instance as string;
 
-    if (!instance || !/^https?:\/\/[a-zA-Z0-9.-]+$/.test(instance)) {
-        return res.status(400).json({ error: "Invalid or missing instance URL" });
+  if (!instance || !/^https?:\/\/[a-zA-Z0-9.-]+$/.test(instance)) {
+    return res.status(400).json({ error: "Invalid or missing instance URL" });
+  }
+
+  try {
+    const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
+    // const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
+    const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME}`
+
+    logger.log("Redirect URI: ", redirectUri);
+
+    const credentials = await getInstanceClientCredentials(instance);
+    let client_id, client_secret;
+    if (!credentials) {
+      // Register app dynamically
+      const registerRes = await fetch(`${instance}/api/v1/apps`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_name: clientName,
+          redirect_uris: [redirectUri],
+          scopes: "read",
+          website: `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}`
+        }),
+      });
+
+      if (!registerRes.ok) {
+        const error = await registerRes.text();
+        return res.status(500).json({ error: "App registration failed", detail: error });
+      }
+      const credentials = await registerRes.json();
+      await setInstanceClientCredentials(instance, credentials.client_id, credentials.client_secret)
+      client_id = credentials.client_id;
+      client_secret = credentials.client_secret;
+    } else {
+      client_id = credentials.client_id;
+      client_secret = credentials.client_secret;
     }
 
-    try {
-        const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/pixelfed/callback`;
-        const clientName = `${process.env.NEXT_PUBLIC_CLIENT_NAME} (${process.env.NEXT_PUBLIC_LITTLEAPE_DOMAIN})`
+    // Create the state object containing client_id, client_secret, and instance URL
+    const stateObj = { instance, };
+    logger.log("STATE: ", stateObj)
 
-        logger.log("Redirect URI: ", redirectUri);
+    const authUrl = `${instance}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=code&scope=read&force_login=true&prompt=login`;
 
-        // Register app dynamically
-        const registerRes = await fetch(`${instance}/api/v1/apps`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                client_name: clientName,
-                redirect_uris: redirectUri,
-                scopes: "read",
-                website: `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}`
-            }),
-        });
+    // Set cookie with state data
+    res.setHeader(
+      "Set-Cookie",
+      `pixelfed_state=${JSON.stringify(stateObj)}; Path=/; HttpOnly; Secure; Max-Age=3600`
+    );
 
-        if (!registerRes.ok) {
-            const error = await registerRes.text();
-            return res.status(500).json({ error: "App registration failed", detail: error });
-        }
-
-        const { client_id, client_secret } = await registerRes.json();
-
-        // Create the state object containing client_id, client_secret, and instance URL
-        const stateObj = { instance, client_id, client_secret };
-        logger.log("STATE: ", stateObj)
-
-        const authUrl = `${instance}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
-            redirectUri
-        )}&response_type=code&scope=read&force_login=true&prompt=login`;
-
-        // Set cookie with state data
-        res.setHeader(
-            "Set-Cookie",
-            `pixelfed_state=${JSON.stringify(stateObj)}; Path=/; HttpOnly; Secure; Max-Age=3600`
-        );
-
-        logger.log("authUrl: ", authUrl)
-        return res.redirect(authUrl);
-    } catch (err) {
-        return res.status(500).json({ error: "Unexpected error", detail: (err as Error).message });
-    }
+    logger.log("authUrl: ", authUrl)
+    return res.redirect(authUrl);
+  } catch (err) {
+    return res.status(500).json({ error: "Unexpected error", detail: (err as Error).message });
+  }
 }

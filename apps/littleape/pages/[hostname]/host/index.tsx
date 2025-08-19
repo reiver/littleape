@@ -8,7 +8,12 @@ import { clearCookies, FORCE_LOGIN, USER_COOKIE } from "constants/app";
 import { useToast } from "@chakra-ui/react";
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
-
+import { Tooltip } from "components/vite-migrated/common/Tooltip";
+import Icon from "components/vite-migrated/common/Icon";
+import LinkIcon from "public/vite-migrated/icons/Link.svg"
+import CopyIcon from "public/vite-migrated/icons/Copy.svg"
+import copy from 'clipboard-copy'
+import clsx from 'clsx'
 
 function getHostUrl(hostname: String) {
     const baseUrl = LOGJAM_URL;
@@ -267,3 +272,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
     };
 };
+
+
+export const LinkCopyComponent = ({ title, link, className }) => {
+  const [copyTooltipTitle, setCopyTooltipTitle] = useState('Copy Link')
+  const onCopy = () => {
+    copy(link).then(() => {
+      setCopyTooltipTitle('Copied')
+      setTimeout(() => {
+        setCopyTooltipTitle('Copy Link')
+      }, 2000)
+    })
+  }
+  return (
+    <div className={clsx('flex flex-col gap-1 w-full', className)}>
+      {title && <span className="text-bold-12 text-gray-3">{title}</span>}
+      <div className="greatape-meeting-link-background dark:bg-gray-2 dark:text-gray-0 w-full bg-gray-0 px-4 py-2 text-gray-2 flex justify-between rounded-full items-center">
+        <div className="flex gap-2 items-center overflow-hidden min-w-0">
+          <Icon icon={<LinkIcon/>} class="greatape-meeting-link flex-shrink-0" />
+          <span className="text-medium-12 truncate overflow-hidden text-ellipsis greatape-meeting-link max-w-full">
+            {link}
+          </span>
+        </div>
+        <Tooltip label={copyTooltipTitle} hideOnClick={false}>
+          <button className="cursor-pointer" onClick={onCopy}>
+            <Icon icon={<CopyIcon/>} class="greatape-meeting-link" />
+          </button>
+        </Tooltip>
+      </div>
+    </div>
+  )
+}

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import cookie from "cookie";
 import logger from "lib/logger/logger";
+import { getInstanceClientCredentials } from "lib/oauth.server";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
@@ -22,8 +23,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.redirect(`/auth/login?mastodonerror=${encodeURIComponent(JSON.stringify(errorData))}`);
   }
 
-  const { client_id, client_secret, instance } = state;
+  const { instance } = state;
   const redirectUri = `${process.env.NEXT_PUBLIC_LITTLEAPE_BASE_URL}/api/auth/mastodon/callback`;
+
+  const credentials = await getInstanceClientCredentials(instance);
+  if (!credentials) {
+    return res.status(500).json({ error: "Oauth is invalid, please try again" });
+  }
+
+  const { client_id, client_secret } = credentials
 
   try {
     // Exchange auth code for access token

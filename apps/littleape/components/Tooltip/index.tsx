@@ -1,16 +1,17 @@
 import logger from 'lib/logger/logger'
-import { deviceSize } from 'pages'
-import { cloneElement, toChildArray, VNode } from 'preact'
-import { useEffect, useRef } from 'preact/compat'
+import { Children, cloneElement, ReactElement, useEffect, useRef } from 'react'
 import tippy, { Instance } from 'tippy.js'
-
+import { meetingStore } from 'lib/store'
 import 'tippy.js/dist/tippy.css'
+import { useSnapshot } from "valtio"
+
 export const Tooltip = ({ children, label, hideOnClick = true }) => {
+  const snap = useSnapshot(meetingStore)
   const ref = useRef<any>()
-  const component = toChildArray(children)[0] as VNode
+  const component = Children.toArray(children)[0] as ReactElement
   const tippyInstance = useRef<Instance>()
   useEffect(() => {
-    if ((ref.current.base || ref.current) && deviceSize !== 'xs')
+    if ((ref.current.base || ref.current) && meetingStore.deviceSize !== 'xs')
       // @ts-ignore
       tippyInstance.current = tippy(ref.current.base || ref.current, {
         content: label,
@@ -23,7 +24,7 @@ export const Tooltip = ({ children, label, hideOnClick = true }) => {
         tippyInstance.current.destroy()
       }
     }
-  }, [deviceSize])
+  }, [snap.deviceSize])
 
   useEffect(() => {
     logger.log('changed', label, tippyInstance.current)

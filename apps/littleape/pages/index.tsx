@@ -23,28 +23,7 @@ import Logo from '../public/Logo + Type.svg';
 import logger from "lib/logger/logger";
 import { GetServerSideProps } from "next";
 
-export const getDeviceConfig = () => {
-  if (typeof window === 'undefined') {
-    return;
-  }
 
-  const width = window.innerWidth;
-
-  if (width < 640) {
-    return 'xs';
-  } else if (width < 768) {
-    return 'sm';
-  } else if (width < 1024) {
-    return 'md';
-  } else if (width < 1280) {
-    return 'lg';
-  } else {
-    return '2xl';
-  }
-};
-
-
-export const deviceSize = getDeviceConfig()
 
 const pbManager = PocketBaseManager.getInstance()
 

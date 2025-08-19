@@ -11,6 +11,7 @@ export class VideoBackground {
       await this.stopStream(this.originalStream);
       this.originalStream = videoStream;
 
+
       if (this.selfieSegmentation) {
         this.selfieSegmentation.close();
         this.selfieSegmentation = null;
@@ -19,6 +20,9 @@ export class VideoBackground {
       //get Tracks
       const videoTrack = videoStream.getVideoTracks()[0];
       const audioTrack = videoStream.getAudioTracks()[0];
+
+      logger.log("Vide track status is: ",videoTrack.readyState)
+
 
       // instance of SelfieSegmentation object
       this.selfieSegmentation = new SelfieSegmentation({
